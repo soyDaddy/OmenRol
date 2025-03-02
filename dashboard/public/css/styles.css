@@ -1,0 +1,691 @@
+/* Estilos base mejorados */
+:root {
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --primary-light: #818cf8;
+  --secondary: #0ea5e9;
+  --secondary-dark: #0284c7;
+  --secondary-light: #38bdf8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --dark: #1f2937;
+  --light: #f9fafb;
+  --gray: #6b7280;
+  --gray-light: #e5e7eb;
+  --gray-dark: #374151;
+  --card-bg: white;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+
+  /* Variables para el modo minimalista */
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --animation-speed: 0.3s;
+  --border-radius: 0.5rem;
+}
+
+/* Estilos para el modo oscuro */
+body.dark-theme {
+  --primary: #818cf8;
+  --primary-dark: #6366f1;
+  --primary-light: #a5b4fc;
+  --card-bg: #1e293b;
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --border-color: #334155;
+  --dark: #0f172a;
+  --light: #1e293b;
+  --gray: #9ca3af;
+  --gray-light: #334155;
+  --gray-dark: #cbd5e1;
+}
+
+/* Estilos para el modo minimalista */
+body.minimal-mode {
+  --shadow: none;
+  --shadow-medium: none;
+  --shadow-large: none;
+  --animation-speed: 0s;
+  --border-radius: 0.25rem;
+}
+
+/* Estilos globales */
+body {
+  background-color: var(--light);
+  color: var(--text-main);
+  transition: background-color var(--animation-speed), color var(--animation-speed);
+}
+
+/* Añadir espacio para el breadcrumb */
+.breadcrumb-spacing {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Animaciones de menús y transiciones */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: var(--animation-speed);
+}
+
+/* Tarjetas mejoradas */
+.card {
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  background-color: var(--card-bg);
+  overflow: hidden;
+  transition: transform var(--animation-speed), box-shadow var(--animation-speed);
+  border: 1px solid var(--border-color);
+}
+
+body:not(.minimal-mode) .card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.card-header {
+  padding: 1.25rem 1.5rem;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-footer {
+  padding: 1.25rem 1.5rem;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-top: 1px solid var(--border-color);
+}
+
+/* Estilos para tablas más atractivas */
+.table-hover tbody tr:hover {
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+/* Mejorar visualización en dispositivos móviles */
+@media (max-width: 640px) {
+  .mobile-full-width {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+  }
+  
+  /* Reducir padding para vistas móviles */
+  .card-body, .card-header, .card-footer {
+    padding: 1rem;
+  }
+}
+
+/* Estilos para alerts y notificaciones */
+.alert {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left-width: 4px;
+  border-radius: var(--border-radius);
+  transition: all var(--animation-speed);
+}
+
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.alert-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.alert-error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.alert-info {
+  background-color: rgba(14, 165, 233, 0.1);
+  border-color: var(--secondary);
+  color: var(--secondary);
+}
+
+/* Página de Login */
+.login-page {
+  min-height: calc(100vh - 64px - 96px); /* Altura total - navbar - footer */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Estilos para modales */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+  transition: all var(--animation-speed);
+}
+
+.modal-content {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-large);
+  max-width: 500px;
+  width: 90%;
+  border: 1px solid var(--border-color);
+}
+
+/* Animación para elementos que aparecen */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--animation-speed) ease-out forwards;
+}
+
+/* Botones mejorados */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  transition: all var(--animation-speed);
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: var(--dark);
+  border: 1px solid var(--gray-light);
+}
+
+.btn-secondary:hover {
+  background-color: var(--gray-light);
+}
+
+/* Estilos para botones de acción flotantes */
+.fab {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  height: 3.5rem;
+  width: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  box-shadow: var(--shadow-medium);
+  background-color: var(--primary);
+  color: white;
+  transition: all var(--animation-speed);
+  z-index: 20;
+}
+
+body:not(.minimal-mode) .fab:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-large);
+  background-color: var(--primary-dark);
+}
+
+/* Estilos para pestañas/tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tab {
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--animation-speed);
+}
+
+.tab.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+/* Estilos para badges y etiquetas */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all var(--animation-speed);
+}
+
+.badge-blue {
+  background-color: rgba(14, 165, 233, 0.1);
+  color: var(--secondary);
+}
+
+.badge-green {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+}
+
+.badge-yellow {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+}
+
+.badge-red {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+}
+
+.badge-purple {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--primary);
+}
+
+/* Estilos para formularios avanzados */
+.input-group {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.input-group-prepend {
+  display: flex;
+}
+
+.input-group-text {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-muted);
+  text-align: center;
+  white-space: nowrap;
+  background-color: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-color);
+  border-right: 0;
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.input-group .form-input {
+  position: relative;
+  flex: 1 1 auto;
+  width: 1%;
+  min-width: 0;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+/* Tooltips mejorados */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: var(--dark);
+  color: white;
+  text-align: center;
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity var(--animation-speed), transform var(--animation-speed);
+  transform: translateY(10px);
+  box-shadow: var(--shadow-medium);
+}
+
+.tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--dark) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Estilos para gráficos y visualizaciones de datos */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* Estilos para paginación personalizada */
+.pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  border-radius: var(--border-radius);
+}
+
+.page-item:not(:first-child) .page-link {
+  margin-left: -1px;
+}
+
+.page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.page-item.disabled .page-link {
+  color: var(--text-muted);
+  pointer-events: none;
+  cursor: auto;
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.page-link {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  margin-left: -1px;
+  line-height: 1.25;
+  color: var(--primary);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  transition: all var(--animation-speed);
+}
+
+.page-link:hover {
+  z-index: 2;
+  color: var(--primary-dark);
+  text-decoration: none;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: var(--border-color);
+}
+
+/* Estilos para las páginas de error */
+.error-page {
+  min-height: calc(100vh - 64px - 96px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.error-message {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-top: 1rem;
+}
+
+.error-description {
+  color: var(--text-muted);
+  margin-top: 1rem;
+  max-width: 500px;
+}
+
+/* Estilos para imágenes de avatar con bordes */
+.avatar {
+  border-radius: 9999px;
+  object-fit: cover;
+  transition: all var(--animation-speed);
+}
+
+.avatar-bordered {
+  border: 2px solid #fff;
+  box-shadow: var(--shadow);
+}
+
+/* Componente de carga/loading */
+.loading-spinner {
+  border: 3px solid rgba(209, 213, 219, 0.3);
+  border-radius: 50%;
+  border-top: 3px solid var(--primary);
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos para la animación de carga */
+@keyframes spinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  border: 4px solid transparent;
+  border-top: 4px solid var(--primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spinner 1s linear infinite;
+}
+
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  transition: all var(--animation-speed);
+}
+
+body.dark-theme .loader-container {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Estilos para el botón de tema y modo */
+.theme-mode-controls {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.theme-toggle, .mode-toggle {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 9999px;
+  background-color: var(--card-bg);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-medium);
+  cursor: pointer;
+  transition: all var(--animation-speed);
+  border: 1px solid var(--border-color);
+}
+
+body:not(.minimal-mode) .theme-toggle:hover, 
+body:not(.minimal-mode) .mode-toggle:hover {
+  transform: scale(1.1);
+  color: var(--primary);
+}
+
+/* Personalización de scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-theme::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+body.dark-theme::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+body.minimal-mode::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Estilos para el selector de modo de visualización */
+.display-mode-select {
+  position: fixed;
+  top: 5rem;
+  right: 1rem;
+  z-index: 20;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-medium);
+  padding: 0.5rem;
+  display: none;
+}
+
+.display-mode-select.active {
+  display: block;
+}
+
+.display-mode-option {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all var(--animation-speed);
+  border-radius: var(--border-radius);
+  margin-bottom: 0.25rem;
+}
+
+.display-mode-option:last-child {
+  margin-bottom: 0;
+}
+
+.display-mode-option:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.display-mode-option.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+body.dark-theme .display-mode-option:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Estilos para temas alternativos */
+body.theme-cyberpunk {
+  --primary: #ff5277;
+  --primary-dark: #e30b5c;
+  --primary-light: #ff9eb7;
+  --secondary: #00fff9;
+  --dark: #120458;
+}
+
+body.theme-fantasy {
+  --primary: #8b5cf6;
+  --primary-dark: #7c3aed;
+  --primary-light: #a78bfa;
+  --secondary: #10b981;
+  --dark: #1e293b;
+}
+
+/* Animaciones y transiciones */
+.has-fade {
+  transition: opacity var(--animation-speed), visibility var(--animation-speed);
+}
+
+.fade-in {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fade-out {
+  opacity: 1;
+  visibility: visible;
+}
+
+.fade-out.hidden {
+  opacity: 0;
+  visibility: hidden;
+}

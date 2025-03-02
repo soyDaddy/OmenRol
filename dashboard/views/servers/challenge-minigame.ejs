@@ -1,0 +1,175 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Minijuego: <%= currentStage.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Misión: <%= mission.title %></p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/progress" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a la misión
+      </a>
+    </div>
+  </div>
+  
+  <!-- Área del minijuego -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">🎮 Minijuego</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= currentStage.description %>
+      </p>
+    </div>
+    
+    <div class="border-t border-gray-200 p-6">
+      <% const gameData = currentStage.challengeData; %>
+      <% if (gameData && gameData.gameType) { %>
+        <% if (gameData.gameType === 'quiz') { %>
+          <!-- Quiz/Trivia -->
+          <div class="bg-purple-50 p-6 rounded-lg mb-6" id="quiz-container">
+            <div class="text-center mb-4">
+              <span class="inline-block bg-purple-200 text-purple-800 text-sm font-semibold px-3 py-1 rounded-full">
+                Pregunta <span id="current-question">1</span> de <%= gameData.gameConfig.questions.length %>
+              </span>
+            </div>
+            
+            <div id="question-container">
+              <!-- Se llenará dinámicamente con JavaScript -->
+            </div>
+            
+            <% if (gameData.timeLimit) { %>
+              <div class="mt-4 flex justify-between items-center">
+                <span class="text-sm text-purple-700">Tiempo restante:</span>
+                <span id="timer" class="text-lg font-medium text-purple-700"><%= gameData.timeLimit %>s</span>
+              </div>
+              <div class="w-full bg-purple-200 rounded-full h-2 mt-1">
+                <div id="timer-bar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="mt-4 flex justify-between">
+            <button id="prev-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+              <i class="fas fa-arrow-left mr-2"></i>
+              Anterior
+            </button>
+            
+            <button id="next-btn" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+              Siguiente
+              <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+          
+          <div id="quiz-progress" class="mt-6 hidden">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div id="progress-bar" class="bg-purple-600 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between mt-1 text-xs text-gray-500">
+              <span>0%</span>
+              <span>Progreso</span>
+              <span>100%</span>
+            </div>
+          </div>
+        <% } else if (gameData.gameType === 'memory') { %>
+          <!-- Juego de Memoria -->
+          <div class="mb-4 flex justify-between items-center">
+            <div class="text-sm font-medium text-gray-600">Coincidencias: <span id="matches-count">0</span>/<%= gameData.gameConfig.pairs.length %></div>
+            <div class="text-sm font-medium text-gray-600">Intentos: <span id="attempts-count">0</span></div>
+            
+            <% if (gameData.timeLimit) { %>
+              <div>
+                <span class="text-sm text-gray-600">Tiempo:</span>
+                <span id="timer" class="text-base font-medium text-gray-700 ml-1"><%= gameData.timeLimit %>s</span>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <div id="memory-grid" class="grid grid-cols-4 gap-2 md:gap-4">
+              <!-- Las tarjetas se generarán dinámicamente -->
+            </div>
+          </div>
+        <% } else if (gameData.gameType === 'reaction') { %>
+          <!-- Juego de Reacción -->
+          <div id="reaction-container" class="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-lg">
+            <div id="instruction" class="text-center mb-8">
+              <h4 class="text-xl font-medium text-gray-900 mb-2">Prueba de reflejos</h4>
+              <p class="text-gray-700">Haz clic en el objetivo cuando aparezca. ¡Prepárate!</p>
+            </div>
+            
+            <div id="target-area" class="w-full h-64 rounded-lg bg-gray-200 flex items-center justify-center relative">
+              <div id="target" class="hidden absolute w-12 h-12 rounded-full bg-red-500 cursor-pointer"></div>
+              <div id="start-prompt" class="text-gray-700">
+                <button id="start-game" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Comenzar
+                </button>
+              </div>
+            </div>
+            
+            <div id="results" class="mt-6 text-center hidden">
+              <h5 class="text-lg font-medium text-gray-900 mb-2">Resultados</h5>
+              <div id="round-results" class="grid grid-cols-5 gap-2">
+                <!-- Se llenarán los resultados de cada ronda -->
+              </div>
+              <div class="mt-4 text-lg font-medium">
+                Tiempo promedio: <span id="average-time">0</span> ms
+              </div>
+            </div>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="bg-yellow-50 p-4 rounded-lg">
+          <p class="text-yellow-700">Este minijuego no tiene datos configurados correctamente.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de resultado -->
+<div id="result-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <div id="success-view" class="hidden">
+      <h3 class="text-lg font-medium text-green-900 mb-4">¡Completado con éxito!</h3>
+      <p class="mb-4 text-gray-700">Has superado el minijuego satisfactoriamente.</p>
+      <div class="mb-4">
+        <div id="score-details"></div>
+      </div>
+      <div class="flex justify-end">
+        <form action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/minigame/complete" method="POST">
+          <input type="hidden" name="success" value="true">
+          <input type="hidden" id="score-input" name="score" value="0">
+          <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none">
+            Continuar
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <div id="failure-view" class="hidden">
+      <h3 class="text-lg font-medium text-red-900 mb-4">Intenta de nuevo</h3>
+      <p class="mb-4 text-gray-700">No has completado el minijuego. ¡Sigue intentándolo!</p>
+      <div class="flex justify-end">
+        <button id="try-again-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+          Intentar de nuevo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script específico para cada tipo de minijuego -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const resultModal = document.getElementById('result-modal');
+    const successView = document.getElementById('success-view');
+    const failureView = document.getElementById('failure-view');
+    const tryAgainBtn = document.getElementById('try-again-btn');
+    const scoreDetails = document.getElementById('score-details');
+    const scoreInput = document.getElementById('score-input');
+    
+    // Manejo de temporizador si existe
+    const timerEl = document.getElementById('timer');
+    const timerBar = document.getElementByI

@@ -1,0 +1,260 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Misión: <%= mission.title %></h1>
+      <p class="mt-2 text-sm text-gray-500">Progreso detallado de la misión</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/missions/active" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a misiones
+      </a>
+    </div>
+  </div>
+  
+  <!-- Detalles de la misión -->
+  <div class="bg-white shadow overflow-hidden rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-start">
+      <div>
+        <h2 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
+          <%= mission.title %>
+          <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+            <%= mission.difficulty === 'easy' ? 'bg-green-100 text-green-800' : 
+               mission.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+               mission.difficulty === 'hard' ? 'bg-orange-100 text-orange-800' : 
+               'bg-red-100 text-red-800' %>">
+            <%= mission.difficulty.charAt(0).toUpperCase() + mission.difficulty.slice(1) %>
+          </span>
+        </h2>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          <%= mission.description %>
+        </p>
+      </div>
+      <% if (mission.image) { %>
+        <img src="<%= mission.image %>" alt="<%= mission.title %>" class="h-24 w-24 object-cover rounded-lg">
+      <% } %>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Tipo</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= mission.type.charAt(0).toUpperCase() + mission.type.slice(1) %></dd>
+        </div>
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Nivel requerido</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= mission.levelRequired %></dd>
+        </div>
+        
+        <% if (mission.duration > 0) { %>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Duración límite</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= mission.duration %> minutos</dd>
+          </div>
+        <% } %>
+        
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500">Progreso general</dt>
+          <dd class="mt-1">
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div class="bg-blue-600 h-2.5 rounded-full" style="width: <%= activeMission.progress %>%"></div>
+            </div>
+            <p class="mt-1 text-sm text-gray-600">
+              <%= Math.floor(activeMission.progress) %>% completado
+              <% if (activeMission.completed) { %>
+                <span class="ml-2 text-green-600 font-medium">
+                  (¡Misión completada!)
+                </span>
+              <% } %>
+            </p>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+  
+  <!-- Etapas de la misión -->
+  <% if (mission.stages && mission.stages.length > 0) { %>
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Etapas de la misión</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Completa cada etapa para avanzar en la misión
+        </p>
+      </div>
+      
+      <div class="border-t border-gray-200">
+        <ul role="list" class="divide-y divide-gray-200">
+          <% mission.stages.forEach((stage, index) => { %>
+            <li class="px-4 py-4 sm:px-6 <%= index === activeMission.currentStage ? 'bg-indigo-50' : (index < activeMission.currentStage ? 'bg-green-50' : '') %>">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-sm font-medium text-gray-900 flex items-center">
+                    <span class="mr-2"><%= index + 1 %>.</span>
+                    <%= stage.name %>
+                    <% if (index < activeMission.currentStage) { %>
+                      <span class="ml-2 text-green-500"><i class="fas fa-check-circle"></i></span>
+                    <% } %>
+                  </h4>
+                  <p class="mt-1 text-sm text-gray-500"><%= stage.description %></p>
+                </div>
+                <div>
+                  <% if (index === activeMission.currentStage && !activeMission.completed) { %>
+                    <% if (stage.taskType === 'combat') { %>
+                      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/combat" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none">
+                        <i class="fas fa-swords mr-2"></i>
+                        Iniciar Combate
+                      </a>
+                    <% } else if (stage.taskType === 'puzzle') { %>
+                      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/puzzle" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                        <i class="fas fa-puzzle-piece mr-2"></i>
+                        Resolver Puzzle
+                      </a>
+                    <% } else if (stage.taskType === 'minigame') { %>
+                      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/minigame" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none">
+                        <i class="fas fa-gamepad mr-2"></i>
+                        Jugar Minijuego
+                      </a>
+                    <% } else if (stage.taskType === 'dialogue') { %>
+                      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/dialogue" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none">
+                        <i class="fas fa-comments mr-2"></i>
+                        Iniciar Diálogo
+                      </a>
+                    <% } else if (stage.taskType === 'collection') { %>
+                      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/collection" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
+                        <i class="fas fa-scroll mr-2"></i>
+                        Recolectar
+                      </a>
+                    <% } else { %>
+                      <form action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/custom/complete" method="POST">
+                        <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                          <i class="fas fa-check mr-2"></i>
+                          Completar Etapa
+                        </button>
+                      </form>
+                    <% } %>
+                  <% } else if (index === activeMission.currentStage && activeMission.completed) { %>
+                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                      Completada
+                    </span>
+                  <% } else if (index < activeMission.currentStage) { %>
+                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
+                      Completada
+                    </span>
+                  <% } else { %>
+                    <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded-full">
+                      Pendiente
+                    </span>
+                  <% } %>
+                </div>
+              </div>
+              
+              <% if (index === activeMission.currentStage && !activeMission.completed) { %>
+                <div class="mt-3">
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: <%= index === activeMission.currentStage ? activeMission.progress : (index < activeMission.currentStage ? '100' : '0') %>%"></div>
+                  </div>
+                </div>
+              <% } %>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:px-6">
+        <p class="text-gray-500">Esta misión no tiene etapas definidas.</p>
+        
+        <% if (!activeMission.completed) { %>
+          <div class="mt-4">
+            <form action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/custom/complete" method="POST">
+              <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                <i class="fas fa-check mr-2"></i>
+                Marcar como Completada
+              </button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+  
+  <!-- Recompensas de la misión -->
+  <div class="mt-6 bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Recompensas</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        Recompensas al completar la misión
+      </p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+      <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Experiencia</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= mission.rewards.experience %> EXP</dd>
+        </div>
+        
+        <div class="sm:col-span-1">
+          <dt class="text-sm font-medium text-gray-500">Monedas</dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= mission.rewards.currency %> monedas</dd>
+        </div>
+        
+        <% if (mission.rewards.items && mission.rewards.items.length > 0) { %>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">Items</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                <% mission.rewards.items.forEach(function(rewardItem) { %>
+                  <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                    <div class="w-0 flex-1 flex items-center">
+                      <span class="ml-2 flex-1 w-0 truncate">
+                        <% const item = items.find(i => i._id.toString() === rewardItem.itemId.toString()); %>
+                        <%= item ? item.name : 'Item desconocido' %> x<%= rewardItem.quantity %>
+                      </span>
+                    </div>
+                  </li>
+                <% }); %>
+              </ul>
+            </dd>
+          </div>
+        <% } %>
+        
+        <% if (mission.rewards.skills && mission.rewards.skills.length > 0) { %>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">Habilidades</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+                <% mission.rewards.skills.forEach(function(skillId) { %>
+                  <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                    <div class="w-0 flex-1 flex items-center">
+                      <span class="ml-2 flex-1 w-0 truncate">
+                        <% const skill = skills.find(s => s._id.toString() === skillId.toString()); %>
+                        <%= skill ? skill.name : 'Habilidad desconocida' %>
+                      </span>
+                    </div>
+                  </li>
+                <% }); %>
+              </ul>
+            </dd>
+          </div>
+        <% } %>
+      </dl>
+    </div>
+  </div>
+  
+  <!-- Botón para completar la misión si ya está completada -->
+  <% if (activeMission.completed) { %>
+    <div class="mt-6 flex justify-center">
+      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/complete" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+        <i class="fas fa-trophy mr-2"></i>
+        Reclamar Recompensas
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

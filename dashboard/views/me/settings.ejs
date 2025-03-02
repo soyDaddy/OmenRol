@@ -1,0 +1,735 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+    <!-- Sidebar con información del usuario -->
+    <div class="lg:col-span-4 mb-8 lg:mb-0">
+      <div class="bg-white shadow rounded-lg overflow-hidden mb-6 hover:shadow-md transition-all duration-300">
+        <div class="px-4 py-5 sm:p-6 text-center">
+          <% if (avatarURL) { %>
+            <img src="<%= avatarURL %>" alt="<%= user.username %>" class="mx-auto h-24 w-24 rounded-full object-cover border-4 border-white shadow">
+          <% } else { %>
+            <div class="mx-auto h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center border-4 border-white shadow">
+              <span class="text-indigo-800 font-bold text-2xl"><%= user.username.charAt(0) %></span>
+            </div>
+          <% } %>
+          <h2 class="mt-4 text-xl font-medium text-gray-900"><%= user.username %><% if(user.discriminator) { %>#<%= user.discriminator %><% } %></h2>
+          <p class="text-sm text-gray-500 truncate"><%= user.id %></p>
+        </div>
+        <div class="bg-gray-50 px-4 py-4 sm:px-6 text-center">
+          <p class="text-xs text-gray-500">Miembro desde: <%= new Date(user.createdAt).toLocaleDateString() %></p>
+        </div>
+      </div>
+
+      <!-- Menu de navegación -->
+      <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+        <nav class="flex flex-col">
+          <button onclick="openTab(event, 'account')" class="tab-link active px-4 py-3 border-l-4 border-indigo-500 bg-indigo-50 text-indigo-700 flex items-center text-left hover:bg-indigo-100 transition-all duration-200">
+            <i class="fas fa-user-circle mr-3"></i>
+            <span>Cuenta</span>
+          </button>
+          <button onclick="openTab(event, 'preferences')" class="tab-link px-4 py-3 border-l-4 border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center text-left transition-all duration-200">
+            <i class="fas fa-sliders-h mr-3"></i>
+            <span>Preferencias</span>
+          </button>
+          <button onclick="openTab(event, 'notifications')" class="tab-link px-4 py-3 border-l-4 border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center text-left transition-all duration-200">
+            <i class="fas fa-bell mr-3"></i>
+            <span>Notificaciones</span>
+          </button>
+          <button onclick="openTab(event, 'privacy')" class="tab-link px-4 py-3 border-l-4 border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center text-left transition-all duration-200">
+            <i class="fas fa-shield-alt mr-3"></i>
+            <span>Privacidad</span>
+          </button>
+          <button onclick="openTab(event, 'data')" class="tab-link px-4 py-3 border-l-4 border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center text-left transition-all duration-200">
+            <i class="fas fa-database mr-3"></i>
+            <span>Datos</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="mb-6">
+        <a href="/me" class="inline-flex items-center justify-center w-full px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+          <i class="fas fa-arrow-left mr-2"></i>Volver a mi perfil
+        </a>
+      </div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="lg:col-span-8">
+      <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-md transition-all duration-300">
+        <% if (locals.success) { %>
+          <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4 animate-fadeIn">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-green-400"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-green-700">Configuración actualizada correctamente.</p>
+              </div>
+              <div class="ml-auto pl-3">
+                <div class="-mx-1.5 -my-1.5">
+                  <button type="button" class="inline-flex rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none transition-all duration-200" onclick="this.parentElement.parentElement.parentElement.parentElement.remove()">
+                    <span class="sr-only">Cerrar</span>
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        
+        <% if (locals.error) { %>
+          <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4 animate-fadeIn">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-exclamation-circle text-red-400"></i>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-red-700">Ocurrió un error al guardar los cambios.</p>
+              </div>
+              <div class="ml-auto pl-3">
+                <div class="-mx-1.5 -my-1.5">
+                  <button type="button" class="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none transition-all duration-200" onclick="this.parentElement.parentElement.parentElement.parentElement.remove()">
+                    <span class="sr-only">Cerrar</span>
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Contenido de las pestañas -->
+        <!-- Cuenta -->
+        <div id="account" class="tab-content block">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Información de la cuenta</h3>
+            
+            <form method="POST" action="/me/settings">
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50" value="<%= user.username %>" readonly>
+                <p class="mt-1 text-xs text-gray-500">Tu nombre de usuario se sincroniza con Discord.</p>
+              </div>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">ID de Discord</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50" value="<%= user.id %>" readonly>
+              </div>
+              
+              <% if (user.email) { %>
+                <div class="mb-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                  <input type="email" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50" value="<%= user.email %>" readonly>
+                </div>
+              <% } %>
+              
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Último inicio de sesión</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm bg-gray-50" value="<%= new Date(user.lastLogin).toLocaleString() %>" readonly>
+              </div>
+              
+              <div class="flex justify-end">
+                <a href="/auth/logout" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200">
+                  <i class="fas fa-sign-out-alt mr-2"></i>Cerrar sesión
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Preferencias -->
+        <div id="preferences" class="tab-content hidden">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Preferencias</h3>
+            
+            <form method="POST" action="/me/settings">
+              <input type="hidden" name="section" value="preferences">
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tema</label>
+                <select id="theme-select" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="theme">
+                  <option value="default">Por defecto (Claro)</option>
+                  <option value="dark">Oscuro</option>
+                  <option value="cyberpunk">Cyberpunk</option>
+                  <option value="fantasy">Fantasía</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">El tema modificará los colores y el estilo visual de la aplicación.</p>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Modo de visualización</label>
+                <select id="mode-select" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="displayMode">
+                  <option value="detailed">Detallado (animaciones y efectos)</option>
+                  <option value="minimal">Minimalista (para dispositivos con menos recursos)</option>
+                  <option value="auto">Automático (detectar según el dispositivo)</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">El modo minimalista reduce animaciones y efectos visuales para mejorar el rendimiento en dispositivos con menos recursos.</p>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="language">
+                  <option value="es" selected>Español</option>
+                  <option value="en">English</option>
+                  <option value="fr">Français</option>
+                  <option value="de">Deutsch</option>
+                </select>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Formato de fecha</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="dateFormat">
+                  <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
+                  <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+                  <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                </select>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tamaño de fuente</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="fontSize">
+                  <option value="small">Pequeña</option>
+                  <option value="medium" selected>Media</option>
+                  <option value="large">Grande</option>
+                </select>
+              </div>
+              
+              <div class="mt-6 space-y-4">
+                <div class="flex items-start">
+                  <div class="flex items-center h-5">
+                    <input id="compactMode" name="compactMode" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <label for="compactMode" class="font-medium text-gray-700">Modo compacto</label>
+                    <p class="text-gray-500">Reducir el espaciado en la interfaz para mostrar más contenido.</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="flex items-center h-5">
+                    <input id="reduceMotion" name="reduceMotion" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <label for="reduceMotion" class="font-medium text-gray-700">Reducir animaciones</label>
+                    <p class="text-gray-500">Minimizar o eliminar animaciones para mejorar la accesibilidad.</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="flex items-center h-5">
+                    <input id="highContrast" name="highContrast" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <label for="highContrast" class="font-medium text-gray-700">Alto contraste</label>
+                    <p class="text-gray-500">Aumentar el contraste de colores para mejorar la legibilidad.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex justify-end mt-6">
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                  <i class="fas fa-save mr-2"></i>Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Notificaciones -->
+        <div id="notifications" class="tab-content hidden">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Configuración de notificaciones</h3>
+            
+            <form method="POST" action="/me/settings">
+              <input type="hidden" name="section" value="notifications">
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tipos de notificaciones</label>
+                <div class="space-y-4">
+                  <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                      <input id="notifyMessages" name="notifyMessages" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                      <label for="notifyMessages" class="font-medium text-gray-700">Mensajes privados</label>
+                      <p class="text-gray-500">Recibe notificaciones cuando alguien te envíe un mensaje.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                      <input id="notifyEvents" name="notifyEvents" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                      <label for="notifyEvents" class="font-medium text-gray-700">Eventos y actividades</label>
+                      <p class="text-gray-500">Recibe notificaciones sobre eventos de los servidores y actividades programadas.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                      <input id="notifyUpdates" name="notifyUpdates" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                      <label for="notifyUpdates" class="font-medium text-gray-700">Actualizaciones del bot</label>
+                      <p class="text-gray-500">Recibe notificaciones sobre nuevas funciones y mejoras.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                      <input id="notifyQuests" name="notifyQuests" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                      <label for="notifyQuests" class="font-medium text-gray-700">Nuevas misiones</label>
+                      <p class="text-gray-500">Recibe notificaciones cuando haya nuevas misiones disponibles.</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                      <input id="notifyMentions" name="notifyMentions" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    </div>
+                    <div class="ml-3 text-sm">
+                      <label for="notifyMentions" class="font-medium text-gray-700">Menciones</label>
+                      <p class="text-gray-500">Recibe notificaciones cuando alguien te mencione.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Modo de notificación</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="notificationMode">
+                  <option value="all" selected>Todas las notificaciones</option>
+                  <option value="important">Solo importantes</option>
+                  <option value="none">No mostrar notificaciones</option>
+                </select>
+              </div>
+              
+              <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                  <i class="fas fa-save mr-2"></i>Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Privacidad -->
+        <div id="privacy" class="tab-content hidden">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Configuración de privacidad</h3>
+            
+            <form method="POST" action="/me/settings">
+              <input type="hidden" name="section" value="privacy">
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Visibilidad del perfil</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="profileVisibility">
+                  <option value="public">Público - Visible para todos</option>
+                  <option value="friends">Amigos - Solo visible para amigos</option>
+                  <option value="private" selected>Privado - Solo visible para ti</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Controla quién puede ver tu perfil de usuario y tus personajes.</p>
+              </div>
+              
+              <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Visibilidad de la actividad</label>
+                <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="activityVisibility">
+                  <option value="public">Pública - Visible para todos</option>
+                  <option value="friends">Amigos - Solo visible para amigos</option>
+                  <option value="private" selected>Privada - Solo visible para ti</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Controla quién puede ver tu historial de actividad.</p>
+              </div>
+              
+              <div class="mb-6 space-y-4">
+                <div class="flex items-start">
+                  <div class="flex items-center h-5">
+                    <input id="showOnlineStatus" name="showOnlineStatus" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <label for="showOnlineStatus" class="font-medium text-gray-700">Mostrar estado en línea</label>
+                    <p class="text-gray-500">Permite que otros usuarios vean cuándo estás conectado.</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="flex items-center h-5">
+                    <input id="allowFriendRequests" name="allowFriendRequests" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <label for="allowFriendRequests" class="font-medium text-gray-700">Permitir solicitudes de amistad</label>
+                    <p class="text-gray-500">Permite que otros usuarios te envíen solicitudes de amistad.</p>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="flex items-center h-5">
+                    <input id="shareCharacterStats" name="shareCharacterStats" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                  </div>
+                  <div class="ml-3 text-sm">
+                    <label for="shareCharacterStats" class="font-medium text-gray-700">Compartir estadísticas de personajes</label>
+                    <p class="text-gray-500">Permite que otros usuarios vean las estadísticas de tus personajes.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                  <i class="fas fa-save mr-2"></i>Guardar cambios
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Datos -->
+        <div id="data" class="tab-content hidden">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Gestión de datos</h3>
+            
+            <div class="bg-blue-50 p-4 mb-6 rounded-md border border-blue-200">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-info-circle text-blue-500"></i>
+                </div>
+                <div class="ml-3">
+                  <h4 class="text-sm font-medium text-blue-800">Información sobre tus datos</h4>
+                  <p class="mt-2 text-sm text-blue-700">
+                    Aquí puedes gestionar todos tus datos personales. Puedes exportarlos en formato JSON o eliminarlos de manera permanente.
+                    Recuerda que la eliminación de datos es irreversible.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 class="text-md font-medium text-gray-800 mb-2">Exportar datos</h4>
+              <p class="text-sm text-gray-500 mb-3">Exporta toda tu información personal y datos de perfil en formato JSON.</p>
+              <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                <a href="/me/export/profiles" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                  <i class="fas fa-file-export mr-2"></i>Exportar perfiles
+                </a>
+                <a href="/me/export/settings" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                  <i class="fas fa-file-export mr-2"></i>Exportar configuración
+                </a>
+                <a href="/me/export/all" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                  <i class="fas fa-download mr-2"></i>Exportar todos los datos
+                </a>
+              </div>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-6">
+              <h4 class="text-md font-medium text-red-600 mb-2">Eliminar datos</h4>
+              <p class="text-sm text-gray-500 mb-3">Esta acción es irreversible. Se eliminarán todos tus datos y perfiles de manera permanente.</p>
+              <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" onclick="openModal('deleteProfilesModal')">
+                  <i class="fas fa-trash-alt mr-2"></i>Eliminar perfiles
+                </button>
+                <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" onclick="openModal('deleteAccountModal')">
+                  <i class="fas fa-user-slash mr-2"></i>Eliminar cuenta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal eliminar perfiles -->
+<div id="deleteProfilesModal" class="fixed inset-0 z-10 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <i class="fas fa-exclamation-triangle text-red-600"></i>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+              Confirmar eliminación de perfiles
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-red-600 font-bold">¡Atención! Esta acción es irreversible.</p>
+              <p class="text-sm text-gray-500 mt-2">Estás a punto de eliminar todos tus perfiles de personaje. Esta acción no se puede deshacer y perderás todo el progreso, inventario y estadísticas asociadas a tus personajes.</p>
+              <p class="text-sm text-gray-500 mt-2">¿Estás seguro de que deseas continuar?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <form action="/me/delete/profiles" method="POST">
+          <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200">
+            Sí, eliminar todos mis perfiles
+          </button>
+        </form>
+        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200" onclick="closeModal('deleteProfilesModal')">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal eliminar cuenta -->
+<div id="deleteAccountModal" class="fixed inset-0 z-10 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-red-600 px-4 py-3 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-white" id="modal-title">
+          Confirmar eliminación de cuenta
+        </h3>
+      </div>
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6">
+        <div class="mt-2">
+          <p class="text-sm text-red-600 font-bold">¡ADVERTENCIA! Esta acción es permanente e irreversible.</p>
+          <p class="text-sm text-gray-500 mt-2">Estás a punto de eliminar completamente tu cuenta y todos los datos asociados, incluyendo:</p>
+          <ul class="mt-2 list-disc list-inside text-sm text-gray-500">
+            <li>Todos tus perfiles de personaje</li>
+            <li>Inventario y monedas</li>
+            <li>Historial de actividad</li>
+            <li>Configuración y preferencias</li>
+          </ul>
+          <p class="text-sm text-gray-500 mt-2">Esta acción no se puede deshacer. Serás desconectado inmediatamente y no podrás recuperar ninguna información.</p>
+          
+          <div class="mt-4">
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input id="confirmDelete" type="checkbox" class="focus:ring-red-500 h-4 w-4 text-red-600 border-gray-300 rounded" required>
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="confirmDelete" class="font-medium text-gray-700">
+                  Entiendo que esta acción es permanente y no se puede deshacer
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <form action="/me/delete/account" method="POST">
+          <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition-all duration-200" id="deleteAccountBtn" disabled>
+            Eliminar mi cuenta permanentemente
+          </button>
+        </form>
+        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm modal-close transition-all duration-200" onclick="closeModal('deleteAccountModal')">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript para la funcionalidad de pestañas y modales -->
+<script>
+  function openTab(evt, tabName) {
+    // Ocultar todos los contenidos de las pestañas
+    var tabContents = document.getElementsByClassName("tab-content");
+    for (var i = 0; i < tabContents.length; i++) {
+      tabContents[i].classList.add("hidden");
+      tabContents[i].classList.remove("block");
+    }
+    
+    // Desactivar todas las pestañas
+    var tabLinks = document.getElementsByClassName("tab-link");
+    for (var i = 0; i < tabLinks.length; i++) {
+      tabLinks[i].classList.remove("border-indigo-500", "bg-indigo-50", "text-indigo-700");
+      tabLinks[i].classList.remove("active");
+      tabLinks[i].classList.add("border-transparent", "text-gray-600");
+    }
+    
+    // Mostrar el contenido de la pestaña seleccionada
+    document.getElementById(tabName).classList.remove("hidden");
+    document.getElementById(tabName).classList.add("block", "animate-fadeIn");
+    
+    // Activar la pestaña seleccionada
+    evt.currentTarget.classList.remove("border-transparent", "text-gray-600");
+    evt.currentTarget.classList.add("border-indigo-500", "bg-indigo-50", "text-indigo-700", "active");
+  }
+  
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.remove("hidden");
+    setTimeout(() => {
+      document.getElementById(modalId).querySelector('.transform').classList.add('scale-100');
+      document.getElementById(modalId).querySelector('.transform').classList.remove('scale-95');
+    }, 10);
+  }
+  
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.querySelector('.transform').classList.remove('scale-100');
+    modal.querySelector('.transform').classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add("hidden");
+    }, 200);
+  }
+  
+  // Configurar el checkbox de confirmación de eliminación de cuenta
+  document.addEventListener('DOMContentLoaded', function() {
+    var confirmDeleteCheckbox = document.getElementById('confirmDelete');
+    var deleteAccountBtn = document.getElementById('deleteAccountBtn');
+    
+    if (confirmDeleteCheckbox && deleteAccountBtn) {
+      confirmDeleteCheckbox.addEventListener('change', function() {
+        deleteAccountBtn.disabled = !this.checked;
+      });
+    }
+    
+    // Cerrar modales al hacer clic fuera de ellos
+    window.addEventListener('click', function(event) {
+      if (event.target.classList.contains('fixed') && event.target.classList.contains('inset-0')) {
+        var modals = document.querySelectorAll('[id$="Modal"]');
+        modals.forEach(function(modal) {
+          closeModal(modal.id);
+        });
+      }
+    });
+    
+    // Comprobar si hay un hash en la URL para activar la pestaña correspondiente
+    var hash = window.location.hash.substring(1);
+    if (hash && document.getElementById(hash)) {
+      var tabLink = document.querySelector('.tab-link[onclick*="' + hash + '"]');
+      if (tabLink) {
+        tabLink.click();
+      }
+    }
+
+    // Añadir funcionalidad para tema oscuro y modo minimalista
+    const themeSelect = document.getElementById('theme-select');
+    const modeSelect = document.getElementById('mode-select');
+    
+    if (themeSelect) {
+      // Establecer el valor inicial basado en localStorage
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        themeSelect.value = 'dark';
+      } else if (savedTheme === 'cyberpunk') {
+        themeSelect.value = 'cyberpunk';
+      } else if (savedTheme === 'fantasy') {
+        themeSelect.value = 'fantasy';
+      }
+      
+      // Escuchar cambios en el selector de tema
+      themeSelect.addEventListener('change', function() {
+        const body = document.body;
+        
+        // Eliminar todos los temas existentes
+        body.classList.remove('dark-theme', 'theme-cyberpunk', 'theme-fantasy');
+        
+        // Aplicar el nuevo tema
+        if (this.value === 'dark') {
+          body.classList.add('dark-theme');
+          localStorage.setItem('theme', 'dark');
+        } else if (this.value === 'cyberpunk') {
+          body.classList.add('dark-theme', 'theme-cyberpunk');
+          localStorage.setItem('theme', 'cyberpunk');
+        } else if (this.value === 'fantasy') {
+          body.classList.add('dark-theme', 'theme-fantasy');
+          localStorage.setItem('theme', 'fantasy');
+        } else {
+          localStorage.setItem('theme', 'default');
+        }
+      });
+    }
+    
+    if (modeSelect) {
+      // Establecer el valor inicial basado en localStorage
+      const savedMode = localStorage.getItem('mode');
+      if (savedMode === 'minimal') {
+        modeSelect.value = 'minimal';
+      } else if (savedMode === 'detailed') {
+        modeSelect.value = 'detailed';
+      } else {
+        modeSelect.value = 'auto';
+      }
+      
+      // Vincular con el checkbox de reducción de movimiento
+      const reduceMotionCheckbox = document.getElementById('reduceMotion');
+      if (reduceMotionCheckbox) {
+        reduceMotionCheckbox.checked = document.body.classList.contains('minimal-mode');
+        
+        reduceMotionCheckbox.addEventListener('change', function() {
+          if (this.checked) {
+            document.body.classList.add('minimal-mode');
+            if (modeSelect) modeSelect.value = 'minimal';
+            localStorage.setItem('mode', 'minimal');
+          } else {
+            document.body.classList.remove('minimal-mode');
+            if (modeSelect) modeSelect.value = 'detailed';
+            localStorage.setItem('mode', 'detailed');
+          }
+        });
+      }
+      
+      // Escuchar cambios en el selector de modo
+      modeSelect.addEventListener('change', function() {
+        if (this.value === 'minimal') {
+          document.body.classList.add('minimal-mode');
+          if (reduceMotionCheckbox) reduceMotionCheckbox.checked = true;
+          localStorage.setItem('mode', 'minimal');
+        } else if (this.value === 'detailed') {
+          document.body.classList.remove('minimal-mode');
+          if (reduceMotionCheckbox) reduceMotionCheckbox.checked = false;
+          localStorage.setItem('mode', 'detailed');
+        } else {
+          // Modo automático - detectar rendimiento del dispositivo
+          localStorage.setItem('mode', 'auto');
+          // La lógica de detección automática se implementará en otro script
+        }
+      });
+    }
+  });
+
+  // Animación de entrada
+  document.addEventListener('DOMContentLoaded', function() {
+    // Añadir animaciones a elementos principales
+    const elements = document.querySelectorAll('.card, .tab-content:not(.hidden)');
+    elements.forEach((el, index) => {
+      setTimeout(() => {
+        el.classList.add('animate-fadeIn');
+      }, index * 100);
+    });
+  });
+
+  // Estilos para alto contraste
+  document.getElementById('highContrast')?.addEventListener('change', function() {
+    if (this.checked) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+    localStorage.setItem('highContrast', this.checked);
+  });
+
+  // Cargar preferencia de alto contraste
+  if (localStorage.getItem('highContrast') === 'true') {
+    document.getElementById('highContrast').checked = true;
+    document.body.classList.add('high-contrast');
+  }
+
+  // Keyframe animation
+  document.addEventListener('DOMContentLoaded', function() {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+    `;
+    document.head.appendChild(style);
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,142 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Nueva Pregunta de Trivia - <%= server.name %></h1>
+    <a href="/servers/<%= server.serverId %>/trivia" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Volver a la lista</a>
+  </div>
+
+  <% if (locals.error) { %>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+      <p><%= error %></p>
+    </div>
+  <% } %>
+
+  <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <form action="/servers/<%= server.serverId %>/trivia/new" method="POST">
+      <!-- Tipo de pregunta -->
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="isGlobal">Tipo de pregunta</label>
+        <div class="flex items-center">
+          <input type="checkbox" id="isGlobal" name="isGlobal" value="true" <%= isGlobal ? 'checked' : '' %> class="mr-2">
+          <label for="isGlobal" class="text-gray-700">
+            Pregunta global (disponible en todos los servidores)
+          </label>
+        </div>
+        <p class="text-gray-600 text-xs mt-1">Las preguntas globales estarán disponibles para todos los servidores que usen el bot.</p>
+      </div>
+
+      <!-- Pregunta -->
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="question">Pregunta *</label>
+        <input type="text" id="question" name="question" required 
+          value="<%= question ? question.question : '' %>" 
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+      </div>
+
+      <!-- Opciones de respuesta -->
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="options">Opciones de respuesta *</label>
+        <p class="text-gray-600 text-xs mb-2">Escribe cada opción en una línea diferente. Mínimo 2, máximo 4 opciones.</p>
+        <textarea id="options" name="options" required rows="4" 
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"><%= question && question.options ? (Array.isArray(question.options) ? question.options.join('\n') : question.options) : '' %></textarea>
+      </div>
+
+      <!-- Respuesta correcta -->
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="answer">Respuesta correcta *</label>
+        <p class="text-gray-600 text-xs mb-2">Selecciona el número de la opción correcta (comenzando desde 0).</p>
+        <select id="answer" name="answer" required 
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <option value="0" <%= question && question.answer === 0 ? 'selected' : '' %>>Opción 1 (índice 0)</option>
+          <option value="1" <%= question && question.answer === 1 ? 'selected' : '' %>>Opción 2 (índice 1)</option>
+          <option value="2" <%= question && question.answer === 2 ? 'selected' : '' %>>Opción 3 (índice 2)</option>
+          <option value="3" <%= question && question.answer === 3 ? 'selected' : '' %>>Opción 4 (índice 3)</option>
+        </select>
+      </div>
+
+      <!-- Dificultad -->
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="difficulty">Dificultad *</label>
+        <select id="difficulty" name="difficulty" required 
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <option value="fácil" <%= question && question.difficulty === 'fácil' ? 'selected' : '' %>>Fácil</option>
+          <option value="medio" <%= question && (question.difficulty === 'medio' || !question.difficulty) ? 'selected' : '' %>>Medio</option>
+          <option value="difícil" <%= question && question.difficulty === 'difícil' ? 'selected' : '' %>>Difícil</option>
+        </select>
+      </div>
+
+      <!-- Categoría -->
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2" for="category">Categoría *</label>
+        <div class="flex">
+          <input type="text" id="category" name="category" required list="categories"
+            value="<%= question ? question.category : 'General' %>" 
+            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+          <datalist id="categories">
+            <option value="General">
+            <option value="Ciencia">
+            <option value="Historia">
+            <option value="Geografía">
+            <option value="Arte">
+            <option value="Deportes">
+            <option value="Entretenimiento">
+            <option value="Videojuegos">
+            <option value="Música">
+            <option value="Cine">
+            <option value="Literatura">
+            <option value="Tecnología">
+            <option value="Anime">
+          </datalist>
+        </div>
+        <p class="text-gray-600 text-xs mt-1">Puedes escribir una categoría existente o crear una nueva.</p>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="flex items-center justify-end">
+        <a href="/servers/<%= server.serverId %>/trivia" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2">
+          Cancelar
+        </a>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Guardar Pregunta
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Actualizar dinámicamente el selector de respuesta correcta cuando cambian las opciones
+  const optionsTextarea = document.getElementById('options');
+  const answerSelect = document.getElementById('answer');
+  
+  optionsTextarea.addEventListener('input', updateAnswerOptions);
+  
+  function updateAnswerOptions() {
+    const options = optionsTextarea.value.split('\n').filter(line => line.trim() !== '');
+    const currentSelection = answerSelect.value;
+    
+    // Limpiar opciones actuales
+    answerSelect.innerHTML = '';
+    
+    // Agregar nuevas opciones
+    options.forEach((option, index) => {
+      if (option.trim() !== '') {
+        const optionElement = document.createElement('option');
+        optionElement.value = index;
+        optionElement.textContent = `Opción ${index + 1} (índice ${index}): ${option.substring(0, 30)}${option.length > 30 ? '...' : ''}`;
+        answerSelect.appendChild(optionElement);
+      }
+    });
+    
+    // Intentar mantener la selección anterior si es válida
+    if (currentSelection < options.length) {
+      answerSelect.value = currentSelection;
+    }
+  }
+  
+  // Inicializar al cargar la página
+  document.addEventListener('DOMContentLoaded', updateAnswerOptions);
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,513 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Mi Historial de Actividad</h1>
+    <a href="/me" class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <i class="fas fa-arrow-left mr-2"></i>Volver a mi perfil
+    </a>
+  </div>
+  
+  <!-- Filtros -->
+  <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+    <div class="px-4 py-5 sm:p-6">
+      <form action="/me/activity" method="GET">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label for="server" class="block text-sm font-medium text-gray-700">Servidor</label>
+            <div class="mt-1">
+              <select id="server" name="server" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="">Todos los servidores</option>
+                <% user.guilds.forEach(guild => { %>
+                  <option value="<%= guild.id %>" <%= locals.server === guild.id ? 'selected' : '' %>><%= guild.name %></option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label for="type" class="block text-sm font-medium text-gray-700">Tipo de actividad</label>
+            <div class="mt-1">
+              <select id="type" name="type" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="">Todos los tipos</option>
+                <option value="command" <%= locals.type === 'command' ? 'selected' : '' %>>Comandos</option>
+                <option value="quest" <%= locals.type === 'quest' ? 'selected' : '' %>>Misiones</option>
+                <option value="combat" <%= locals.type === 'combat' ? 'selected' : '' %>>Combates</option>
+                <option value="levelup" <%= locals.type === 'levelup' ? 'selected' : '' %>>Subidas de nivel</option>
+                <option value="item" <%= locals.type === 'item' ? 'selected' : '' %>>Items</option>
+                <option value="currency" <%= locals.type === 'currency' ? 'selected' : '' %>>Monedas</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label for="date" class="block text-sm font-medium text-gray-700">Fecha</label>
+            <div class="mt-1">
+              <select id="date" name="date" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="">Todas las fechas</option>
+                <option value="today" <%= locals.date === 'today' ? 'selected' : '' %>>Hoy</option>
+                <option value="yesterday" <%= locals.date === 'yesterday' ? 'selected' : '' %>>Ayer</option>
+                <option value="week" <%= locals.date === 'week' ? 'selected' : '' %>>Esta semana</option>
+                <option value="month" <%= locals.date === 'month' ? 'selected' : '' %>>Este mes</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex items-end">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full">
+              <i class="fas fa-filter mr-2"></i>Filtrar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Timeline de actividad -->
+  <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+      <h2 class="text-lg font-medium text-gray-900">Historial de actividades</h2>
+      <% if (activities && activities.length > 0) { %>
+        <a href="/me/activity/export" class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-download mr-2"></i>Exportar
+        </a>
+      <% } %>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <!-- Si no hay actividades -->
+      <% if (!activities || activities.length === 0) { %>
+        <div class="text-center py-12">
+          <i class="fas fa-history text-gray-400 text-5xl mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay actividades que mostrar</h3>
+          <p class="text-gray-500">Usa comandos en los servidores para registrar actividades.</p>
+        </div>
+      <% } else { %>
+        <!-- Timeline (ejemplo con datos simulados) -->
+        <div class="flow-root">
+          <ul class="-mb-8">
+            <!-- Día actual -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-24 rounded-md flex items-center justify-center bg-indigo-500 text-white text-sm font-medium">
+                      Hoy
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Completar misión -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-check text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Has completado la misión <strong>"Rescate en las montañas"</strong> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo</a>.</p>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <i class="fas fa-coins mr-1"></i>+500 monedas
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <i class="fas fa-star mr-1"></i>+200 exp
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <i class="fas fa-box mr-1"></i>Poción de curación x2
+                        </span>
+                      </div>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-13T20:00:00">Hace 2 horas</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Subir de nivel -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-level-up-alt text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Tu personaje <strong>Aventurero</strong> ha subido al nivel 15 en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo</a>.</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-13T19:00:00">Hace 3 horas</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Usar comando -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-terminal text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Has usado el comando <code class="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">!perfil</code> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo</a>.</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-13T18:00:00">Hace 4 horas</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Fecha anterior -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-24 rounded-md flex items-center justify-center bg-gray-500 text-white text-sm font-medium">
+                      Ayer
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Combate -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-fist-raised text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Has <strong>ganado</strong> un combate contra <strong>Goblin</strong> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo</a>.</p>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                          <i class="fas fa-coins mr-1"></i>+150 monedas
+                        </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <i class="fas fa-star mr-1"></i>+75 exp
+                        </span>
+                      </div>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-12T18:45:00">18:45</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Comprar item -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-yellow-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-shopping-cart text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Has comprado <strong>Espada de hierro</strong> por <strong>200 monedas</strong> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo</a>.</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-12T15:22:00">15:22</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Fecha anterior 2 -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-24 rounded-md flex items-center justify-center bg-gray-500 text-white text-sm font-medium">
+                      Hace 2 días
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Usar item -->
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-flask text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Has usado <strong>Poción de salud</strong> y recuperado <strong>50 puntos de salud</strong> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo 2</a>.</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-11T14:08:00">14:08</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            
+            <!-- Actividad: Fallar misión -->
+            <li>
+              <div class="relative pb-8">
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-gray-400 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-times text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Has fallado la misión <strong>"La cueva del dragón"</strong> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo 2</a>.</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time datetime="2023-01-11T10:30:00">10:30</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+          
+          <!-- Cargar más -->
+          <div class="mt-6 text-center">
+            <button id="loadMoreBtn" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-sync-alt mr-2"></i>Cargar más
+            </button>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Estadísticas de actividad -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Actividad por tipo</h2>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <canvas id="activityTypeChart" height="250"></canvas>
+      </div>
+    </div>
+    
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Actividad por servidor</h2>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <canvas id="activityServerChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Resumen de actividad -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900">Resumen de actividad</h2>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-calendar-alt text-indigo-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Total actividades</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900">152</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Misiones completadas</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900">24</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-fist-raised text-red-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Combates</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900">38</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-coins text-yellow-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Monedas ganadas</p>
+            <p class="mt-1 text-2xl font-semibold text-gray-900">5,420</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de tipos de actividad
+    const typeCtx = document.getElementById('activityTypeChart').getContext('2d');
+    new Chart(typeCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Comandos', 'Misiones', 'Combates', 'Subidas de nivel', 'Items', 'Transacciones'],
+        datasets: [{
+          data: [45, 24, 38, 15, 20, 10],
+          backgroundColor: [
+            'rgba(107, 114, 128, 0.8)', // Comandos - gray-500
+            'rgba(16, 185, 129, 0.8)',  // Misiones - green-500
+            'rgba(239, 68, 68, 0.8)',   // Combates - red-500
+            'rgba(79, 70, 229, 0.8)',   // Subidas - indigo-600
+            'rgba(14, 165, 233, 0.8)',  // Items - sky-500
+            'rgba(245, 158, 11, 0.8)'   // Transacciones - amber-500
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          }
+        }
+      }
+    });
+    
+    // Gráfico por servidor
+    const serverCtx = document.getElementById('activityServerChart').getContext('2d');
+    new Chart(serverCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Servidor de Ejemplo', 'Servidor de Ejemplo 2', 'Servidor de Rol'],
+        datasets: [{
+          label: 'Actividades',
+          data: [85, 45, 22],
+          backgroundColor: 'rgba(79, 70, 229, 0.8)', // indigo-600
+          borderColor: 'rgba(67, 56, 202, 1)', // indigo-700
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+    
+    // Botón de cargar más
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        // Simular carga con un spinner
+        const oldHtml = this.innerHTML;
+        this.innerHTML = '<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Cargando...';
+        this.disabled = true;
+        
+        // Simular tiempo de carga
+        setTimeout(() => {
+          this.innerHTML = oldHtml;
+          this.disabled = false;
+          
+          // Crear nueva fecha en la timeline
+          const timeline = document.querySelector('ul');
+          
+          // Crear nuevo grupo de fecha
+          const dateItem = document.createElement('li');
+          dateItem.innerHTML = `
+            <div class="relative pb-8">
+              <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+              <div class="relative flex space-x-3">
+                <div>
+                  <span class="h-8 w-24 rounded-md flex items-center justify-center bg-gray-500 text-white text-sm font-medium">
+                    Hace 3 días
+                  </span>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          // Insertar antes del botón "Cargar más"
+          timeline.insertBefore(dateItem, loadMoreBtn.parentNode.parentNode);
+          
+          // Agregar algunas actividades de ejemplo
+          for (let i = 0; i < 3; i++) {
+            const item = document.createElement('li');
+            item.innerHTML = `
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center ring-8 ring-white">
+                      <i class="fas fa-terminal text-white"></i>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                    <div>
+                      <p class="text-sm text-gray-900">Actividad adicional ${i+1} en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Servidor de Ejemplo</a>.</p>
+                    </div>
+                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                      <time>11/02/2025, 09:${i}0</time>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+            timeline.insertBefore(item, loadMoreBtn.parentNode.parentNode);
+          }
+        }, 1000);
+      });
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

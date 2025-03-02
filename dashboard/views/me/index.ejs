@@ -1,0 +1,156 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+    <!-- Sidebar con información del usuario -->
+    <div class="lg:col-span-4 mb-8 lg:mb-0">
+      <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+        <div class="px-4 py-5 sm:p-6 text-center">
+          <% if (avatarURL) { %>
+            <img src="<%= avatarURL %>" alt="<%= user.username %>" class="mx-auto h-24 w-24 rounded-full object-cover">
+          <% } else { %>
+            <div class="mx-auto h-24 w-24 rounded-full bg-indigo-100 flex items-center justify-center">
+              <span class="text-indigo-800 font-bold text-2xl"><%= user.username.charAt(0) %></span>
+            </div>
+          <% } %>
+          <h2 class="mt-4 text-xl font-medium text-gray-900"><%= user.username %><% if(user.discriminator) { %>#<%= user.discriminator %><% } %></h2>
+          <p class="text-sm text-gray-500 truncate"><%= user.id %></p>
+          
+          <div class="mt-6 grid grid-cols-1 gap-3">
+            <a href="/me/settings" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-cog mr-2"></i>Configuración
+            </a>
+            <a href="/me/activity" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-history mr-2"></i>Mi Actividad
+            </a>
+            <a href="/me/inventory" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-box-open mr-2"></i>Mi Inventario
+            </a>
+            <a href="/me/stats" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-chart-bar mr-2"></i>Mis Estadísticas
+            </a>
+          </div>
+          
+          <div class="mt-6">
+            <a href="https://discord.com/users/<%= user.id %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-3 py-1 border border-gray-300 text-xs rounded-md text-gray-700 bg-gray-50 hover:bg-gray-100">
+              <i class="fa-brands fa-discord mr-1"></i>Ver en Discord
+            </a>
+          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-4 sm:px-6 text-center">
+          <p class="text-xs text-gray-500">Miembro desde: <%= new Date(user.createdAt).toLocaleDateString() %></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main content - Perfiles del usuario -->
+    <div class="lg:col-span-8">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Mis Perfiles</h1>
+        <a href="/servers" class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-plus mr-2"></i>Crear Nuevo Perfil
+        </a>
+      </div>
+      
+      <% if (profiles.length === 0) { %>
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-4 py-8 sm:px-6 sm:py-12 text-center">
+            <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">No tienes perfiles creados</h3>
+            <p class="mt-2 text-sm text-gray-500">Aún no has creado ningún perfil de personaje en los servidores.</p>
+            <div class="mt-6">
+              <a href="/servers" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-server mr-2"></i>Ver mis servidores
+              </a>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <% profiles.forEach(profile => { %>
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+              <!-- Encabezado del perfil -->
+              <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                <div class="flex items-center">
+                  <% if (profile.guild.icon) { %>
+                    <img src="<%= profile.guild.icon || '/img/empty-servers.svg' %>" alt="<%= profile.guild.name %>" class="h-5 w-5 rounded-full mr-2">
+                  <% } else { %>
+                    <div class="h-5 w-5 rounded-full bg-gray-200 flex items-center justify-center mr-2">
+                      <span class="text-gray-600 text-xs font-bold"><%= profile.guild.name.charAt(0) %></span>
+                    </div>
+                  <% } %>
+                  <span class="text-sm font-medium text-gray-700"><%= profile.guild.name %></span>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full <%= profile.character.level >= 50 ? 'bg-red-100 text-red-800' : profile.character.level >= 25 ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800' %>">
+                  Nivel <%= profile.character.level %>
+                </span>
+              </div>
+              
+              <!-- Cuerpo del perfil -->
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center mb-4">
+                  <% if (profile.character.avatar) { %>
+                    <img src="<%= profile.character.avatar %>" alt="<%= profile.character.name %>" class="h-14 w-14 rounded-full object-cover mr-4">
+                  <% } else { %>
+                    <div class="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                      <i class="fas fa-user text-gray-400 text-xl"></i>
+                    </div>
+                  <% } %>
+                  <div>
+                    <h3 class="text-lg font-medium text-gray-900"><%= profile.character.name || 'Sin nombre' %></h3>
+                    <p class="text-sm text-gray-500"><%= profile.character.race %> <%= profile.character.class %></p>
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <!-- Salud -->
+                  <div>
+                    <div class="flex items-center mb-1">
+                      <i class="fas fa-heart text-red-500 mr-2"></i>
+                      <span class="text-xs text-gray-500">Salud</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                      <div class="bg-red-500 h-2 rounded-full" style="width: <%= (profile.character.health.current / profile.character.health.max) * 100 %>%"></div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500"><%= profile.character.health.current %>/<%= profile.character.health.max %> HP</p>
+                  </div>
+                  
+                  <!-- Monedas -->
+                  <div>
+                    <div class="flex items-center mb-1">
+                      <i class="fas fa-coins text-yellow-500 mr-2"></i>
+                      <span class="text-xs text-gray-500">Monedas</span>
+                    </div>
+                    <p class="text-sm font-medium"><%= profile.character.currency.toLocaleString() %></p>
+                  </div>
+                </div>
+                
+                <!-- Barra de experiencia -->
+                <div class="mb-4">
+                  <div class="w-full bg-gray-200 rounded-full h-1.5">
+                    <div class="bg-green-500 h-1.5 rounded-full" style="width: <%= (profile.character.experience / (profile.character.level * 100)) * 100 %>%"></div>
+                  </div>
+                  <p class="mt-1 text-xs text-gray-500">EXP: <%= profile.character.experience %>/<%= profile.character.level * 100 %></p>
+                </div>
+                
+                <% if (profile.character.bio) { %>
+                  <p class="text-sm text-gray-600 mb-4 line-clamp-2">
+                    <%- profile.character.bio.replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/^## (.*$)/gim, '<h2>$1</h2>').replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>').replace(/\*(.*)\*/gim, '<em>$1</em>').replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>').replace(/\n/g, '<br>').slice(0, 200).substring(0, 197) + '...' %>
+                  </p>
+                <% } %>
+                
+                <a href="/me/profiles/<%= profile._id %>" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200">
+                  Ver perfil completo
+                </a>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

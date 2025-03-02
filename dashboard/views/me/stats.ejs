@@ -1,0 +1,374 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Mis Estadísticas</h1>
+    <a href="/me" class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <i class="fas fa-arrow-left mr-2"></i>Volver a mi perfil
+    </a>
+  </div>
+  
+  <!-- Resumen general -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-indigo-600 text-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6 flex items-center">
+        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-md p-3 mr-4">
+          <i class="fas fa-server text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-indigo-100 truncate uppercase">Servidores</p>
+          <p class="mt-1 text-3xl font-semibold text-white"><%= totalServers %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-green-600 text-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6 flex items-center">
+        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-md p-3 mr-4">
+          <i class="fas fa-coins text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-green-100 truncate uppercase">Monedas</p>
+          <p class="mt-1 text-3xl font-semibold text-white"><%= totalCurrency.toLocaleString() %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-blue-600 text-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6 flex items-center">
+        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-md p-3 mr-4">
+          <i class="fas fa-trophy text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-blue-100 truncate uppercase">Nivel más alto</p>
+          <p class="mt-1 text-3xl font-semibold text-white"><%= highestLevel %></p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-yellow-600 text-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6 flex items-center">
+        <div class="flex-shrink-0 bg-white bg-opacity-20 rounded-md p-3 mr-4">
+          <i class="fas fa-star text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-yellow-100 truncate uppercase">Experiencia Total</p>
+          <p class="mt-1 text-3xl font-semibold text-white"><%= totalExperience.toLocaleString() %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Estadísticas de juego -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Estadísticas de combate</h2>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+              <i class="fas fa-fist-raised text-green-600 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Victorias</p>
+              <p class="mt-1 text-2xl font-semibold text-gray-900"><%= gameStats.totalWins %></p>
+            </div>
+          </div>
+          
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+              <i class="fas fa-skull text-red-600 text-xl"></i>
+            </div>
+            <div>
+              <p class="text-sm text-gray-500">Derrotas</p>
+              <p class="mt-1 text-2xl font-semibold text-gray-900"><%= gameStats.totalLosses %></p>
+            </div>
+          </div>
+        </div>
+        
+        <% if (gameStats.totalWins + gameStats.totalLosses > 0) { %>
+          <div class="mt-6">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">Ratio de victoria</h3>
+            <% 
+              const winRate = Math.round((gameStats.totalWins / (gameStats.totalWins + gameStats.totalLosses)) * 100);
+            %>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+              <div class="bg-green-600 h-3 rounded-full" style="width: <%= winRate %>%"></div>
+            </div>
+            <p class="mt-1 text-sm text-gray-500 text-right"><%= winRate %>%</p>
+          </div>
+        <% } %>
+        
+        <div class="mt-6 pt-6 border-t border-gray-200 grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Misiones completadas</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= gameStats.totalQuestsCompleted %></p>
+          </div>
+          
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Misiones fallidas</p>
+            <p class="text-2xl font-semibold text-gray-900"><%= gameStats.totalQuestsFailed %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">Progreso de personajes</h2>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <canvas id="characterLevelsChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Detalles por servidor -->
+  <div class="bg-white shadow rounded-lg overflow-hidden mb-8">
+    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900">Estadísticas por servidor</h2>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <% if (profiles.length === 0) { %>
+        <div class="text-center py-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No tienes perfiles creados en ningún servidor.</h3>
+        </div>
+      <% } else { %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Servidor</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personaje</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nivel</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experiencia</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monedas</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Misiones</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Combates</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última actividad</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% profiles.forEach(profile => { %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% const guild = user.guilds.find(g => g.id === profile.serverId); %>
+                    <% if (guild) { %>
+                      <%= guild.name %>
+                    <% } else { %>
+                      Servidor desconocido
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <a href="/me/profiles/<%= profile._id %>" class="text-indigo-600 hover:text-indigo-900">
+                      <%= profile.character.name || 'Sin nombre' %>
+                    </a>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800">
+                      <%= profile.character.level %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= profile.character.experience.toLocaleString() %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= profile.character.currency.toLocaleString() %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <% if (profile.stats && profile.stats.quests) { %>
+                      <%= profile.stats.quests.completed %> / <%= profile.stats.quests.completed + profile.stats.quests.failed %>
+                    <% } else { %>
+                      0 / 0
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <% if (profile.stats) { %>
+                      <span class="text-green-600"><%= profile.stats.wins || 0 %>V</span> - 
+                      <span class="text-red-600"><%= profile.stats.losses || 0 %>D</span>
+                    <% } else { %>
+                      0V - 0D
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= new Date(profile.updatedAt).toLocaleDateString() %>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Actividades recientes -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+      <h2 class="text-lg font-medium text-gray-900">Actividades recientes</h2>
+      <a href="/me/activity" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Ver todo
+      </a>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <% if (profiles.length === 0) { %>
+        <div class="text-center py-8">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No hay actividades recientes para mostrar</h3>
+        </div>
+      <% } else { %>
+        <!-- Ejemplos de actividades recientes -->
+        <div class="space-y-6">
+          <!-- Ejemplo 1: Subida de nivel -->
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                <i class="fas fa-level-up-alt"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <h4 class="text-base font-medium text-gray-900">Subiste de nivel</h4>
+              <p class="mt-1 text-sm text-gray-600">Tu personaje "<%= profiles[0].character.name || 'Personaje' %>" subió al nivel <%= profiles[0].character.level %></p>
+              <p class="mt-1 text-xs text-gray-500">Hace 2 días</p>
+            </div>
+          </div>
+
+          <!-- Ejemplo 2: Misión completada -->
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-12 w-12 rounded-md bg-green-500 text-white">
+                <i class="fas fa-check-circle"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <h4 class="text-base font-medium text-gray-900">Completaste una misión</h4>
+              <p class="mt-1 text-sm text-gray-600">Has completado la misión "Rescate en las montañas" y ganado 500 monedas</p>
+              <div class="mt-1 flex flex-wrap gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                  <i class="fas fa-coins mr-1"></i>+500 monedas
+                </span>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <i class="fas fa-star mr-1"></i>+200 exp
+                </span>
+              </div>
+              <p class="mt-1 text-xs text-gray-500">Hace 3 días</p>
+            </div>
+          </div>
+
+          <!-- Ejemplo 3: Compra -->
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-12 w-12 rounded-md bg-yellow-500 text-white">
+                <i class="fas fa-coins"></i>
+              </div>
+            </div>
+            <div class="ml-4">
+              <h4 class="text-base font-medium text-gray-900">Compraste un item</h4>
+              <p class="mt-1 text-sm text-gray-600">Has comprado "Espada de hierro" por 200 monedas</p>
+              <p class="mt-1 text-xs text-gray-500">Hace 5 días</p>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Inicializar el gráfico de niveles de personajes
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('characterLevelsChart').getContext('2d');
+    
+    <% if (profiles.length > 0) { %>
+      const profileNames = [<%= profiles.map(p => `"${p.character.name || 'Sin nombre'}"`) %>];
+      const profileLevels = [<%= profiles.map(p => p.character.level) %>];
+      const profileExp = [<%= profiles.map(p => p.character.experience) %>];
+      
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: profileNames,
+          datasets: [{
+            label: 'Nivel',
+            data: profileLevels,
+            backgroundColor: 'rgba(79, 70, 229, 0.8)', // indigo-600
+            borderColor: 'rgba(67, 56, 202, 1)', // indigo-700
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                afterLabel: function(context) {
+                  const index = context.dataIndex;
+                  return `Experiencia: ${profileExp[index].toLocaleString()}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    <% } else { %>
+      // Mostrar un mensaje si no hay perfiles
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['No hay datos disponibles'],
+          datasets: [{
+            label: 'Nivel',
+            data: [0],
+            backgroundColor: 'rgba(209, 213, 219, 0.8)', // gray-300
+            borderColor: 'rgba(209, 213, 219, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function() {
+                  return 'No hay datos';
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      });
+    <% } %>
+  });
+</script>
+
+<%- include('../partials/footer') %>

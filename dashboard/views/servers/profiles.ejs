@@ -1,0 +1,372 @@
+<%- include('../partials/header') %>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<style>
+        #context-menu {
+            position: absolute;
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            z-index: 1000;
+            padding: 0.5rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s ease-out forwards;
+            overflow: hidden;
+        }
+
+        #context-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #context-menu li {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            border-radius: 0.75rem;
+        }
+
+        #context-menu li i {
+            margin-right: 1rem;
+            color: #4ade80;
+        }
+
+        #context-menu li:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(8px);
+            border-radius: 0.75rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+</style>
+
+<div id="context-menu">
+  <ul>
+      <li id="openProfile"><i class="fas fa-folder-open"></i> Abrir</li>
+      <li id="editProfile"><i class="fas fa-edit"></i> Editar</li>
+      <li id="deleteProfile"><i class="fas fa-trash-alt"></i> Eliminar</li>
+  </ul>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Perfiles en <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Gestiona los perfiles de los usuarios en este servidor</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver al panel
+      </a>
+    </div>
+  </div>
+
+  <!-- Estado de éxito o error -->
+  <% if (req.query.success) { %>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">Operación realizada con éxito.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (req.query.deleted) { %>
+    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-info-circle text-blue-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-blue-700">El perfil ha sido eliminado correctamente.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (req.query.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">Ha ocurrido un error al procesar la solicitud.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Filtro y búsqueda -->
+  <div class="bg-white shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <input type="text" id="profileSearch" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Buscar perfiles...">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-search text-gray-400"></i>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button id="clearSearch" class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-times mr-2"></i>Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de perfiles -->
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <% if (profiles && profiles.length > 0) { %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Personaje</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Detalles</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% profiles.forEach(profile => { %>
+              <tr class="profile-item" data-name="<%= profile.character.name?.toLowerCase() || '' %>" data-user="<%= profile.user.tag.toLowerCase() %>" data-id="<%= profile._id %>">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <img class="h-10 w-10 rounded-full" src="<%= profile.user.avatar %>" alt="<%= profile.user.tag %>">
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900"><%= profile.user.tag %></div>
+                      <div class="text-sm text-gray-500"><%= profile.userId %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                      <% if (profile.character.avatar) { %>
+                        <img class="h-10 w-10 rounded-full object-cover" src="<%= profile.character.avatar %>" alt="<%= profile.character.name %>">
+                      <% } else { %>
+                        <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                          <span class="text-indigo-800 font-bold"><%= profile.character.name ? profile.character.name.charAt(0) : '?' %></span>
+                        </div>
+                      <% } %>
+                    </div>
+                    <div class="ml-4">
+                      <div class="text-sm font-medium text-gray-900"><%= profile.character.name || 'Sin nombre' %></div>
+                      <div class="text-sm text-gray-500"><%= profile.character.race.length > 25 ? profile.character.race.slice(0, 25) + '...' : profile.character.race %> | <%= profile.character.class.length > 25 ? profile.character.class.slice(0, 25) + '...' : profile.character.class %></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">Nivel <%= profile.character.level %></div>
+                  <div class="text-sm text-gray-500">
+                    <span class="inline-flex items-center mr-2">
+                      <i class="fas fa-heart text-red-500 mr-1"></i><%= profile.character.health.current %>/<%= profile.character.health.max %>
+                    </span>
+                    <span class="inline-flex items-center">
+                      <i class="fas fa-coins text-yellow-500 mr-1"></i><%= profile.character.currency %>
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= profile.user.isInServer ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                    <%= profile.user.isInServer ? 'En el servidor' : 'Fuera del servidor' %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <a href="/servers/<%= guild.id %>/profiles/<%= profile._id %>" class="text-indigo-600 hover:text-indigo-900 mr-2">Ver</a>
+                  <a href="/servers/<%= guild.id %>/profiles/<%= profile._id %>/edit" class="text-blue-600 hover:text-blue-900 mr-2">Editar</a>
+                  <button onclick="openDeleteModal('<%= profile._id %>', '<%= profile.character.name || 'este perfil' %>')" class="text-red-600 hover:text-red-900">Eliminar</button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="px-4 py-12 sm:px-6 text-center">
+        <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No hay perfiles creados</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          <%= message || 'Aún no hay perfiles creados en este servidor.' %>
+        </p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Modal para eliminar perfil -->
+<div id="deleteProfileModal" class="fixed inset-0 z-10 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <i class="fas fa-exclamation-triangle text-red-600"></i>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+              Eliminar perfil
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500" id="deleteProfileMessage">
+                ¿Estás seguro de que quieres eliminar este perfil?
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <form id="deleteProfileForm" method="POST" action="/servers/<%= guild.id %>/profiles/profile-id/delete">
+          <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Eliminar
+          </button>
+        </form>
+        <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Búsqueda de perfiles
+    const profileSearch = document.getElementById('profileSearch');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const profileItems = document.querySelectorAll('.profile-item');
+    
+    if (profileSearch) {
+      profileSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        let hasResults = false;
+        
+        profileItems.forEach(item => {
+          const profileName = item.getAttribute('data-name');
+          const userName = item.getAttribute('data-user');
+          
+          if (profileName.includes(searchTerm) || userName.includes(searchTerm)) {
+            item.style.display = '';
+            hasResults = true;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        
+        // Mostrar mensaje si no hay resultados
+        if (!hasResults && profileItems.length > 0) {
+          // Si quieres añadir un mensaje de "no hay resultados", hazlo aquí
+        }
+      });
+    }
+    
+    if (clearSearchBtn) {
+      clearSearchBtn.addEventListener('click', function() {
+        profileSearch.value = '';
+        // Mostrar todos los perfiles
+        profileItems.forEach(item => {
+          item.style.display = '';
+        });
+        // Ocultar mensaje de "no hay resultados"
+      });
+    }
+  });
+  
+  // Funciones para el modal de eliminar
+  function openDeleteModal(profileId, profileName) {
+    const modal = document.getElementById('deleteProfileModal');
+    const form = document.getElementById('deleteProfileForm');
+    const message = document.getElementById('deleteProfileMessage');
+    
+    // Actualizar el formulario y mensaje
+    form.action = form.action.replace('profile-id', profileId);
+    message.textContent = `¿Estás seguro de que quieres eliminar el perfil de ${profileName}? Esta acción no se puede deshacer.`;
+    
+    // Mostrar el modal
+    modal.classList.remove('hidden');
+  }
+  
+  function closeDeleteModal() {
+    document.getElementById('deleteProfileModal').classList.add('hidden');
+  }
+  
+  // Cerrar modal al hacer clic fuera
+  window.addEventListener('click', function(event) {
+    const modal = document.getElementById('deleteProfileModal');
+    if (event.target === modal) {
+      closeDeleteModal();
+    }
+  });
+  
+  const contextMenu = document.getElementById("context-menu");
+  let currentProfileId = null;
+
+  // Mostrar menú contextual al hacer clic derecho en un perfil
+  document.addEventListener("contextmenu", (e) => {
+    if (e.target.classList.contains("profile")) {
+      e.preventDefault();
+      // Obtener el ID del perfil
+      currentProfileId = e.target.getAttribute("data-id");
+
+      // Mostrar el menú en la posición del cursor
+      contextMenu.style.top = `${e.clientY}px`;
+      contextMenu.style.left = `${e.clientX}px`;
+      contextMenu.style.display = "block";
+    } else {
+      contextMenu.style.display = "none";
+    }
+  });
+
+  // Ocultar el menú al hacer clic en cualquier otro lugar
+  document.addEventListener("click", () => {
+    contextMenu.style.display = "none";
+  });
+
+  // Funciones para redirigir según la opción seleccionada
+  document.getElementById("openProfile").addEventListener("click", () => {
+    if (currentProfileId) window.location.href = `/perfil/${currentProfileId}`;
+  });
+
+  document.getElementById("editProfile").addEventListener("click", () => {
+    if (currentProfileId) window.location.href = `/perfil/${currentProfileId}/editar`;
+  });
+
+  document.getElementById("deleteProfile").addEventListener("click", () => {
+    if (currentProfileId) {
+      const confirmDelete = confirm("¿Seguro que deseas eliminar este perfil?");
+      if (confirmDelete) window.location.href = `/perfil/${currentProfileId}/eliminar`;
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,231 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Sistema de Entretenimiento - <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Configura las funciones de entretenimiento y minijuegos para tu servidor</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver al panel
+      </a>
+    </div>
+  </div>
+
+  <!-- Estado de éxito o error -->
+  <% if (locals.success) { %>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">La configuración se ha guardado correctamente.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (locals.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">Ha ocurrido un error al guardar la configuración.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Formulario de configuración -->
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <form method="POST" action="/servers/<%= guild.id %>/entertainment">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Configuración general de entretenimiento
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Configura las opciones generales del sistema de entretenimiento.
+        </p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-6">
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input id="entertainmentEnabled" name="entertainmentEnabled" type="checkbox" <%= serverConfig.entertainment.enabled ? 'checked' : '' %> class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="entertainmentEnabled" class="font-medium text-gray-700">Habilitar sistema de entretenimiento</label>
+                <p class="text-gray-500">Activa las funciones de entretenimiento como minijuegos, música, y comandos personalizados</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="welcomeChannel" class="block text-sm font-medium text-gray-700">
+              Canal de bienvenida
+            </label>
+            <div class="mt-1">
+              <select id="welcomeChannel" name="welcomeChannel" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="">Ninguno</option>
+                <% channels.forEach(channel => { %>
+                  <option value="<%= channel.id %>" <%= serverConfig.entertainment.welcomeChannel === channel.id ? 'selected' : '' %>>
+                    # <%= channel.name %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Canal donde se enviará mensajes de bienvenida a nuevos miembros</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección de Canales -->
+      <div class="px-4 py-5 border-t border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Canales para funciones específicas
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Configura los canales donde se habilitarán las diferentes funciones.
+        </p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-3">
+            <label for="musicChannels" class="block text-sm font-medium text-gray-700">
+              Canales de música
+            </label>
+            <div class="mt-1">
+              <select id="musicChannels" name="musicChannels" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="6">
+                <% channels.forEach(channel => { %>
+                  <option value="<%= channel.id %>" <%= serverConfig.entertainment.musicChannels && serverConfig.entertainment.musicChannels.includes(channel.id) ? 'selected' : '' %>>
+                    # <%= channel.name %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Canales donde se podrá utilizar comandos de música</p>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="gameChannels" class="block text-sm font-medium text-gray-700">
+              Canales de juegos
+            </label>
+            <div class="mt-1">
+              <select id="gameChannels" name="gameChannels" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="6">
+                <% channels.forEach(channel => { %>
+                  <option value="<%= channel.id %>" <%= serverConfig.entertainment.gameChannels && serverConfig.entertainment.gameChannels.includes(channel.id) ? 'selected' : '' %>>
+                    # <%= channel.name %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Canales donde se podrá utilizar comandos de juegos</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección de comandos personalizados -->
+      <div class="px-4 py-5 border-t border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Comandos personalizados
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Lista de comandos personalizados para tu servidor.
+        </p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-6">
+            <div class="mt-1 overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comando</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Respuesta</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usos</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% if (serverConfig.entertainment.customCommands && serverConfig.entertainment.customCommands.length > 0) { %>
+                    <% serverConfig.entertainment.customCommands.forEach(cmd => { %>
+                      <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= cmd.name %></td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">
+                          <div class="max-h-20 overflow-y-auto">
+                            <%= cmd.response %>
+                          </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= cmd.usageCount %></td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="3" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        No hay comandos personalizados. Puedes añadirlos con el comando <code>!cmd create</code> o similar según tu prefijo.
+                      </td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-4 text-xs text-gray-500">Nota: Esta tabla es solo informativa. Para gestionar comandos personalizados usa los comandos del bot.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Guardar configuración
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Script para mejorar la experiencia de selección múltiple
+  document.addEventListener('DOMContentLoaded', function() {
+    // Función para permitir selección con Ctrl+Click en selects múltiples
+    const multiSelects = document.querySelectorAll('select[multiple]');
+    
+    multiSelects.forEach(select => {
+      select.addEventListener('mousedown', function(e) {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          
+          this.focus();
+          
+          const option = e.target.closest('option');
+          if (!option) return;
+          
+          const alreadySelected = option.selected;
+          
+          // Deseleccionar todos si no se mantiene Ctrl/Command
+          if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+            for (const opt of this.options) {
+              opt.selected = false;
+            }
+          }
+          
+          // Invertir la selección del elemento clicado
+          option.selected = !alreadySelected;
+          
+          // Disparar evento de cambio
+          const event = new Event('change', { bubbles: true });
+          this.dispatchEvent(event);
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

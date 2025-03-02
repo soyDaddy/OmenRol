@@ -1,0 +1,160 @@
+/* Estilos para el modo oscuro */
+body.dark-theme {
+    background-color: #0f172a;
+  }
+  
+  /* Navbar en modo oscuro */
+  body.dark-theme nav.bg-gray-800 {
+    background-color: #020617;
+  }
+  
+  body.dark-theme .bg-gray-50 {
+    background-color: #1e293b;
+  }
+  
+  body.dark-theme .text-gray-300 {
+    color: #cbd5e1;
+  }
+  
+  body.dark-theme .hover\:bg-gray-700:hover {
+    background-color: #334155;
+  }
+  
+  /* Tarjetas en modo oscuro */
+  body.dark-theme .bg-white {
+    background-color: #1e293b;
+  }
+  
+  /* Tablas en modo oscuro */
+  body.dark-theme thead.bg-gray-50 {
+    background-color: #1e293b;
+    border-bottom: 1px solid #334155;
+  }
+  
+  body.dark-theme tbody.bg-white {
+    background-color: #1e293b;
+  }
+  
+  body.dark-theme tbody tr:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+  }
+  
+  body.dark-theme .divide-gray-200 > * + * {
+    border-color: #334155;
+  }
+  
+  /* Formularios en modo oscuro */
+  body.dark-theme input:not([type="checkbox"]):not([type="radio"]),
+  body.dark-theme textarea,
+  body.dark-theme select {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+  }
+  
+  body.dark-theme input:focus,
+  body.dark-theme textarea:focus,
+  body.dark-theme select:focus {
+    --tw-ring-color: #818cf8;
+    border-color: #818cf8;
+  }
+  
+  body.dark-theme .focus\:ring-indigo-500:focus {
+    --tw-ring-color: #818cf8;
+  }
+  
+  body.dark-theme .focus\:border-indigo-500:focus {
+    border-color: #818cf8;
+  }
+  
+  body.dark-theme input[readonly],
+  body.dark-theme textarea[readonly],
+  body.dark-theme select[readonly] {
+    background-color: #1e293b;
+  }
+  
+  /* Badges/etiquetas en modo oscuro */
+  body.dark-theme .bg-indigo-50,
+  body.dark-theme .bg-indigo-100,
+  body.dark-theme .bg-blue-100,
+  body.dark-theme .bg-green-100,
+  body.dark-theme .bg-yellow-100,
+  body.dark-theme .bg-red-100,
+  body.dark-theme .bg-purple-100,
+  body.dark-theme .bg-gray-100 {
+    background-color: rgba(99, 102, 241, 0.2);
+  }
+  
+  body.dark-theme .text-indigo-800,
+  body.dark-theme .text-blue-800,
+  body.dark-theme .text-green-800,
+  body.dark-theme .text-yellow-800,
+  body.dark-theme .text-red-800,
+  body.dark-theme .text-purple-800,
+  body.dark-theme .text-gray-800 {
+    color: #f8fafc;
+  }
+  
+  /* Botones en modo oscuro */
+  body.dark-theme .bg-indigo-600 {
+    background-color: #818cf8;
+  }
+  
+  body.dark-theme .hover\:bg-indigo-700:hover {
+    background-color: #6366f1;
+  }
+  
+  body.dark-theme .text-indigo-600 {
+    color: #818cf8;
+  }
+  
+  body.dark-theme .hover\:text-indigo-900:hover,
+  body.dark-theme .hover\:text-indigo-500:hover {
+    color: #a5b4fc;
+  }
+  
+  /* Imágenes y avatares en modo oscuro */
+  body.dark-theme img,
+  body.dark-theme .avatar {
+    filter: brightness(0.9);
+  }
+  
+  /* Iconos en modo oscuro */
+  body.dark-theme .text-indigo-500,
+  body.dark-theme .text-green-500,
+  body.dark-theme .text-red-500,
+  body.dark-theme .text-yellow-500,
+  body.dark-theme .text-blue-500 {
+    opacity: 0.9;
+  }
+  
+  /* Loader en modo oscuro */
+  body.dark-theme .loader-container {
+    background-color: rgba(15, 23, 42, 0.7);
+  }
+  
+  /* Soporte para minimalismo en modo oscuro */
+  body.dark-theme.minimal-mode .card,
+  body.dark-theme.minimal-mode .modal-content {
+    box-shadow: none;
+    border: 1px solid #334155;
+  }
+  
+  body.dark-theme.minimal-mode input,
+  body.dark-theme.minimal-mode select,
+  body.dark-theme.minimal-mode textarea {
+    border: 1px solid #334155;
+  }
+  
+  /* Personalización de scrollbar en modo oscuro */
+  body.dark-theme::-webkit-scrollbar-track {
+    background: #1e293b;
+  }
+  
+  body.dark-theme::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+  
+  body.dark-theme::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }

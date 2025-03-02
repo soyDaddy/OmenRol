@@ -1,0 +1,77 @@
+<%- include('./partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="text-center">
+    <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+      Invita al bot a tu servidor
+    </h1>
+  </div>
+
+  <div class="mt-12 bg-white shadow overflow-hidden rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="flex flex-col items-center">
+        
+        <div class="mt-8">
+          <div class="rounded-md shadow">
+            <a href="<%= inviteUrl %>" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
+              <i class="fa-brands fa-discord mr-2"></i>
+              Añadir el bot a un servidor
+            </a>
+          </div>
+          <div class="mt-4">
+            <p class="text-sm text-gray-500">
+              Se abrirá Discord para completar la autorización. Necesitas tener permisos de administrador en el servidor.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-12 border-t border-gray-200 pt-8">
+          <h3 class="text-lg font-medium text-gray-900">¿Qué funciones obtendrás?</h3>
+          <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+              <div class="flex-shrink-0">
+                <i class="fas fa-user-circle text-2xl text-indigo-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="absolute inset-0" aria-hidden="true"></span>
+                <p class="text-sm font-medium text-gray-900">Sistema de rol</p>
+                <p class="text-sm text-gray-500">Perfiles, inventarios y más</p>
+              </div>
+            </div>
+            
+            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+              <div class="flex-shrink-0">
+                <i class="fas fa-gamepad text-2xl text-green-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="absolute inset-0" aria-hidden="true"></span>
+                <p class="text-sm font-medium text-gray-900">Minijuegos</p>
+                <p class="text-sm text-gray-500">Trivia, economía y más</p>
+              </div>
+            </div>
+            
+            <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 hover:border-gray-400">
+              <div class="flex-shrink-0">
+                <i class="fas fa-cog text-2xl text-blue-600"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <span class="absolute inset-0" aria-hidden="true"></span>
+                <p class="text-sm font-medium text-gray-900">Personalización</p>
+                <p class="text-sm text-gray-500">Comandos personalizados</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="mt-8 text-center">
+    <a href="/" class="inline-flex items-center text-indigo-600 hover:text-indigo-900">
+      <i class="fas fa-arrow-left mr-2"></i>
+      Volver al inicio
+    </a>
+  </div>
+</div>
+
+<%- include('./partials/footer') %>

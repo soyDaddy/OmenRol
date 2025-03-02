@@ -1,0 +1,476 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900"><%= profile ? 'Mi Perfil en ' : 'Crear Perfil en ' %><%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">
+        <% if (profile) { %>
+          Personaliza tu perfil de roleplay en este servidor.
+        <% } else { %>
+          Crea tu personaje de roleplay para este servidor.
+        <% } %>
+      </p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Mis Servidores
+      </a>
+    </div>
+  </div>
+
+  <!-- Estado de éxito o error -->
+  <% if (locals.success) { %>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">Tu perfil se ha guardado correctamente.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (locals.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700"><%= error %></p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Formulario del perfil -->
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <form method="POST" action="/servers/<%= guild.id %>/profile">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          <%= profile ? 'Información de Personaje' : 'Crear Nuevo Personaje' %>
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          <%= profile ? 'Edita los detalles de tu personaje.' : 'Completa los siguientes datos para crear tu personaje.' %>
+          <% if (!serverConfig.config.allowProfileEditing && profile) { %>
+            <span class="text-amber-600">Nota: La edición de perfiles está limitada en este servidor. Algunos campos podrían no ser editables.</span>
+          <% } %>
+        </p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <!-- Avatar y nombre del personaje -->
+          <div class="sm:col-span-6">
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+              <div class="flex-shrink-0">
+                <div class="mb-3 relative mx-auto w-32 h-32">
+                  <% if (profile && profile.character.avatar) { %>
+                    <img src="<%= profile.character.avatar %>" id="avatarPreview" alt="<%= profile.character.name %>" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow">
+                  <% } else { %>
+                    <div id="avatarPreview" class="w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span class="text-indigo-800 font-bold text-4xl"><%= profile && profile.character.name ? profile.character.name.charAt(0) : '?' %></span>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+              
+              <div class="flex-grow space-y-4">
+                <div>
+                  <label for="characterAvatar" class="block text-sm font-medium text-gray-700 mb-1">URL del Avatar</label>
+                  <input type="text" name="characterAvatar" id="characterAvatar" value="<%= profile ? profile.character.avatar : '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" <%= !serverConfig.config.allowProfileEditing && profile ? 'readonly' : '' %>>
+                  <p class="mt-1 text-xs text-gray-500">URL de una imagen para tu personaje (opcional)</p>
+                </div>
+                
+                <div>
+                  <label for="characterName" class="block text-sm font-medium text-gray-700 mb-1">Nombre del personaje</label>
+                  <input type="text" name="characterName" id="characterName" value="<%= profile ? profile.character.name : '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" required <%= !serverConfig.config.allowProfileEditing && profile ? 'readonly' : '' %>>
+                  <p class="mt-1 text-xs text-gray-500">El nombre con el que se identificará tu personaje</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="race" class="block text-sm font-medium text-gray-700">
+              Raza
+            </label>
+            <div class="mt-1">
+              <select id="race" name="race" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" required <%= !serverConfig.config.allowProfileEditing && profile ? 'disabled' : '' %>>
+                <% serverConfig.roleplay.races.forEach(race => { %>
+                  <option value="<%= race %>" <%= profile && profile.character.race === race ? 'selected' : '' %>><%= race %></option>
+                <% }) %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">La raza de tu personaje</p>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="class" class="block text-sm font-medium text-gray-700">
+              Clase
+            </label>
+            <div class="mt-1">
+              <select id="class" name="class" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md transition-all duration-300 ease-in-out" required <%= !serverConfig.config.allowProfileEditing && profile ? 'disabled' : '' %>>
+                <% 
+                  const selectedRace = profile ? profile.character.race : serverConfig.roleplay.races[0]; 
+                  const allowedClasses = serverConfig.roleplay.raceClassRestrictions[selectedRace] || [];
+                  allowedClasses.forEach(characterClass => { 
+                %>
+                  <option value="<%= characterClass %>" <%= profile && profile.character.class === characterClass ? 'selected' : '' %>><%= characterClass %></option>
+                <% }) %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">La clase o profesión de tu personaje</p>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="age" class="block text-sm font-medium text-gray-700">
+              Edad
+            </label>
+            <div class="mt-1">
+              <input type="number" name="age" id="age" value="<%= profile ? profile.character.age : 20 %>" min="1" max="1000" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" <%= !serverConfig.config.allowProfileEditing && profile ? 'readonly' : '' %>>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">La edad de tu personaje</p>
+          </div>
+
+          <div class="sm:col-span-6">
+            <label for="bio" class="block text-sm font-medium text-gray-700">
+              Biografía
+            </label>
+            <div class="mt-1">
+              <textarea id="bio" name="bio" rows="6" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" <%= !serverConfig.config.allowProfileEditing && profile ? 'readonly' : '' %>><%= profile ? profile.character.bio : '' %></textarea>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Historia de fondo, personalidad, objetivos y motivaciones de tu personaje</p>
+          </div>
+          
+          <% if (profile) { %>
+            <!-- Estadísticas (solo visibles si el perfil ya existe) -->
+            <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+              <h3 class="text-base font-medium text-gray-900">Estadísticas</h3>
+              <p class="mt-1 text-sm text-gray-500">Estas estadísticas se actualizan automáticamente mediante el uso de comandos del bot.</p>
+              
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm font-medium text-gray-500">Nivel</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900"><%= profile.character.level %></div>
+                  <div class="mt-1 w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: <%= Math.floor((profile.character.experience / (profile.character.level * 100)) * 100) %>%"></div>
+                  </div>
+                  <div class="mt-1 text-xs text-gray-500"><%= profile.character.experience %>/<%= profile.character.level * 100 %> EXP</div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm font-medium text-gray-500">Salud</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900"><%= profile.character.health.current %>/<%= profile.character.health.max %></div>
+                  <div class="mt-1 w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-red-600 h-2 rounded-full" style="width: <%= Math.floor((profile.character.health.current / profile.character.health.max) * 100) %>%"></div>
+                  </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm font-medium text-gray-500">Monedas</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-coins text-yellow-500 mr-2"></i>
+                    <%= profile.character.currency %>
+                  </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-md">
+                  <div class="text-sm font-medium text-gray-500">Victorias/Derrotas</div>
+                  <div class="mt-1 text-2xl font-semibold text-gray-900"><%= profile.stats.wins %>/<%= profile.stats.losses %></div>
+                  <div class="mt-1 text-xs text-gray-500">
+                    <%= profile.stats.quests.completed %> misiones completadas
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          
+          <!-- Preferencias -->
+          <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+            <h3 class="text-base font-medium text-gray-900">Preferencias</h3>
+            <p class="mt-1 text-sm text-gray-500">Personaliza cómo deseas que se muestre tu perfil.</p>
+            
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label for="theme" class="block text-sm font-medium text-gray-700">Tema</label>
+                <select id="theme" name="theme" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  <option value="default" <%= profile && profile.preferences.theme === 'default' ? 'selected' : '' %>>Por defecto</option>
+                  <option value="dark" <%= profile && profile.preferences.theme === 'dark' ? 'selected' : '' %>>Oscuro</option>
+                  <option value="light" <%= profile && profile.preferences.theme === 'light' ? 'selected' : '' %>>Claro</option>
+                  <option value="fantasy" <%= profile && profile.preferences.theme === 'fantasy' ? 'selected' : '' %>>Fantasía</option>
+                  <option value="cyberpunk" <%= profile && profile.preferences.theme === 'cyberpunk' ? 'selected' : '' %>>Cyberpunk</option>
+                </select>
+              </div>
+              
+              <div>
+                <label for="visibility" class="block text-sm font-medium text-gray-700">Visibilidad</label>
+                <select id="visibility" name="visibility" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                  <option value="public" <%= profile && profile.preferences.visibility === 'public' ? 'selected' : '' %>>Público - Visible para todos</option>
+                  <option value="friends" <%= profile && profile.preferences.visibility === 'friends' ? 'selected' : '' %>>Amigos - Solo para amigos</option>
+                  <option value="private" <%= profile && profile.preferences.visibility === 'private' ? 'selected' : '' %>>Privado - Solo para mí</option>
+                </select>
+              </div>
+              
+              <div>
+                <label for="customTitle" class="block text-sm font-medium text-gray-700">
+                  Título personalizado
+                </label>
+                <div class="mt-1">
+                  <input type="text" name="customTitle" id="customTitle" value="<%= profile ? profile.preferences.customTitle : '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Aparecerá debajo de tu nombre</p>
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <div class="flex items-center">
+                <input id="notifications" name="notifications" type="checkbox" <%= profile && profile.preferences.notifications ? 'checked' : '' %> class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                <label for="notifications" class="ml-2 block text-sm text-gray-900">
+                  Recibir notificaciones
+                </label>
+              </div>
+              <p class="mt-1 text-xs text-gray-500 ml-6">Recibirás notificaciones sobre tu personaje y actividades</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <%= profile ? 'Guardar cambios' : 'Crear perfil' %>
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  <% if (profile) { %>
+    <!-- Inventario y habilidades (solo visibles si el perfil ya existe) -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Inventario -->
+      <div class="bg-white shadow-md rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Inventario
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Items que posee tu personaje. Se gestionan con comandos del bot.
+          </p>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          <% if (profile.character.inventory && profile.character.inventory.length > 0) { %>
+            <ul class="divide-y divide-gray-200">
+              <% profile.character.inventory.forEach(item => { %>
+                <li class="py-3">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-900"><%= item.item %></span>
+                    <span class="text-sm text-gray-500">x<%= item.quantity %></span>
+                  </div>
+                  <% if (item.description) { %>
+                    <p class="text-xs text-gray-500 mt-1"><%= item.description %></p>
+                  <% } %>
+                </li>
+              <% }); %>
+            </ul>
+          <% } else { %>
+            <div class="text-center py-6">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">No hay items</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Tu inventario está vacío. Utiliza los comandos del bot para conseguir items.
+              </p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Habilidades -->
+      <div class="bg-white shadow-md rounded-lg">
+        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Habilidades
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Habilidades de tu personaje. Se mejoran con comandos del bot.
+          </p>
+        </div>
+        <div class="px-4 py-5 sm:p-6">
+          <% if (profile.character.skills && profile.character.skills.length > 0) { %>
+            <ul class="divide-y divide-gray-200">
+              <% profile.character.skills.forEach(skill => { %>
+                <li class="py-3">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-900"><%= skill.name %></span>
+                    <span class="text-sm text-gray-500">Nivel <%= skill.level %></span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                    <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <%= Math.min(100, skill.level * 10) %>%"></div>
+                  </div>
+                </li>
+              <% }); %>
+            </ul>
+          <% } else { %>
+            <div class="text-center py-6">
+              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900">Sin habilidades</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Aún no has desbloqueado habilidades. Usa los comandos del bot para obtenerlas.
+              </p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  // Actualizar vista previa del avatar
+  document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('characterAvatar');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const characterName = document.getElementById('characterName');
+    
+    if (avatarInput && avatarPreview) {
+      avatarInput.addEventListener('input', updateAvatarPreview);
+      
+      function updateAvatarPreview() {
+        const avatarUrl = avatarInput.value.trim();
+        
+        if (avatarUrl) {
+          // Crear una imagen y probar cargarla
+          const img = new Image();
+          
+          img.onload = function() {
+            // Si el elemento actual es una imagen, actualizarla
+            if (avatarPreview.tagName === 'IMG') {
+              avatarPreview.src = avatarUrl;
+            } else {
+              // Si no, reemplazar el contenido
+              avatarPreview.innerHTML = '';
+              avatarPreview.className = 'w-32 h-32 rounded-full object-cover border-4 border-white shadow';
+              avatarPreview.src = avatarUrl;
+            }
+          };
+          
+          img.onerror = function() {
+            // Si hay error, mostrar las iniciales
+            const initial = characterName.value ? characterName.value.charAt(0) : '?';
+            if (avatarPreview.tagName === 'IMG') {
+              // Reemplazar la imagen con un div
+              const parent = avatarPreview.parentNode;
+              const newDiv = document.createElement('div');
+              newDiv.id = 'avatarPreview';
+              newDiv.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
+              newDiv.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
+              parent.replaceChild(newDiv, avatarPreview);
+              avatarPreview = newDiv;
+            } else {
+              // Actualizar el div existente
+              avatarPreview.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
+              avatarPreview.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
+            }
+          };
+          
+          img.src = avatarUrl;
+        } else {
+          // Si no hay URL, mostrar las iniciales
+          const initial = characterName.value ? characterName.value.charAt(0) : '?';
+          if (avatarPreview.tagName === 'IMG') {
+            // Reemplazar la imagen con un div
+            const parent = avatarPreview.parentNode;
+            const newDiv = document.createElement('div');
+            newDiv.id = 'avatarPreview';
+            newDiv.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
+            newDiv.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
+            parent.replaceChild(newDiv, avatarPreview);
+            avatarPreview = newDiv;
+          } else {
+            // Actualizar el div existente
+            avatarPreview.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
+            avatarPreview.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
+          }
+        }
+      }
+      
+      // También actualizar cuando cambia el nombre (para las iniciales)
+      if (characterName) {
+        characterName.addEventListener('input', function() {
+          if (!avatarInput.value.trim()) {
+            const initial = characterName.value ? characterName.value.charAt(0) : '?';
+            if (avatarPreview.tagName !== 'IMG') {
+              const span = avatarPreview.querySelector('span');
+              if (span) {
+                span.textContent = initial;
+              }
+            }
+          }
+        });
+      }
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const raceSelect = document.getElementById("race");
+    const classSelect = document.getElementById("class");
+
+    // Verificar que los elementos existen antes de ejecutar el script
+    if (!raceSelect || !classSelect) {
+      console.error("Error: No se encontraron los elementos <select> de raza o clase.");
+      return;
+    }
+
+    // Obtener las restricciones de clases por raza desde el servidor
+    const raceClassRestrictions = <%- JSON.stringify(serverConfig.roleplay.raceClassRestrictions) %>;
+
+    function updateClassOptions() {
+      const selectedRace = raceSelect.value;
+      const allowedClasses = raceClassRestrictions[selectedRace] || [];
+
+      // Limpiar el select de clases
+      classSelect.innerHTML = "";
+
+      if (allowedClasses.length === 0) {
+        // Si la raza no tiene clases asignadas, mostrar un mensaje
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No hay clases disponibles";
+        option.disabled = true;
+        option.selected = true;
+        classSelect.appendChild(option);
+      } else {
+        // Agregar las clases disponibles para la raza seleccionada
+        allowedClasses.forEach(className => {
+          const option = document.createElement("option");
+          option.value = className;
+          option.textContent = className;
+          classSelect.appendChild(option);
+        });
+      }
+
+      // Aplicar animación de opacidad para mejorar la transición
+      classSelect.style.opacity = "0";
+      setTimeout(() => {
+        classSelect.style.opacity = "1";
+      }, 200);
+    }
+
+    // Ejecutar la función al cargar la página para establecer las opciones iniciales
+    updateClassOptions();
+
+    // Escuchar cambios en la selección de raza y actualizar la lista de clases
+    raceSelect.addEventListener("change", updateClassOptions);
+  });
+
+</script>
+
+
+<%- include('../partials/footer') %>

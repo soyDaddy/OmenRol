@@ -1,0 +1,321 @@
+/* Estilos para el modo minimalista */
+
+/* Reducción general */
+body.minimal-mode {
+    font-size: 0.95rem;
+  }
+  
+  /* Quitar sombras y animar */
+  body.minimal-mode .shadow,
+  body.minimal-mode .shadow-md,
+  body.minimal-mode .shadow-lg,
+  body.minimal-mode .shadow-xl,
+  body.minimal-mode .shadow-2xl,
+  body.minimal-mode .shadow-inner,
+  body.minimal-mode .shadow-none {
+    box-shadow: none !important;
+  }
+  
+  /* Reducir/eliminar animaciones */
+  body.minimal-mode .transition-all,
+  body.minimal-mode .transition,
+  body.minimal-mode .transition-opacity,
+  body.minimal-mode .transition-transform,
+  body.minimal-mode .transition-colors {
+    transition: none !important;
+  }
+  
+  body.minimal-mode .hover\:scale-105:hover,
+  body.minimal-mode .hover\:scale-110:hover,
+  body.minimal-mode .hover\:-translate-y-1:hover,
+  body.minimal-mode .hover\:translate-y-1:hover {
+    transform: none !important;
+  }
+  
+  /* Reducir bordes redondeados */
+  body.minimal-mode .rounded-md, 
+  body.minimal-mode .rounded-lg,
+  body.minimal-mode .rounded-xl,
+  body.minimal-mode .rounded-2xl,
+  body.minimal-mode .rounded-full {
+    border-radius: 0.25rem !important;
+  }
+  
+  /* Reducir imágenes */
+  body.minimal-mode img {
+    max-height: 80vh;
+    max-width: 100%;
+  }
+  
+  /* Ajustar tarjetas */
+  body.minimal-mode .card {
+    border: 1px solid var(--border-color);
+  }
+  
+  body.minimal-mode .card-header,
+  body.minimal-mode .card-footer {
+    background-color: transparent;
+  }
+  
+  /* Simplificar tablas */
+  body.minimal-mode thead {
+    border-bottom: 2px solid var(--border-color);
+  }
+  
+  body.minimal-mode tbody tr {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  body.minimal-mode .table-hover tbody tr:hover {
+    background-color: transparent;
+  }
+  
+  /* Ocultar elementos decorativos */
+  body.minimal-mode .decoration-only {
+    display: none !important;
+  }
+  
+  /* Reducir espaciado */
+  body.minimal-mode .px-4 {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+  
+  body.minimal-mode .py-4 {
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+  
+  body.minimal-mode .p-4 {
+    padding: 0.75rem !important;
+  }
+  
+  body.minimal-mode .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  body.minimal-mode .py-6 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+  
+  body.minimal-mode .p-6 {
+    padding: 1rem !important;
+  }
+  
+  body.minimal-mode .m-4 {
+    margin: 0.75rem !important;
+  }
+  
+  body.minimal-mode .my-4 {
+    margin-top: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  body.minimal-mode .mx-4 {
+    margin-left: 0.75rem !important;
+    margin-right: 0.75rem !important;
+  }
+  
+  body.minimal-mode .gap-4 {
+    gap: 0.75rem !important;
+  }
+  
+  body.minimal-mode .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0.75rem !important;
+  }
+  
+  body.minimal-mode .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-left: 0.75rem !important;
+  }
+  
+  /* Simplificar grid y flex layouts */
+  body.minimal-mode .grid {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  body.minimal-mode .sm\:grid-cols-2,
+  body.minimal-mode .md\:grid-cols-2,
+  body.minimal-mode .lg\:grid-cols-2 {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  body.minimal-mode .sm\:grid-cols-2 > *,
+  body.minimal-mode .md\:grid-cols-2 > *,
+  body.minimal-mode .lg\:grid-cols-2 > * {
+    width: 50%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+  
+  body.minimal-mode .sm\:grid-cols-3,
+  body.minimal-mode .md\:grid-cols-3,
+  body.minimal-mode .lg\:grid-cols-3 {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  body.minimal-mode .sm\:grid-cols-3 > *,
+  body.minimal-mode .md\:grid-cols-3 > *,
+  body.minimal-mode .lg\:grid-cols-3 > * {
+    width: 33.333%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+  
+  body.minimal-mode .sm\:grid-cols-4,
+  body.minimal-mode .md\:grid-cols-4,
+  body.minimal-mode .lg\:grid-cols-4 {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  body.minimal-mode .sm\:grid-cols-4 > *,
+  body.minimal-mode .md\:grid-cols-4 > *,
+  body.minimal-mode .lg\:grid-cols-4 > * {
+    width: 25%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+  }
+  
+  /* Móvil: stack todos los elementos */
+  @media (max-width: 640px) {
+    body.minimal-mode .grid > * {
+      width: 100% !important;
+    }
+  }
+  
+  /* Reducir elementos de formularios */
+  body.minimal-mode input,
+  body.minimal-mode select,
+  body.minimal-mode textarea {
+    padding: 0.375rem 0.5rem !important;
+  }
+  
+  /* Simplificar botones */
+  body.minimal-mode button,
+  body.minimal-mode .btn {
+    padding: 0.375rem 0.75rem !important;
+  }
+  
+  /* Ocultar efectos de hover */
+  body.minimal-mode .hover\:bg-gray-50:hover,
+  body.minimal-mode .hover\:bg-gray-100:hover,
+  body.minimal-mode .hover\:bg-indigo-700:hover,
+  body.minimal-mode .hover\:bg-indigo-600:hover,
+  body.minimal-mode .hover\:bg-red-700:hover,
+  body.minimal-mode .hover\:bg-red-600:hover,
+  body.minimal-mode .hover\:bg-green-700:hover,
+  body.minimal-mode .hover\:bg-green-600:hover {
+    background-color: inherit !important;
+  }
+  
+  /* Simplificar gráficos */
+  body.minimal-mode canvas {
+    height: auto !important;
+    max-height: 200px !important;
+  }
+  
+  /* Reducir el tamaño de los iconos */
+  body.minimal-mode .text-xl,
+  body.minimal-mode .text-2xl,
+  body.minimal-mode .text-3xl {
+    font-size: 1.25rem !important;
+  }
+  
+  body.minimal-mode .text-4xl,
+  body.minimal-mode .text-5xl,
+  body.minimal-mode .text-6xl {
+    font-size: 1.5rem !important;
+  }
+  
+  /* Reducir peso de fuentes */
+  body.minimal-mode .font-bold {
+    font-weight: 600 !important;
+  }
+  
+  body.minimal-mode .font-extrabold {
+    font-weight: 700 !important;
+  }
+  
+  /* Simplificar elementos decorativos */
+  body.minimal-mode .animate-spin,
+  body.minimal-mode .animate-pulse,
+  body.minimal-mode .animate-bounce {
+    animation: none !important;
+  }
+  
+  /* Optimizar la carga del loader */
+  body.minimal-mode .loader-container {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: none !important;
+  }
+  
+  body.minimal-mode.dark-theme .loader-container {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  /* Ocultar algunos elementos en modo minimalista */
+  body.minimal-mode .minimal-hide {
+    display: none !important;
+  }
+  
+  /* Reducir el número de columnas en dispositivos pequeños */
+  @media (max-width: 768px) {
+    body.minimal-mode .md\:grid-cols-3,
+    body.minimal-mode .md\:grid-cols-4 {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    
+    body.minimal-mode .md\:grid-cols-3 > *,
+    body.minimal-mode .md\:grid-cols-4 > * {
+      width: 50% !important;
+      padding: 0.25rem;
+    }
+  }
+  
+  /* Eliminar efectos blur */
+  body.minimal-mode .backdrop-blur,
+  body.minimal-mode .backdrop-filter {
+    backdrop-filter: none !important;
+  }
+  
+  /* Simplificar scrollbar */
+  body.minimal-mode::-webkit-scrollbar {
+    width: 4px !important;
+  }
+  
+  body.minimal-mode::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 2px !important;
+  }
+  
+  body.minimal-mode.dark-theme::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  /* Reducir tamaño máximo de elementos */
+  body.minimal-mode .max-w-7xl {
+    max-width: 100% !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Reducir tamaño de tipografía en dispositivos móviles */
+  @media (max-width: 640px) {
+    body.minimal-mode {
+      font-size: 0.9rem !important;
+    }
+    
+    body.minimal-mode .text-sm {
+      font-size: 0.8rem !important;
+    }
+    
+    body.minimal-mode .text-xs {
+      font-size: 0.7rem !important;
+    }
+  }

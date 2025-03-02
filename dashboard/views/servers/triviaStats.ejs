@@ -1,0 +1,283 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Estadísticas de Trivia - <%= server.name %></h1>
+    <a href="/servers/<%= server.serverId %>/trivia" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Volver a la lista</a>
+  </div>
+  
+  <!-- Resumen general -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700">Total de preguntas</h3>
+      <p class="text-3xl font-bold text-blue-600 mt-2"><%= stats.total %></p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700">Preguntas globales</h3>
+      <p class="text-3xl font-bold text-green-600 mt-2"><%= stats.globalTotal %></p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700">Preguntas de servidor</h3>
+      <p class="text-3xl font-bold text-purple-600 mt-2"><%= stats.serverOnlyTotal %></p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700">Categorías</h3>
+      <p class="text-3xl font-bold text-orange-600 mt-2"><%= stats.byCategory.length %></p>
+    </div>
+  </div>
+  
+  <!-- Gráficos y estadísticas detalladas -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Distribución por categoría -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700 mb-4">Distribución por categoría</h3>
+      <div class="h-64" id="categoryChart"></div>
+      
+      <div class="mt-4">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr>
+              <th class="text-left px-2 py-1">Categoría</th>
+              <th class="text-right px-2 py-1">Cantidad</th>
+              <th class="text-right px-2 py-1">Porcentaje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% stats.byCategory.forEach(cat => { %>
+              <tr>
+                <td class="px-2 py-1"><%= cat._id || 'Sin categoría' %></td>
+                <td class="text-right px-2 py-1"><%= cat.count %></td>
+                <td class="text-right px-2 py-1"><%= Math.round((cat.count / stats.total) * 100) %>%</td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Distribución por dificultad -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700 mb-4">Distribución por dificultad</h3>
+      <div class="h-64" id="difficultyChart"></div>
+      
+      <div class="mt-4">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr>
+              <th class="text-left px-2 py-1">Dificultad</th>
+              <th class="text-right px-2 py-1">Cantidad</th>
+              <th class="text-right px-2 py-1">Porcentaje</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% 
+              const difficulties = {
+                'fácil': 0,
+                'medio': 0,
+                'difícil': 0
+              };
+              
+              stats.byDifficulty.forEach(diff => {
+                difficulties[diff._id] = diff.count;
+              });
+              
+              Object.entries(difficulties).forEach(([diff, count]) => {
+                const percentage = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+            %>
+              <tr>
+                <td class="px-2 py-1">
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    <%= diff === 'fácil' ? 'bg-green-100 text-green-800' : 
+                       diff === 'medio' ? 'bg-yellow-100 text-yellow-800' : 
+                       'bg-red-100 text-red-800' %>">
+                    <%= diff %>
+                  </span>
+                </td>
+                <td class="text-right px-2 py-1"><%= count %></td>
+                <td class="text-right px-2 py-1"><%= percentage %>%</td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Top preguntas -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+    <!-- Más preguntadas -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700 mb-4">Más preguntadas</h3>
+      <% if (stats.topAsked.length === 0) { %>
+        <p class="text-gray-500 text-center py-4">No hay datos disponibles</p>
+      <% } else { %>
+        <ul class="divide-y divide-gray-200">
+          <% stats.topAsked.forEach(q => { %>
+            <li class="py-3">
+              <a href="/servers/<%= server.serverId %>/trivia/<%= q._id %>" class="block hover:bg-gray-50">
+                <p class="text-sm font-medium text-gray-900 truncate"><%= q.question %></p>
+                <p class="text-xs text-gray-500 mt-1">Preguntada <%= q.stats.timesAsked %> veces</p>
+                <div class="flex items-center mt-1">
+                  <span class="px-2 text-xs font-semibold rounded-full <%= q.isGlobal ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800' %>">
+                    <%= q.isGlobal ? 'Global' : 'Servidor' %>
+                  </span>
+                  <span class="ml-2 px-2 text-xs font-semibold rounded-full 
+                    <%= q.difficulty === 'fácil' ? 'bg-green-100 text-green-800' : 
+                       q.difficulty === 'medio' ? 'bg-yellow-100 text-yellow-800' : 
+                       'bg-red-100 text-red-800' %>">
+                    <%= q.difficulty %>
+                  </span>
+                </div>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+    
+    <!-- Más acertadas -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700 mb-4">Más acertadas</h3>
+      <% if (stats.topCorrect.length === 0) { %>
+        <p class="text-gray-500 text-center py-4">No hay datos disponibles</p>
+      <% } else { %>
+        <ul class="divide-y divide-gray-200">
+          <% stats.topCorrect.forEach(q => { %>
+            <li class="py-3">
+              <a href="/servers/<%= server.serverId %>/trivia/<%= q._id %>" class="block hover:bg-gray-50">
+                <p class="text-sm font-medium text-gray-900 truncate"><%= q.question %></p>
+                <p class="text-xs text-gray-500 mt-1"><%= q.stats.timesCorrect %> respuestas correctas de <%= q.stats.timesAsked %> veces preguntada</p>
+                <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
+                  <div class="bg-green-600 h-1.5 rounded-full" style="width: <%= Math.round((q.stats.timesCorrect / q.stats.timesAsked) * 100) %>%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Tasa de acierto: <%= Math.round((q.stats.timesCorrect / q.stats.timesAsked) * 100) %>%</p>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+    
+    <!-- Más falladas -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-semibold text-gray-700 mb-4">Más falladas</h3>
+      <% if (stats.topWrong.length === 0) { %>
+        <p class="text-gray-500 text-center py-4">No hay datos disponibles</p>
+      <% } else { %>
+        <ul class="divide-y divide-gray-200">
+          <% stats.topWrong.forEach(q => { %>
+            <li class="py-3">
+              <a href="/servers/<%= server.serverId %>/trivia/<%= q._id %>" class="block hover:bg-gray-50">
+                <p class="text-sm font-medium text-gray-900 truncate"><%= q.question %></p>
+                <p class="text-xs text-gray-500 mt-1"><%= q.stats.timesWrong %> respuestas incorrectas de <%= q.stats.timesAsked %> veces preguntada</p>
+                <div class="mt-1 w-full bg-gray-200 rounded-full h-1.5">
+                  <div class="bg-red-600 h-1.5 rounded-full" style="width: <%= Math.round((q.stats.timesWrong / q.stats.timesAsked) * 100) %>%"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Tasa de fallo: <%= Math.round((q.stats.timesWrong / q.stats.timesAsked) * 100) %>%</p>
+              </a>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Datos para el gráfico de categorías
+    const categoryData = {
+      labels: [<%= stats.byCategory.map(cat => `'${cat._id || "Sin categoría"}'`).join(',') %>],
+      datasets: [{
+        label: 'Preguntas por categoría',
+        data: [<%= stats.byCategory.map(cat => cat.count).join(',') %>],
+        backgroundColor: [
+          '#3B82F6', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', 
+          '#10B981', '#6366F1', '#14B8A6', '#F97316', '#8B5CF6',
+          '#06B6D4', '#06B6D4', '#0891B2', '#0E7490', '#155E75'
+        ],
+        borderWidth: 1
+      }]
+    };
+    
+    // Datos para el gráfico de dificultad
+    const difficultyColors = {
+      'fácil': '#10B981',   // verde
+      'medio': '#F59E0B',   // amarillo
+      'difícil': '#EF4444'  // rojo
+    };
+    
+    const difficultyLabels = [];
+    const difficultyData = [];
+    const difficultyColors2 = [];
+    
+    <% 
+      const diffOrder = ['fácil', 'medio', 'difícil'];
+      diffOrder.forEach(diff => {
+        const found = stats.byDifficulty.find(d => d._id === diff);
+        const count = found ? found.count : 0;
+    %>
+      difficultyLabels.push('<%= diff %>');
+      difficultyData.push(<%= count %>);
+      difficultyColors2.push(difficultyColors['<%= diff %>']);
+    <% }); %>
+    
+    const difficultyData2 = {
+      labels: difficultyLabels,
+      datasets: [{
+        label: 'Preguntas por dificultad',
+        data: difficultyData,
+        backgroundColor: difficultyColors2,
+        borderWidth: 1
+      }]
+    };
+    
+    // Crear gráfico de categorías
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    new Chart(categoryCtx, {
+      type: 'doughnut',
+      data: categoryData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 12,
+              font: {
+                size: 10
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    // Crear gráfico de dificultad
+    const difficultyCtx = document.getElementById('difficultyChart').getContext('2d');
+    new Chart(difficultyCtx, {
+      type: 'bar',
+      data: difficultyData2,
+      options: {
+        responsive: true,
+        indexAxis: 'y',
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

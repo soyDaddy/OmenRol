@@ -1,0 +1,315 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Perfil de <%= profile.character.name || 'Personaje' %></h1>
+      <p class="mt-2 text-sm text-gray-500">
+        <span class="inline-flex items-center">
+          <% if (guild.icon) { %>
+            <img src="<%= guild.iconURL() %>" alt="<%= guild.name %>" class="h-4 w-4 rounded-full mr-1">
+          <% } else { %>
+            <div class="h-4 w-4 rounded-full bg-gray-200 flex items-center justify-center mr-1">
+              <span class="text-gray-600 text-xs font-bold"><%= guild.name.charAt(0) %></span>
+            </div>
+          <% } %>
+          <%= guild.name %>
+        </span>
+      </p>
+    </div>
+    <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+      <a href="/servers/<%= guild.id %>/profiles/<%= profile._id %>/edit" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-edit mr-2"></i>Editar perfil
+      </a>
+      <button onclick="openDeleteModal()" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        <i class="fas fa-trash-alt mr-2"></i>Eliminar perfil
+      </button>
+      <a href="/servers/<%= guild.id %>/profiles" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a la lista
+      </a>
+    </div>
+  </div>
+
+  <!-- Estado de éxito -->
+  <% if (locals.success) { %>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">El perfil se ha actualizado correctamente.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Contenido principal -->
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Columna izquierda: información básica del personaje -->
+        <div class="lg:col-span-1">
+          <div class="flex flex-col items-center">
+            <div class="mb-4">
+              <% if (profile.character.avatar) { %>
+                <img src="<%= profile.character.avatar %>" alt="<%= profile.character.name %>" class="h-40 w-40 rounded-full object-cover border-4 border-white shadow">
+              <% } else { %>
+                <div class="h-40 w-40 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <span class="text-indigo-800 font-bold text-6xl"><%= profile.character.name ? profile.character.name.charAt(0) : '?' %></span>
+                </div>
+              <% } %>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-900 text-center"><%= profile.character.name || 'Sin nombre' %></h2>
+            <p class="text-sm text-gray-500 text-center"><%= profile.character.race %> | <%= profile.character.class %></p>
+            
+            <div class="mt-1 bg-gray-100 px-3 py-1 rounded-full text-sm text-gray-700">
+              Nivel <%= profile.character.level %>
+            </div>
+            
+            <div class="w-full mt-6 px-2">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-medium text-gray-700">Experiencia</span>
+                <span class="text-sm text-gray-500"><%= profile.character.experience %>/<%= profile.character.level * 100 %></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-600 h-2 rounded-full" style="width: <%= Math.floor((profile.character.experience / (profile.character.level * 100)) * 100) %>%"></div>
+              </div>
+              
+              <div class="flex justify-between items-center mt-3 mb-1">
+                <span class="text-sm font-medium text-gray-700">Salud</span>
+                <span class="text-sm text-gray-500"><%= profile.character.health.current %>/<%= profile.character.health.max %></span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-red-500 h-2 rounded-full" style="width: <%= Math.floor((profile.character.health.current / profile.character.health.max) * 100) %>%"></div>
+              </div>
+              
+              <div class="flex items-center justify-between mt-3">
+                <div class="text-sm font-medium text-gray-700">Monedas</div>
+                <div class="flex items-center">
+                  <i class="fas fa-coins text-yellow-500 mr-1"></i>
+                  <span class="text-sm text-gray-500"><%= profile.character.currency %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mt-8 border-t border-gray-200 pt-6">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">Información del usuario</h3>
+            <div class="flex items-center mb-4">
+              <div class="flex-shrink-0">
+                <img class="h-8 w-8 rounded-full" src="<%= user.avatar %>" alt="<%= user.tag %>">
+              </div>
+              <div class="ml-3">
+                <div class="text-sm font-medium text-gray-900"><%= user.tag %></div>
+                <div class="flex items-center">
+                  <span class="text-xs px-2 py-0.5 rounded-full <%= user.isInServer ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                    <%= user.isInServer ? 'En el servidor' : 'Fuera del servidor' %>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">
+              <p>Perfil creado: <%= new Date(profile.createdAt).toLocaleDateString() %></p>
+              <p>Última actualización: <%= new Date(profile.updatedAt).toLocaleDateString() %></p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Columna derecha: detalles del personaje -->
+        <div class="lg:col-span-3">
+          <div class="flex flex-col h-full">
+            <!-- Biografía -->
+            <div class="mb-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Biografía</h3>
+              <div class="bg-gray-50 p-4 rounded-md text-sm min-h-[100px]">
+                <% if (profile.character.bio && profile.character.bio.trim().length > 0) { %>
+                  <%- profile.character.bio.replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/^## (.*$)/gim, '<h2>$1</h2>').replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>').replace(/\*(.*)\*/gim, '<em>$1</em>').replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>').replace(/\n/g, '<br>') %>
+                <% } else { %>
+                  <p class="text-gray-500 italic">Este personaje no tiene biografía.</p>
+                <% } %>
+              </div>
+            </div>
+            
+            <!-- Inventario y habilidades -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Inventario -->
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Inventario</h3>
+                <div class="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+                  <% if (profile.character.inventory && profile.character.inventory.length > 0) { %>
+                    <ul class="divide-y divide-gray-200">
+                      <% profile.character.inventory.forEach(item => { %>
+                        <li class="py-2">
+                          <div class="flex justify-between">
+                            <span class="text-sm font-medium text-gray-900"><%= item.item %></span>
+                            <span class="text-sm text-gray-500">x<%= item.quantity %></span>
+                          </div>
+                          <% if (item.description) { %>
+                            <p class="text-xs text-gray-500 mt-1"><%= item.description %></p>
+                          <% } %>
+                        </li>
+                      <% }); %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-sm text-gray-500 italic">No hay items en el inventario.</p>
+                  <% } %>
+                </div>
+              </div>
+              
+              <!-- Habilidades -->
+              <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Habilidades</h3>
+                <div class="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+                  <% if (profile.character.skills && profile.character.skills.length > 0) { %>
+                    <ul class="divide-y divide-gray-200">
+                      <% profile.character.skills.forEach(skill => { %>
+                        <li class="py-2">
+                          <div class="flex justify-between">
+                            <span class="text-sm font-medium text-gray-900"><%= skill.name %></span>
+                            <span class="text-sm text-gray-500">Nivel <%= skill.level %></span>
+                          </div>
+                          <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <%= Math.min(100, skill.level * 10) %>%"></div>
+                          </div>
+                        </li>
+                      <% }); %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-sm text-gray-500 italic">No hay habilidades registradas.</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="mt-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Estadísticas</h3>
+              <div class="bg-gray-50 p-4 rounded-md">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Victorias</h4>
+                    <p class="text-xl font-semibold text-gray-900"><%= profile.stats.wins %></p>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Derrotas</h4>
+                    <p class="text-xl font-semibold text-gray-900"><%= profile.stats.losses %></p>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Misiones completadas</h4>
+                    <p class="text-xl font-semibold text-gray-900"><%= profile.stats.quests.completed %></p>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Misiones fallidas</h4>
+                    <p class="text-xl font-semibold text-gray-900"><%= profile.stats.quests.failed %></p>
+                  </div>
+                </div>
+                
+                <div class="mt-4">
+                  <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Actividades</h4>
+                  <% if (profile.stats.activities && profile.stats.activities.size > 0) { %>
+                    <div class="grid grid-cols-2 gap-2">
+                      <% for (const [activity, count] of profile.stats.activities.entries()) { %>
+                        <div class="flex justify-between items-center text-sm">
+                          <span class="text-gray-700"><%= activity %></span>
+                          <span class="text-gray-500"><%= count %></span>
+                        </div>
+                      <% } %>
+                    </div>
+                  <% } else { %>
+                    <p class="text-sm text-gray-500 italic">No hay actividades registradas.</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Preferencias -->
+            <div class="mt-6">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Preferencias</h3>
+              <div class="bg-gray-50 p-4 rounded-md">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Tema</h4>
+                    <p class="text-sm text-gray-900"><%= profile.preferences.theme === 'default' ? 'Por defecto' : profile.preferences.theme %></p>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Visibilidad</h4>
+                    <p class="text-sm text-gray-900">
+                      <% if (profile.preferences.visibility === 'public') { %>
+                        Público
+                      <% } else if (profile.preferences.visibility === 'friends') { %>
+                        Solo amigos
+                      <% } else { %>
+                        Privado
+                      <% } %>
+                    </p>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Notificaciones</h4>
+                    <p class="text-sm text-gray-900"><%= profile.preferences.notifications ? 'Activadas' : 'Desactivadas' %></p>
+                  </div>
+                  <div>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase">Título personalizado</h4>
+                    <p class="text-sm text-gray-900"><%= profile.preferences.customTitle || 'No establecido' %></p>
+                  </div>
+                </div>
+                
+                <% if (profile.preferences.customBadges && profile.preferences.customBadges.length > 0) { %>
+                  <div class="mt-4">
+                    <h4 class="text-xs font-medium text-gray-500 uppercase mb-2">Insignias</h4>
+                    <div class="flex flex-wrap gap-2">
+                      <% profile.preferences.customBadges.forEach(badge => { %>
+                        <div class="inline-flex items-center px-2 py-1 rounded-full bg-gray-200 text-xs">
+                          <% if (badge.icon) { %>
+                            <i class="<%= badge.icon %> mr-1"></i>
+                          <% } %>
+                          <%= badge.name %>
+                        </div>
+                      <% }); %>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg p-8 max-w-md">
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Confirmar eliminación</h3>
+    <p class="text-gray-700">¿Estás seguro de que deseas eliminar el perfil de <strong><%= profile.character.name || 'este personaje' %></strong>? Esta acción no se puede deshacer.</p>
+    <div class="mt-6 flex justify-end">
+      <button onclick="closeDeleteModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">Cancelar</button>
+      <form action="/servers/<%= guild.id %>/profiles/<%= profile._id %>/delete" method="POST">
+        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('hidden');
+  }
+  
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+  }
+  
+  // Cerrar modal al hacer clic fuera
+  window.addEventListener('click', function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target === modal) {
+      closeDeleteModal();
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

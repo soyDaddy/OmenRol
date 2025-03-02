@@ -1,0 +1,331 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Crear Nueva Habilidad - <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Añade una nueva habilidad a tu servidor</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/skills" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a habilidades
+      </a>
+    </div>
+  </div>
+  
+  <!-- Estado de error -->
+  <% if (req.query.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">Ha ocurrido un error al crear la habilidad.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Formulario para crear habilidad -->
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <form method="POST" action="/servers/<%= guild.id %>/skills/new">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Información básica
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Completa la información de la nueva habilidad.
+        </p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-3">
+            <label for="name" class="block text-sm font-medium text-gray-700">
+              Nombre de la habilidad *
+            </label>
+            <div class="mt-1">
+              <input type="text" id="name" name="name" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="category" class="block text-sm font-medium text-gray-700">
+              Categoría *
+            </label>
+            <div class="mt-1">
+              <select id="category" name="category" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="combat">Combate</option>
+                <option value="utility">Utilidad</option>
+                <option value="healing">Curación</option>
+                <option value="buff">Mejora</option>
+                <option value="debuff">Penalización</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="sm:col-span-6">
+            <label for="description" class="block text-sm font-medium text-gray-700">
+              Descripción *
+            </label>
+            <div class="mt-1">
+              <textarea id="description" name="description" rows="3" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Descripción detallada de la habilidad y sus efectos.</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="image" class="block text-sm font-medium text-gray-700">
+              URL de imagen
+            </label>
+            <div class="mt-1">
+              <input type="text" id="image" name="image" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">URL de una imagen para representar la habilidad (opcional).</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="targetType" class="block text-sm font-medium text-gray-700">
+              Tipo de objetivo *
+            </label>
+            <div class="mt-1">
+              <select id="targetType" name="targetType" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="self">Auto (propio usuario)</option>
+                <option value="single">Individual (un objetivo)</option>
+                <option value="group">Grupo (varios objetivos)</option>
+                <option value="area">Área (todos en el área)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+            <h3 class="text-base font-medium text-gray-900">Restricciones y requisitos</h3>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="levelRequired" class="block text-sm font-medium text-gray-700">
+              Nivel requerido
+            </label>
+            <div class="mt-1">
+              <input type="number" id="levelRequired" name="levelRequired" min="1" value="1" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="manaCost" class="block text-sm font-medium text-gray-700">
+              Costo de maná
+            </label>
+            <div class="mt-1">
+              <input type="number" id="manaCost" name="manaCost" min="0" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="cooldown" class="block text-sm font-medium text-gray-700">
+              Tiempo de recarga (turnos)
+            </label>
+            <div class="mt-1">
+              <input type="number" id="cooldown" name="cooldown" min="0" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="raceRestrictions" class="block text-sm font-medium text-gray-700">
+              Restricciones de raza
+            </label>
+            <div class="mt-1">
+              <select id="raceRestrictions" name="raceRestrictions" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="5">
+                <% if (serverConfig && serverConfig.roleplay.races.length > 0) { %>
+                  <% serverConfig.roleplay.races.forEach(race => { %>
+                    <option value="<%= race %>"><%= race %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Humano">Humano</option>
+                  <option value="Elfo">Elfo</option>
+                  <option value="Enano">Enano</option>
+                  <option value="Orco">Orco</option>
+                  <option value="Tiefling">Tiefling</option>
+                <% } %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona las razas que NO pueden usar esta habilidad (deja vacío para permitir todas).</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="classRestrictions" class="block text-sm font-medium text-gray-700">
+              Restricciones de clase
+            </label>
+            <div class="mt-1">
+              <select id="classRestrictions" name="classRestrictions" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="5">
+                <% if (serverConfig && serverConfig.roleplay.classes.length > 0) { %>
+                  <% serverConfig.roleplay.classes.forEach(cls => { %>
+                    <option value="<%= cls %>"><%= cls %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Guerrero">Guerrero</option>
+                  <option value="Mago">Mago</option>
+                  <option value="Clérigo">Clérigo</option>
+                  <option value="Pícaro">Pícaro</option>
+                  <option value="Bardo">Bardo</option>
+                <% } %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona las clases que NO pueden usar esta habilidad (deja vacío para permitir todas).</p>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="maxUses" class="block text-sm font-medium text-gray-700">
+              Usos máximos
+            </label>
+            <div class="mt-1">
+              <input type="number" id="maxUses" name="maxUses" min="0" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">0 = usos ilimitados</p>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="usesPerDay" class="block text-sm font-medium text-gray-700">
+              Usos por día
+            </label>
+            <div class="mt-1">
+              <input type="number" id="usesPerDay" name="usesPerDay" min="0" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">0 = sin límite diario</p>
+          </div>
+          
+          <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+            <h3 class="text-base font-medium text-gray-900">Efectos</h3>
+            <p class="mt-1 text-sm text-gray-500">Define los efectos de esta habilidad cuando se utiliza.</p>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsDamage" class="block text-sm font-medium text-gray-700">
+              Daño
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsDamage" name="effectsDamage" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsHealing" class="block text-sm font-medium text-gray-700">
+              Curación
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsHealing" name="effectsHealing" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsDuration" class="block text-sm font-medium text-gray-700">
+              Duración (turnos)
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsDuration" name="effectsDuration" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">0 = efecto instantáneo</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="effectsBuffStrength" class="block text-sm font-medium text-gray-700">
+              Modificador de Fuerza
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsBuffStrength" name="effectsBuffStrength" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Valores negativos = debuff</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="effectsBuffIntelligence" class="block text-sm font-medium text-gray-700">
+              Modificador de Inteligencia
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsBuffIntelligence" name="effectsBuffIntelligence" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Valores negativos = debuff</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="effectsBuffDexterity" class="block text-sm font-medium text-gray-700">
+              Modificador de Destreza
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsBuffDexterity" name="effectsBuffDexterity" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Valores negativos = debuff</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="effectsBuffDefense" class="block text-sm font-medium text-gray-700">
+              Modificador de Defensa
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsBuffDefense" name="effectsBuffDefense" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Valores negativos = debuff</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Crear Habilidad
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Mejorar la experiencia de usuario para los select múltiples
+  document.addEventListener('DOMContentLoaded', function() {
+    const multiSelects = document.querySelectorAll('select[multiple]');
+    
+    multiSelects.forEach(select => {
+      select.addEventListener('mousedown', function(e) {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          
+          const option = e.target.closest('option');
+          if (!option) return;
+          
+          const alreadySelected = option.selected;
+          
+          if (!e.shiftKey) {
+            option.selected = !alreadySelected;
+          } else {
+            // Si se presiona Shift, seleccionar un rango
+            const options = Array.from(this.options);
+            const lastSelectedIndex = options.findIndex(opt => opt.dataset.lastSelected);
+            
+            if (lastSelectedIndex >= 0) {
+              const currentIndex = options.indexOf(option);
+              const start = Math.min(lastSelectedIndex, currentIndex);
+              const end = Math.max(lastSelectedIndex, currentIndex);
+              
+              for (let i = start; i <= end; i++) {
+                options[i].selected = true;
+              }
+            } else {
+              option.selected = !alreadySelected;
+            }
+          }
+          
+          // Marcar la última opción seleccionada
+          this.querySelectorAll('option').forEach(opt => {
+            opt.dataset.lastSelected = false;
+          });
+          option.dataset.lastSelected = true;
+          
+          const event = new Event('change', { bubbles: true });
+          this.dispatchEvent(event);
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

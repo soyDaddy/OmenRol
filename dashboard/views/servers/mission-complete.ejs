@@ -1,0 +1,297 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">¡Misión Completada!</h1>
+      <p class="mt-2 text-sm text-gray-500"><%= mission.title %></p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/missions/active" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a misiones
+      </a>
+    </div>
+  </div>
+  
+  <!-- Contenido de la página -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 bg-green-50 border-b border-green-100">
+      <div class="flex items-center">
+        <div class="flex-shrink-0 bg-green-100 rounded-full p-3">
+          <i class="fas fa-check-circle text-green-600 text-xl"></i>
+        </div>
+        <div class="ml-4">
+          <h2 class="text-lg leading-6 font-medium text-green-800">
+            ¡Has completado la misión con éxito!
+          </h2>
+          <p class="text-green-600 text-sm">
+            Reclama tus recompensas
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="px-4 py-5 sm:px-6">
+      <div class="prose max-w-none text-gray-700">
+        <%= mission.description %>
+      </div>
+      
+      <div class="mt-6">
+        <h3 class="text-lg font-medium text-gray-900">Recompensas disponibles</h3>
+        
+        <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <!-- Experiencia y monedas -->
+          <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-full p-3">
+                  <i class="fas fa-star text-yellow-600"></i>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      Experiencia
+                    </dt>
+                    <dd>
+                      <div class="text-lg font-medium text-gray-900">
+                        <%= mission.rewards.experience %> EXP
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 overflow-hidden shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-full p-3">
+                  <i class="fas fa-coins text-yellow-600"></i>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt class="text-sm font-medium text-gray-500 truncate">
+                      Monedas
+                    </dt>
+                    <dd>
+                      <div class="text-lg font-medium text-gray-900">
+                        <%= mission.rewards.currency %>
+                      </div>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Items -->
+          <% if (mission.rewards.items && mission.rewards.items.length > 0) { %>
+            <div class="bg-gray-50 overflow-hidden shadow rounded-lg sm:col-span-2">
+              <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center mb-4">
+                  <div class="flex-shrink-0 bg-purple-100 rounded-full p-3">
+                    <i class="fas fa-box text-purple-600"></i>
+                  </div>
+                  <div class="ml-5">
+                    <h4 class="text-lg font-medium text-gray-900">Items</h4>
+                  </div>
+                </div>
+                
+                <ul role="list" class="divide-y divide-gray-200">
+                  <% mission.rewards.items.forEach(function(rewardItem) { %>
+                    <li class="py-4 flex">
+                      <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">
+                          <% const item = items.find(i => i._id.toString() === rewardItem.itemId.toString()); %>
+                          <%= item ? item.name : 'Item desconocido' %> x<%= rewardItem.quantity %>
+                        </p>
+                        <% if (item && item.description) { %>
+                          <p class="text-sm text-gray-500"><%= item.description %></p>
+                        <% } %>
+                      </div>
+                    </li>
+                  <% }); %>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+          
+          <!-- Habilidades -->
+          <% if (mission.rewards.skills && mission.rewards.skills.length > 0) { %>
+            <div class="bg-gray-50 overflow-hidden shadow rounded-lg sm:col-span-2">
+              <div class="px-4 py-5 sm:p-6">
+                <div class="flex items-center mb-4">
+                  <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
+                    <i class="fas fa-magic text-blue-600"></i>
+                  </div>
+                  <div class="ml-5">
+                    <h4 class="text-lg font-medium text-gray-900">Habilidades</h4>
+                  </div>
+                </div>
+                
+                <ul role="list" class="divide-y divide-gray-200">
+                  <% mission.rewards.skills.forEach(function(skillId) { %>
+                    <li class="py-4 flex">
+                      <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">
+                          <% const skill = skills.find(s => s._id.toString() === skillId.toString()); %>
+                          <%= skill ? skill.name : 'Habilidad desconocida' %>
+                        </p>
+                        <% if (skill && skill.description) { %>
+                          <p class="text-sm text-gray-500"><%= skill.description %></p>
+                        <% } %>
+                      </div>
+                    </li>
+                  <% }); %>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <div class="mt-8 flex justify-center">
+        <button id="claim-rewards-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          <i class="fas fa-trophy mr-2"></i>
+          Reclamar Recompensas
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de recompensas reclamadas -->
+<div id="rewards-claimed-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <div class="mb-4 text-center">
+      <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+        <i class="fas fa-check text-green-600 text-xl"></i>
+      </div>
+      <h3 class="mt-4 text-lg font-medium text-gray-900">¡Recompensas Recibidas!</h3>
+      <div class="mt-2" id="rewards-details">
+        <!-- Esta sección se llenará dinámicamente -->
+      </div>
+    </div>
+    
+    <div class="mt-5">
+      <div id="adventure-progress" class="hidden mb-4">
+        <h4 class="font-medium text-gray-900 mb-2">Progreso de Aventura</h4>
+        <div id="adventure-details"></div>
+      </div>
+      
+      <div class="flex justify-center">
+        <a href="/servers/<%= guild.id %>/missions/active" class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Volver a Misiones
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const claimRewardsBtn = document.getElementById('claim-rewards-btn');
+    const rewardsClaimedModal = document.getElementById('rewards-claimed-modal');
+    const rewardsDetails = document.getElementById('rewards-details');
+    const adventureProgress = document.getElementById('adventure-progress');
+    const adventureDetails = document.getElementById('adventure-details');
+    
+    claimRewardsBtn.addEventListener('click', async function() {
+      try {
+        // Deshabilitar botón para evitar múltiples clics
+        claimRewardsBtn.disabled = true;
+        claimRewardsBtn.innerText = 'Reclamando...';
+        
+        // Hacer la petición para reclamar recompensas
+        const response = await fetch(`/servers/<%= guild.id %>/missions/<%= mission._id %>/claim-rewards`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Mostrar detalles de recompensas
+          let rewardsHTML = '<ul class="mt-2 text-sm text-gray-600 text-left">';
+          
+          if (data.rewards.experience) {
+            rewardsHTML += `<li class="mb-1"><i class="fas fa-star text-yellow-500 mr-1"></i> ${data.rewards.experience} puntos de experiencia</li>`;
+          }
+          
+          if (data.rewards.levelUp) {
+            rewardsHTML += `<li class="mb-1 font-medium text-green-600"><i class="fas fa-level-up-alt mr-1"></i> ¡Subiste al nivel ${data.rewards.levelUp.to}!</li>`;
+          }
+          
+          if (data.rewards.currency) {
+            rewardsHTML += `<li class="mb-1"><i class="fas fa-coins text-yellow-500 mr-1"></i> ${data.rewards.currency} monedas</li>`;
+          }
+          
+          if (data.rewards.items && data.rewards.items.length > 0) {
+            data.rewards.items.forEach(item => {
+              rewardsHTML += `<li class="mb-1"><i class="fas fa-box text-purple-500 mr-1"></i> ${item.name} x${item.quantity}</li>`;
+            });
+          }
+          
+          if (data.rewards.skills && data.rewards.skills.length > 0) {
+            data.rewards.skills.forEach(skill => {
+              rewardsHTML += `<li class="mb-1"><i class="fas fa-magic text-blue-500 mr-1"></i> Nueva habilidad: ${skill.name}</li>`;
+            });
+          }
+          
+          rewardsHTML += '</ul>';
+          rewardsDetails.innerHTML = rewardsHTML;
+          
+          // Mostrar progreso de aventura si hay actualizaciones
+          if (data.adventureUpdates && data.adventureUpdates.length > 0) {
+            adventureProgress.classList.remove('hidden');
+            
+            let adventureHTML = '<ul class="mt-2 text-sm text-gray-600 text-left">';
+            
+            data.adventureUpdates.forEach(update => {
+              if (update.completed) {
+                adventureHTML += `
+                  <li class="mb-2">
+                    <div class="font-medium text-indigo-600"><i class="fas fa-route mr-1"></i> Aventura "${update.title}" completada</div>
+                    <div class="text-xs text-gray-500">¡Has completado todas las misiones requeridas!</div>
+                    <a href="/servers/<%= guild.id %>/adventures/${update.id}/complete" class="text-xs text-indigo-600 hover:text-indigo-800">
+                      Reclamar recompensas de aventura
+                    </a>
+                  </li>
+                `;
+              } else {
+                adventureHTML += `
+                  <li class="mb-2">
+                    <div><i class="fas fa-route mr-1"></i> Progreso en "${update.title}"</div>
+                    <div class="text-xs text-gray-500">Te quedan ${update.remainingMissions} misiones requeridas por completar</div>
+                  </li>
+                `;
+              }
+            });
+            
+            adventureHTML += '</ul>';
+            adventureDetails.innerHTML = adventureHTML;
+          }
+          
+          // Mostrar modal
+          rewardsClaimedModal.classList.remove('hidden');
+        } else {
+          // Mostrar error
+          alert('Error al reclamar recompensas: ' + data.error);
+          claimRewardsBtn.disabled = false;
+          claimRewardsBtn.innerHTML = '<i class="fas fa-trophy mr-2"></i>Reclamar Recompensas';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al procesar la solicitud');
+        claimRewardsBtn.disabled = false;
+        claimRewardsBtn.innerHTML = '<i class="fas fa-trophy mr-2"></i>Reclamar Recompensas';
+      }
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

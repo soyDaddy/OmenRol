@@ -1,0 +1,311 @@
+/**
+ * TEMA FANTASY - OMENROL
+ * Estética medieval fantástica con tonalidades violetas y doradas
+ */
+
+/* Colores base */
+body {
+    background-color: #1E293B !important;
+    color: #E2E8F0 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%238B5CF6' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") !important;
+  }
+  
+  /* Navbar */
+  .bg-gray-800 {
+    background-color: #0F172A !important;
+    border-bottom: 1px solid #8B5CF6 !important;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2) !important;
+  }
+  
+  .bg-gray-900 {
+    background-color: #1E293B !important;
+  }
+  
+  nav a.text-gray-300 {
+    color: #E0CFFC !important;
+  }
+  
+  nav a.hover\:bg-gray-700:hover {
+    background-color: #334155 !important;
+    border-bottom: 1px solid #C4B5FD !important;
+  }
+  
+  .text-gray-400 {
+    color: #A78BFA !important;
+  }
+  
+  .hover\:text-white:hover {
+    color: #F9A8D4 !important;
+  }
+  
+  /* Breadcrumb */
+  .bg-white.shadow-sm {
+    background-color: rgba(15, 23, 42, 0.7) !important;
+    border-bottom: 1px solid #8B5CF6 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  
+  .text-gray-500 {
+    color: #A78BFA !important;
+  }
+  
+  .text-gray-700, .hover\:text-gray-700:hover {
+    color: #F0ABFC !important;
+  }
+  
+  .text-gray-400 {
+    color: #8B5CF6 !important;
+  }
+  
+  .text-gray-900 {
+    color: #F8FAFC !important;
+  }
+  
+  /* Tarjetas y contenedores */
+  .bg-white {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+    border: 1px solid #8B5CF6 !important;
+    box-shadow: 0 4px 6px rgba(139, 92, 246, 0.2) !important;
+    backdrop-filter: blur(16px) !important;
+  }
+  
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #8B5CF6 !important;
+  }
+  
+  .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.2), 0 0 0 1px rgba(139, 92, 246, 0.1) !important;
+  }
+  
+  /* Botones */
+  .bg-indigo-600 {
+    background-color: #8B5CF6 !important;
+    border: 1px solid #C4B5FD !important;
+    box-shadow: 0 2px 5px rgba(139, 92, 246, 0.3) !important;
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: #7C3AED !important;
+    box-shadow: 0 4px 8px rgba(139, 92, 246, 0.5) !important;
+  }
+  
+  .bg-gray-700 {
+    background-color: #334155 !important;
+  }
+  
+  .hover\:bg-gray-600:hover {
+    background-color: #475569 !important;
+  }
+  
+  /* Menús desplegables */
+  #themeMenu, #userMenu {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+    border: 1px solid #8B5CF6 !important;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  
+  #themeMenu button, #userMenu a {
+    color: #E2E8F0 !important;
+  }
+  
+  #themeMenu button:hover, #userMenu a:hover {
+    background-color: rgba(139, 92, 246, 0.2) !important;
+    color: #C4B5FD !important;
+  }
+  
+  /* Tablas */
+  .bg-gray-50 {
+    background-color: rgba(30, 41, 59, 0.6) !important;
+  }
+  
+  .divide-gray-200 > * + * {
+    border-color: rgba(139, 92, 246, 0.3) !important;
+  }
+  
+  tbody.bg-white {
+    background-color: rgba(30, 41, 59, 0.8) !important;
+  }
+  
+  tbody tr:hover {
+    background-color: rgba(139, 92, 246, 0.1) !important;
+  }
+  
+  /* Formularios */
+  input, select, textarea {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-color: #8B5CF6 !important;
+    color: #E2E8F0 !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: #A78BFA !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3) !important;
+  }
+  
+  /* Loader */
+  .loader-container {
+    background-color: rgba(15, 23, 42, 0.7) !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  
+  .loader {
+    border-top-color: #8B5CF6 !important;
+  }
+  
+  /* Footer */
+  footer.bg-white {
+    background-color: rgba(15, 23, 42, 0.9) !important;
+    border-top: 1px solid #8B5CF6 !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  
+  footer .text-gray-900 {
+    color: #E2E8F0 !important;
+  }
+  
+  /* Tabs y navegación */
+  .border-indigo-500 {
+    border-color: #8B5CF6 !important;
+  }
+  
+  .bg-indigo-50 {
+    background-color: rgba(139, 92, 246, 0.1) !important;
+  }
+  
+  .text-indigo-700 {
+    color: #A78BFA !important;
+  }
+  
+  /* Alerts y notificaciones */
+  .bg-green-50 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+  
+  .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+  
+  .text-green-700 {
+    color: #6EE7B7 !important;
+  }
+  
+  .text-red-700 {
+    color: #FDA4AF !important;
+  }
+  
+  /* Badges y elementos decorativos */
+  .bg-indigo-100 {
+    background-color: rgba(139, 92, 246, 0.2) !important;
+  }
+  
+  .text-indigo-800 {
+    color: #C4B5FD !important;
+  }
+  
+  .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+  }
+  
+  .text-red-800 {
+    color: #FDA4AF !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+  }
+  
+  .text-yellow-800 {
+    color: #FCD34D !important;
+  }
+  
+  .bg-green-100 {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+  }
+  
+  .text-green-800 {
+    color: #6EE7B7 !important;
+  }
+  
+  .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+  }
+  
+  .text-blue-800 {
+    color: #93C5FD !important;
+  }
+  
+  /* Enlaces y botones */
+  .text-indigo-600 {
+    color: #A78BFA !important;
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: #C4B5FD !important;
+  }
+  
+  /* Efectos adicionales */
+  a, button {
+    transition: all 0.2s ease !important;
+  }
+  
+  .ring-black {
+    --tw-ring-opacity: 0 !important;
+  }
+  
+  .focus\:ring-indigo-500:focus {
+    --tw-ring-color: rgba(139, 92, 246, var(--tw-ring-opacity)) !important;
+  }
+  
+  .focus\:border-indigo-500:focus {
+    border-color: #8B5CF6 !important;
+  }
+  
+  /* Personalización de scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.5);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #8B5CF6;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #A78BFA;
+  }
+  
+  /* Efectos especiales */
+  .user-menu-btn img {
+    border: 2px solid #8B5CF6;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+  }
+  
+  /* Decoraciones especiales para el tema fantasy */
+  .navbar::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+    opacity: 0.5;
+  }
+  
+  .breadcrumb::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+    opacity: 0.3;
+  }

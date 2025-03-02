@@ -1,0 +1,297 @@
+/**
+ * TEMA CLARO - OMENROL
+ * Tema predeterminado con colores claros y tonos índigo
+ */
+
+/* Colores base */
+body {
+    background-color: #F9FAFB !important;
+    color: #1F2937 !important;
+  }
+  
+  /* Navbar */
+  .bg-gray-800 {
+    background-color: #1F2937 !important;
+  }
+  
+  .bg-gray-900 {
+    background-color: #111827 !important;
+  }
+  
+  nav a.text-gray-300 {
+    color: #D1D5DB !important;
+  }
+  
+  nav a.hover\:bg-gray-700:hover {
+    background-color: #374151 !important;
+  }
+  
+  .text-gray-400 {
+    color: #9CA3AF !important;
+  }
+  
+  .hover\:text-white:hover {
+    color: #FFFFFF !important;
+  }
+  
+  /* Breadcrumb */
+  .bg-white.shadow-sm {
+    background-color: #FFFFFF !important;
+    border-bottom: 1px solid #E5E7EB !important;
+  }
+  
+  .text-gray-500 {
+    color: #6B7280 !important;
+  }
+  
+  .text-gray-700, .hover\:text-gray-700:hover {
+    color: #374151 !important;
+  }
+  
+  .text-gray-400 {
+    color: #9CA3AF !important;
+  }
+  
+  .text-gray-900 {
+    color: #111827 !important;
+  }
+  
+  /* Tarjetas y contenedores */
+  .bg-white {
+    background-color: #FFFFFF !important;
+  }
+  
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #E5E7EB !important;
+  }
+  
+  .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  .shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  /* Botones */
+  .bg-indigo-600 {
+    background-color: #4F46E5 !important;
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: #4338CA !important;
+  }
+  
+  .bg-gray-700 {
+    background-color: #374151 !important;
+  }
+  
+  .hover\:bg-gray-600:hover {
+    background-color: #4B5563 !important;
+  }
+  
+  /* Menús desplegables */
+  #themeMenu, #userMenu {
+    background-color: #FFFFFF !important;
+    border: 1px solid #E5E7EB !important;
+  }
+  
+  #themeMenu button, #userMenu a {
+    color: #1F2937 !important;
+  }
+  
+  #themeMenu button:hover, #userMenu a:hover {
+    background-color: #F3F4F6 !important;
+  }
+  
+  /* Tablas */
+  .bg-gray-50 {
+    background-color: #F9FAFB !important;
+  }
+  
+  .divide-gray-200 > * + * {
+    border-color: #E5E7EB !important;
+  }
+  
+  tbody.bg-white {
+    background-color: #FFFFFF !important;
+  }
+  
+  tbody tr:hover {
+    background-color: rgba(79, 70, 229, 0.05) !important;
+  }
+  
+  /* Formularios */
+  input, select, textarea {
+    background-color: #FFFFFF !important;
+    border-color: #D1D5DB !important;
+    color: #1F2937 !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: #4F46E5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2) !important;
+  }
+  
+  /* Loader */
+  .loader-container {
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+  
+  .loader {
+    border-top-color: #4F46E5 !important;
+  }
+  
+  /* Footer */
+  footer.bg-white {
+    background-color: #FFFFFF !important;
+    border-top: 1px solid #E5E7EB !important;
+  }
+  
+  footer .text-gray-900 {
+    color: #111827 !important;
+  }
+  
+  /* Tabs y navegación */
+  .border-indigo-500 {
+    border-color: #4F46E5 !important;
+  }
+  
+  .bg-indigo-50 {
+    background-color: #EEF2FF !important;
+  }
+  
+  .text-indigo-700 {
+    color: #4338CA !important;
+  }
+  
+  /* Alerts y notificaciones */
+  .bg-green-50 {
+    background-color: #ECFDF5 !important;
+  }
+  
+  .bg-red-50 {
+    background-color: #FEF2F2 !important;
+  }
+  
+  .text-green-700 {
+    color: #047857 !important;
+  }
+  
+  .text-red-700 {
+    color: #B91C1C !important;
+  }
+  
+  /* Badges y elementos decorativos */
+  .bg-indigo-100 {
+    background-color: #E0E7FF !important;
+  }
+  
+  .text-indigo-800 {
+    color: #3730A3 !important;
+  }
+  
+  .bg-red-100 {
+    background-color: #FEE2E2 !important;
+  }
+  
+  .text-red-800 {
+    color: #991B1B !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: #FEF3C7 !important;
+  }
+  
+  .text-yellow-800 {
+    color: #92400E !important;
+  }
+  
+  .bg-green-100 {
+    background-color: #D1FAE5 !important;
+  }
+  
+  .text-green-800 {
+    color: #065F46 !important;
+  }
+  
+  .bg-blue-100 {
+    background-color: #DBEAFE !important;
+  }
+  
+  .text-blue-800 {
+    color: #1E40AF !important;
+  }
+  
+  /* Enlaces y botones */
+  .text-indigo-600 {
+    color: #4F46E5 !important;
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: #6366F1 !important;
+  }
+  
+  /* Efectos y transiciones */
+  a, button {
+    transition: all 0.2s ease !important;
+  }
+  
+  .focus\:ring-indigo-500:focus {
+    --tw-ring-color: rgba(79, 70, 229, var(--tw-ring-opacity)) !important;
+  }
+  
+  .focus\:border-indigo-500:focus {
+    border-color: #4F46E5 !important;
+  }
+  
+  /* Personalización de scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #F3F4F6;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+  }
+  
+  /* Efectos de hover mejorados */
+  .card, .bg-white {
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  }
+  
+  .card:hover, .bg-white:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  }
+  
+  /* Mejoras para botones */
+  button, .btn, a.btn {
+    transition: all 0.2s ease !important;
+  }
+  
+  button:hover, .btn:hover, a.btn:hover {
+    transform: translateY(-1px) !important;
+  }
+  
+  /* Efecto para los avatares */
+  .user-menu-btn img {
+    transition: all 0.2s ease !important;
+  }
+  
+  .user-menu-btn:hover img {
+    transform: scale(1.05) !important;
+  }

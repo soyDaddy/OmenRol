@@ -1,0 +1,213 @@
+<%- include('../partials/header') %>
+
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Importar Preguntas de Trivia - <%= server.name %></h1>
+    <a href="/servers/<%= server.serverId %>/trivia" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">Volver a la lista</a>
+  </div>
+
+  <% if (locals.error) { %>
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
+      <p><%= error %></p>
+    </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Formulario de importación -->
+    <div class="md:col-span-2">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <form action="/servers/<%= server.serverId %>/trivia/import" method="POST">
+          <!-- Tipo de preguntas -->
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="isGlobal">Tipo de preguntas</label>
+            <div class="flex items-center">
+              <input type="checkbox" id="isGlobal" name="isGlobal" value="true" class="mr-2">
+              <label for="isGlobal" class="text-gray-700">
+                Preguntas globales (disponibles en todos los servidores)
+              </label>
+            </div>
+            <p class="text-gray-600 text-xs mt-1">Las preguntas globales estarán disponibles para todos los servidores que usen el bot.</p>
+          </div>
+
+          <!-- Preguntas para importar -->
+          <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="questions">Preguntas para importar (formato JSON) *</label>
+            <p class="text-gray-600 text-xs mb-2">Copia y pega un array JSON con las preguntas a importar.</p>
+            <textarea id="questions" name="questions" required rows="15" 
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline font-mono text-sm"
+              placeholder='[
+  {
+    "question": "¿Cuál es el planeta más grande del sistema solar?",
+    "options": ["Tierra", "Júpiter", "Saturno", "Neptuno"],
+    "answer": 1,
+    "difficulty": "fácil",
+    "category": "Ciencia"
+  },
+  {
+    "question": "¿Quién pintó la Mona Lisa?",
+    "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Miguel Ángel"],
+    "answer": 2,
+    "difficulty": "fácil",
+    "category": "Arte"
+  }
+]'></textarea>
+          </div>
+
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <p class="text-sm text-yellow-700">
+                  <strong>Importante:</strong> Cada pregunta debe tener los campos "question", "options" (array), "answer" (índice 0-based) y opcionalmente "difficulty" y "category".
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de acción -->
+          <div class="flex items-center justify-end">
+            <a href="/servers/<%= server.serverId %>/trivia" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mr-2">
+              Cancelar
+            </a>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              Importar Preguntas
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Panel lateral con instrucciones -->
+    <div class="md:col-span-1">
+      <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+        <h2 class="text-xl font-semibold mb-4">Instrucciones</h2>
+        
+        <div class="text-sm text-gray-700 space-y-4">
+          <p>La importación de preguntas te permite añadir múltiples preguntas de trivia a la vez en formato JSON.</p>
+          
+          <h3 class="font-semibold text-gray-800 mt-4">Formato requerido</h3>
+          <p>Cada pregunta debe tener la siguiente estructura:</p>
+          <pre class="bg-gray-100 p-2 rounded text-xs overflow-x-auto mt-2">
+{
+  "question": "Texto de la pregunta",
+  "options": ["Opción 1", "Opción 2", "Opción 3", "Opción 4"],
+  "answer": 0, // Índice de la respuesta correcta (0 = Opción 1)
+  "difficulty": "fácil", // "fácil", "medio" o "difícil"
+  "category": "Categoría" // Opcional
+}
+          </pre>
+          
+          <h3 class="font-semibold text-gray-800 mt-4">Ejemplo</h3>
+          <p>Puedes usar el siguiente ejemplo como base:</p>
+          <div class="mt-2">
+            <button id="btnCopyExample" class="text-blue-500 hover:text-blue-700 text-xs">Copiar ejemplo</button>
+          </div>
+          
+          <h3 class="font-semibold text-gray-800 mt-4">Notas:</h3>
+          <ul class="list-disc pl-5">
+            <li>Puedes importar hasta 100 preguntas a la vez.</li>
+            <li>Las preguntas con formato incorrecto serán ignoradas.</li>
+            <li>El campo "difficulty" debe ser "fácil", "medio" o "difícil".</li>
+            <li>Si no se proporciona "difficulty", se usará "medio".</li>
+            <li>Si no se proporciona "category", se usará "General".</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Ejemplo para copiar
+  const exampleQuestions = [
+    {
+      "question": "¿Cuál es el planeta más grande del sistema solar?",
+      "options": ["Tierra", "Júpiter", "Saturno", "Neptuno"],
+      "answer": 1,
+      "difficulty": "fácil",
+      "category": "Ciencia"
+    },
+    {
+      "question": "¿Quién pintó la Mona Lisa?",
+      "options": ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Miguel Ángel"],
+      "answer": 2,
+      "difficulty": "fácil",
+      "category": "Arte"
+    },
+    {
+      "question": "¿Cuál es el hueso más largo del cuerpo humano?",
+      "options": ["Fémur", "Húmero", "Tibia", "Radio"],
+      "answer": 0,
+      "difficulty": "medio",
+      "category": "Ciencia"
+    },
+    {
+      "question": "¿En qué año comenzó la Primera Guerra Mundial?",
+      "options": ["1910", "1914", "1918", "1939"],
+      "answer": 1,
+      "difficulty": "medio",
+      "category": "Historia"
+    },
+    {
+      "question": "¿Cuál es el elemento químico con símbolo \"Au\"?",
+      "options": ["Plata", "Oro", "Aluminio", "Argón"],
+      "answer": 1,
+      "difficulty": "medio",
+      "category": "Ciencia"
+    }
+  ];
+
+  document.getElementById('btnCopyExample').addEventListener('click', function() {
+    const questionsTextarea = document.getElementById('questions');
+    questionsTextarea.value = JSON.stringify(exampleQuestions, null, 2);
+  });
+
+  // Validar JSON antes de enviar
+  document.querySelector('form').addEventListener('submit', function(event) {
+    const questionsTextarea = document.getElementById('questions');
+    try {
+      const questions = JSON.parse(questionsTextarea.value);
+      
+      // Verificar que sea un array
+      if (!Array.isArray(questions)) {
+        event.preventDefault();
+        alert('El contenido debe ser un array JSON de preguntas.');
+        return;
+      }
+      
+      // Verificar que no esté vacío
+      if (questions.length === 0) {
+        event.preventDefault();
+        alert('No hay preguntas para importar.');
+        return;
+      }
+      
+      // Verificar que las preguntas tengan el formato correcto
+      const invalidQuestions = questions.filter(q => 
+        !q.question || 
+        !Array.isArray(q.options) || 
+        q.options.length < 2 || 
+        q.options.length > 4 ||
+        typeof q.answer !== 'number' ||
+        q.answer < 0 ||
+        q.answer >= q.options.length
+      );
+      
+      if (invalidQuestions.length > 0) {
+        event.preventDefault();
+        alert(`${invalidQuestions.length} pregunta(s) tienen formato incorrecto. Por favor verifica el formato.`);
+        return;
+      }
+      
+    } catch (e) {
+      event.preventDefault();
+      alert('Error al analizar JSON: ' + e.message);
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

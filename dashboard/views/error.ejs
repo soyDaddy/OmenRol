@@ -1,0 +1,16 @@
+<%- include('partials/header') %>
+
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="bg-white p-10 rounded-lg shadow-lg text-center">
+    <h1 class="text-4xl font-extrabold text-red-600"><%= status %></h1>
+    <p class="mt-4 text-xl text-gray-700"><%= message %></p>
+    <div class="mt-6">
+      <a href="/" class="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+        <i class="fas fa-home mr-2"></i>
+        Volver al inicio
+      </a>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,751 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Editar Aventura - <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Actualiza la información de esta aventura</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/adventures" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a aventuras
+      </a>
+    </div>
+  </div>
+  
+  <!-- Estado de error -->
+  <% if (req.query.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">Ha ocurrido un error al actualizar la aventura.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Formulario para editar aventura -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <form method="POST" action="/servers/<%= guild.id %>/adventures/<%= adventure._id %>">
+      <div class="hidden sm:block" aria-hidden="true">
+        <div class="py-5">
+          <div class="border-t border-gray-200"></div>
+        </div>
+      </div>
+
+      <!-- Tabs de navegación -->
+      <div class="border-b border-gray-200">
+        <nav class="flex -mb-px" aria-label="Tabs">
+          <button type="button" id="tab-basic" class="active-tab border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Información básica
+          </button>
+          <button type="button" id="tab-missions" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Misiones
+          </button>
+          <button type="button" id="tab-rewards" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Recompensas
+          </button>
+          <button type="button" id="tab-restrictions" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Restricciones
+          </button>
+        </nav>
+      </div>
+
+      <!-- Sección de información básica -->
+      <div id="section-basic" class="p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-4">
+            <label for="title" class="block text-sm font-medium text-gray-700">
+              Título de la aventura *
+            </label>
+            <div class="mt-1">
+              <input type="text" id="title" name="title" required value="<%= adventure.title %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="levelRequired" class="block text-sm font-medium text-gray-700">
+              Nivel requerido
+            </label>
+            <div class="mt-1">
+              <input type="number" id="levelRequired" name="levelRequired" min="1" value="<%= adventure.levelRequired || 1 %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+
+          <div class="sm:col-span-6">
+            <label for="description" class="block text-sm font-medium text-gray-700">
+              Descripción *
+            </label>
+            <div class="mt-1">
+              <textarea id="description" name="description" rows="4" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"><%= adventure.description %></textarea>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Describe la historia, contexto y objetivos de esta aventura.</p>
+          </div>
+          
+          <div class="sm:col-span-6">
+            <label for="image" class="block text-sm font-medium text-gray-700">
+              URL de imagen
+            </label>
+            <div class="mt-1">
+              <input type="text" id="image" name="image" value="<%= adventure.image || '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">URL de una imagen para representar esta aventura (opcional).</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="availableFrom" class="block text-sm font-medium text-gray-700">
+              Disponible desde
+            </label>
+            <div class="mt-1">
+              <input type="datetime-local" id="availableFrom" name="availableFrom" value="<%= adventure.availableFrom ? new Date(adventure.availableFrom).toISOString().slice(0, 16) : '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="availableUntil" class="block text-sm font-medium text-gray-700">
+              Disponible hasta
+            </label>
+            <div class="mt-1">
+              <input type="datetime-local" id="availableUntil" name="availableUntil" value="<%= adventure.availableUntil ? new Date(adventure.availableUntil).toISOString().slice(0, 16) : '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input id="featured" name="featured" type="checkbox" <%= adventure.featured ? 'checked' : '' %> class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="featured" class="font-medium text-gray-700">Aventura destacada</label>
+                <p class="text-gray-500">Las aventuras destacadas aparecen con mayor prioridad</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="status" class="block text-sm font-medium text-gray-700">
+              Estado
+            </label>
+            <div class="mt-1">
+              <select id="status" name="status" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="draft" <%= adventure.status === 'draft' ? 'selected' : '' %>>Borrador</option>
+                <option value="active" <%= adventure.status === 'active' ? 'selected' : '' %>>Activa</option>
+                <option value="disabled" <%= adventure.status === 'disabled' ? 'selected' : '' %>>Deshabilitada</option>
+                <option value="expired" <%= adventure.status === 'expired' ? 'selected' : '' %>>Expirada</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de misiones -->
+      <div id="section-missions" class="p-6 hidden">
+        <p class="text-sm text-gray-500 mb-4">Selecciona las misiones que componen esta aventura. Los jugadores deberán completar las misiones requeridas para finalizar la aventura.</p>
+
+        <div class="overflow-hidden bg-white shadow sm:rounded-md mb-6">
+          <ul role="list" class="divide-y divide-gray-200" id="missions-container">
+            <% if (adventure.missions && adventure.missions.length > 0) { %>
+              <% adventure.missions.forEach(function(missionRelation) { %>
+                <% 
+                  const missionData = missions.find(m => m._id.toString() === missionRelation.missionId.toString());
+                  if (!missionData) return;
+                %>
+                <li class="mission-item">
+                  <div class="flex items-center px-4 py-4 sm:px-6">
+                    <div class="flex min-w-0 flex-1 items-center">
+                      <div class="flex-shrink-0">
+                        <% if (missionData.image) { %>
+                          <img class="h-12 w-12 rounded-full" src="<%= missionData.image %>" alt="">
+                        <% } else { %>
+                          <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                            <span class="text-indigo-800 font-bold"><%= missionData.title.charAt(0) %></span>
+                          </div>
+                        <% } %>
+                      </div>
+                      <div class="min-w-0 flex-1 px-4">
+                        <p class="truncate text-sm font-medium text-indigo-600"><%= missionData.title %></p>
+                        <p class="mt-1 truncate text-sm text-gray-500"><%= missionData.description.substring(0, 80) %>...</p>
+                      </div>
+                      <div class="ml-4 flex flex-shrink-0 space-x-4">
+                        <div class="flex items-center">
+                          <input type="checkbox" name="missionRequired" value="<%= missionData._id %>" <%= missionRelation.required ? 'checked' : '' %> class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                          <label class="ml-2 block text-sm text-gray-900">Requerida</label>
+                        </div>
+                        <button type="button" class="remove-mission inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                          <i class="fas fa-trash text-red-500 mr-1"></i>
+                          Eliminar
+                        </button>
+                        <input type="hidden" name="missionIds[]" value="<%= missionData._id %>">
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              <% }); %>
+            <% } %>
+          </ul>
+        </div>
+
+        <div class="mb-4">
+          <label for="mission-selector" class="block text-sm font-medium text-gray-700 mb-2">Añadir misión</label>
+          <div class="flex">
+            <select id="mission-selector" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md rounded-r-none">
+              <option value="">-- Selecciona una misión --</option>
+              <% missions.forEach(mission => { %>
+                <% 
+                  // Comprobar si la misión ya está en la aventura
+                  const alreadyAdded = adventure.missions && adventure.missions.some(m => m.missionId.toString() === mission._id.toString());
+                  if (!alreadyAdded) {
+                %>
+                  <option value="<%= mission._id %>" data-title="<%= mission.title %>" data-description="<%= mission.description %>" data-image="<%= mission.image || '' %>"><%= mission.title %></option>
+                <% } %>
+              <% }); %>
+            </select>
+            <button type="button" id="add-mission" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md rounded-l-none text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-plus mr-2"></i>
+              Añadir
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de recompensas -->
+      <div id="section-rewards" class="p-6 hidden">
+        <div class="mb-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-3">Recompensas por completar la aventura</h3>
+          <p class="text-sm text-gray-500 mb-4">Define las recompensas que obtendrán los jugadores al completar toda la aventura.</p>
+          
+          <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div class="sm:col-span-3">
+              <label for="rewardExperience" class="block text-sm font-medium text-gray-700">
+                Experiencia
+              </label>
+              <div class="mt-1">
+                <input type="number" id="rewardExperience" name="rewardExperience" min="0" value="<%= adventure.completionRewards ? adventure.completionRewards.experience || 0 : 0 %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+              </div>
+            </div>
+            
+            <div class="sm:col-span-3">
+              <label for="rewardCurrency" class="block text-sm font-medium text-gray-700">
+                Monedas
+              </label>
+              <div class="mt-1">
+                <input type="number" id="rewardCurrency" name="rewardCurrency" min="0" value="<%= adventure.completionRewards ? adventure.completionRewards.currency || 0 : 0 %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+              </div>
+            </div>
+            
+            <div class="sm:col-span-6">
+              <label for="rewardSkills" class="block text-sm font-medium text-gray-700">
+                Habilidades recompensa
+              </label>
+              <div class="mt-1">
+                <select id="rewardSkills" name="rewardSkills" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="4">
+                  <% if (skills && skills.length > 0) { %>
+                    <% skills.forEach(skill => { %>
+                      <option value="<%= skill._id %>" <%= adventure.completionRewards && adventure.completionRewards.skills && adventure.completionRewards.skills.includes(skill._id.toString()) ? 'selected' : '' %>><%= skill.name %> (<%= skill.category %>)</option>
+                    <% }); %>
+                  <% } else { %>
+                    <option disabled>No hay habilidades disponibles</option>
+                  <% } %>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Selecciona las habilidades que se desbloquearán al completar la aventura</p>
+              </div>
+            </div>
+            
+            <div class="sm:col-span-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Items recompensa
+              </label>
+              <div id="reward-items-container">
+                <% if (adventure.completionRewards && adventure.completionRewards.items && adventure.completionRewards.items.length > 0) { %>
+                  <% adventure.completionRewards.items.forEach(function(rewardItem) { %>
+                    <div class="reward-item grid grid-cols-12 gap-2 mb-2 items-center">
+                      <div class="col-span-8">
+                        <select name="rewardItems[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                          <% if (items && items.length > 0) { %>
+                            <option value="">-- Selecciona un item --</option>
+                            <% items.forEach(item => { %>
+                              <option value="<%= item._id %>" <%= rewardItem.itemId.toString() === item._id.toString() ? 'selected' : '' %>><%= item.name %></option>
+                            <% }); %>
+                          <% } else { %>
+                            <option disabled>No hay items disponibles</option>
+                          <% } %>
+                        </select>
+                      </div>
+                      <div class="col-span-3">
+                        <input type="number" name="rewardItemsQuantity[]" min="1" value="<%= rewardItem.quantity || 1 %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Cantidad">
+                      </div>
+                      <div class="col-span-1 flex justify-center">
+                        <button type="button" class="remove-reward-item text-red-600 hover:text-red-900">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="reward-item grid grid-cols-12 gap-2 mb-2 items-center">
+                    <div class="col-span-8">
+                      <select name="rewardItems[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                        <% if (items && items.length > 0) { %>
+                          <option value="">-- Selecciona un item --</option>
+                          <% items.forEach(item => { %>
+                            <option value="<%= item._id %>"><%= item.name %></option>
+                          <% }); %>
+                        <% } else { %>
+                          <option disabled>No hay items disponibles</option>
+                        <% } %>
+                      </select>
+                    </div>
+                    <div class="col-span-3">
+                      <input type="number" name="rewardItemsQuantity[]" min="1" value="1" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Cantidad">
+                    </div>
+                    <div class="col-span-1 flex justify-center">
+                      <button type="button" class="remove-reward-item text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+              
+              <div class="mt-2">
+                <button type="button" id="add-reward-item" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <i class="fas fa-plus mr-2"></i>
+                  Añadir item
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de restricciones -->
+      <div id="section-restrictions" class="p-6 hidden">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-3">
+            <label for="raceRestrictions" class="block text-sm font-medium text-gray-700">
+              Restricciones de raza
+            </label>
+            <div class="mt-1">
+              <select id="raceRestrictions" name="raceRestrictions" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="6">
+                <% if (serverConfig && serverConfig.roleplay.races.length > 0) { %>
+                  <% serverConfig.roleplay.races.forEach(race => { %>
+                    <option value="<%= race %>" <%= adventure.raceRestrictions && adventure.raceRestrictions.includes(race) ? 'selected' : '' %>><%= race %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Humano" <%= adventure.raceRestrictions && adventure.raceRestrictions.includes('Humano') ? 'selected' : '' %>>Humano</option>
+                  <option value="Elfo" <%= adventure.raceRestrictions && adventure.raceRestrictions.includes('Elfo') ? 'selected' : '' %>>Elfo</option>
+                  <option value="Enano" <%= adventure.raceRestrictions && adventure.raceRestrictions.includes('Enano') ? 'selected' : '' %>>Enano</option>
+                  <option value="Orco" <%= adventure.raceRestrictions && adventure.raceRestrictions.includes('Orco') ? 'selected' : '' %>>Orco</option>
+                  <option value="Tiefling" <%= adventure.raceRestrictions && adventure.raceRestrictions.includes('Tiefling') ? 'selected' : '' %>>Tiefling</option>
+                <% } %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona las razas que NO pueden participar en esta aventura (deja vacío para permitir todas).</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="classRestrictions" class="block text-sm font-medium text-gray-700">
+              Restricciones de clase
+            </label>
+            <div class="mt-1">
+              <select id="classRestrictions" name="classRestrictions" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="6">
+                <% if (serverConfig && serverConfig.roleplay.classes.length > 0) { %>
+                  <% serverConfig.roleplay.classes.forEach(cls => { %>
+                    <option value="<%= cls %>" <%= adventure.classRestrictions && adventure.classRestrictions.includes(cls) ? 'selected' : '' %>><%= cls %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Guerrero" <%= adventure.classRestrictions && adventure.classRestrictions.includes('Guerrero') ? 'selected' : '' %>>Guerrero</option>
+                  <option value="Mago" <%= adventure.classRestrictions && adventure.classRestrictions.includes('Mago') ? 'selected' : '' %>>Mago</option>
+                  <option value="Clérigo" <%= adventure.classRestrictions && adventure.classRestrictions.includes('Clérigo') ? 'selected' : '' %>>Clérigo</option>
+                  <option value="Pícaro" <%= adventure.classRestrictions && adventure.classRestrictions.includes('Pícaro') ? 'selected' : '' %>>Pícaro</option>
+                  <option value="Bardo" <%= adventure.classRestrictions && adventure.classRestrictions.includes('Bardo') ? 'selected' : '' %>>Bardo</option>
+                <% } %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona las clases que NO pueden participar en esta aventura (deja vacío para permitir todas).</p>
+          </div>
+          
+          <div class="sm:col-span-6">
+            <div id="restriction-reasons-container">
+              <!-- Los motivos de restricción se generarán dinámicamente en JavaScript según las restricciones existentes -->
+              <% if (adventure.restrictionReasons && adventure.restrictionReasons.size > 0) { %>
+                <% adventure.raceRestrictions && adventure.raceRestrictions.forEach(race => { %>
+                  <% if (adventure.restrictionReasons.has(race)) { %>
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Razón para restricción de <%= race %>
+                      </label>
+                      <div class="mt-1">
+                        <input type="text" name="restrictionReasons[<%= race %>]" value="<%= adventure.restrictionReasons.get(race) %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="¿Por qué esta raza no puede participar?">
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Razón para restricción de <%= race %>
+                      </label>
+                      <div class="mt-1">
+                        <input type="text" name="restrictionReasons[<%= race %>]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="¿Por qué esta raza no puede participar?">
+                      </div>
+                    </div>
+                  <% } %>
+                <% }); %>
+
+                <% adventure.classRestrictions && adventure.classRestrictions.forEach(cls => { %>
+                  <% if (adventure.restrictionReasons.has(cls)) { %>
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Razón para restricción de <%= cls %>
+                      </label>
+                      <div class="mt-1">
+                        <input type="text" name="restrictionReasons[<%= cls %>]" value="<%= adventure.restrictionReasons.get(cls) %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="¿Por qué esta clase no puede participar?">
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <div class="mb-4">
+                      <label class="block text-sm font-medium text-gray-700">
+                        Razón para restricción de <%= cls %>
+                      </label>
+                      <div class="mt-1">
+                        <input type="text" name="restrictionReasons[<%= cls %>]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="¿Por qué esta clase no puede participar?">
+                      </div>
+                    </div>
+                  <% } %>
+                <% }); %>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 border-t border-gray-200">
+        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Navegación por tabs
+    const tabBasic = document.getElementById('tab-basic');
+    const tabMissions = document.getElementById('tab-missions');
+    const tabRewards = document.getElementById('tab-rewards');
+    const tabRestrictions = document.getElementById('tab-restrictions');
+    
+    const sectionBasic = document.getElementById('section-basic');
+    const sectionMissions = document.getElementById('section-missions');
+    const sectionRewards = document.getElementById('section-rewards');
+    const sectionRestrictions = document.getElementById('section-restrictions');
+    
+    // Función para cambiar de tab
+    function switchTab(activeTab, activeSection) {
+      // Resetear todos los tabs
+      [tabBasic, tabMissions, tabRewards, tabRestrictions].forEach(tab => {
+        tab.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+        tab.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      // Activar el tab seleccionado
+      activeTab.classList.add('active-tab', 'border-indigo-500', 'text-indigo-600');
+      activeTab.classList.remove('border-transparent', 'text-gray-500');
+      
+      // Ocultar todas las secciones
+      [sectionBasic, sectionMissions, sectionRewards, sectionRestrictions].forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      // Mostrar la sección activa
+      activeSection.classList.remove('hidden');
+    }
+    
+    tabBasic.addEventListener('click', () => switchTab(tabBasic, sectionBasic));
+    tabMissions.addEventListener('click', () => switchTab(tabMissions, sectionMissions));
+    tabRewards.addEventListener('click', () => switchTab(tabRewards, sectionRewards));
+    tabRestrictions.addEventListener('click', () => switchTab(tabRestrictions, sectionRestrictions));
+    
+    // Manejo de misiones
+    const missionsContainer = document.getElementById('missions-container');
+    const missionSelector = document.getElementById('mission-selector');
+    const addMissionButton = document.getElementById('add-mission');
+    
+    // Función para agregar una misión
+    addMissionButton.addEventListener('click', function() {
+      const selectedOption = missionSelector.selectedOptions[0];
+      
+      if (!selectedOption || !selectedOption.value) {
+        alert('Por favor selecciona una misión para añadir.');
+        return;
+      }
+      
+      const missionId = selectedOption.value;
+      const missionTitle = selectedOption.dataset.title;
+      const missionDescription = selectedOption.dataset.description;
+      const missionImage = selectedOption.dataset.image;
+      
+      // Crear nuevo elemento de misión
+      const newMission = document.createElement('li');
+      newMission.className = 'mission-item';
+      
+      const imageHtml = missionImage 
+        ? `<img class="h-12 w-12 rounded-full" src="${missionImage}" alt="">`
+        : `<div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+             <span class="text-indigo-800 font-bold">${missionTitle.charAt(0)}</span>
+           </div>`;
+      
+      newMission.innerHTML = `
+        <div class="flex items-center px-4 py-4 sm:px-6">
+          <div class="flex min-w-0 flex-1 items-center">
+            <div class="flex-shrink-0">
+              ${imageHtml}
+            </div>
+            <div class="min-w-0 flex-1 px-4">
+              <p class="truncate text-sm font-medium text-indigo-600">${missionTitle}</p>
+              <p class="mt-1 truncate text-sm text-gray-500">${missionDescription.substring(0, 80)}...</p>
+            </div>
+            <div class="ml-4 flex flex-shrink-0 space-x-4">
+              <div class="flex items-center">
+                <input type="checkbox" name="missionRequired" value="${missionId}" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <label class="ml-2 block text-sm text-gray-900">Requerida</label>
+              </div>
+              <button type="button" class="remove-mission inline-flex items-center rounded border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                <i class="fas fa-trash text-red-500 mr-1"></i>
+                Eliminar
+              </button>
+              <input type="hidden" name="missionIds[]" value="${missionId}">
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Añadir la nueva misión al contenedor
+      missionsContainer.appendChild(newMission);
+      
+      // Eliminar la opción del selector
+      missionSelector.removeChild(selectedOption);
+      
+      // Si no hay más misiones disponibles, deshabilitar el botón
+      if (missionSelector.options.length <= 1) {
+        addMissionButton.disabled = true;
+        missionSelector.disabled = true;
+      }
+      
+      // Añadir evento para eliminar la misión
+      newMission.querySelector('.remove-mission').addEventListener('click', function() {
+        removeMission(newMission, missionId, missionTitle);
+      });
+    });
+    
+    // Función para eliminar una misión
+    function removeMission(missionElement, missionId, missionTitle) {
+      // Eliminar el elemento
+      missionsContainer.removeChild(missionElement);
+      
+      // Añadir la opción de vuelta al selector
+      const option = document.createElement('option');
+      option.value = missionId;
+      option.text = missionTitle;
+      missionSelector.appendChild(option);
+      
+      // Habilitar el selector y botón si estaban deshabilitados
+      addMissionButton.disabled = false;
+      missionSelector.disabled = false;
+    }
+    
+    // Añadir eventos a los botones de eliminar misión existentes
+    document.querySelectorAll('.remove-mission').forEach(button => {
+      button.addEventListener('click', function() {
+        const missionItem = this.closest('.mission-item');
+        const missionId = missionItem.querySelector('input[name="missionIds[]"]').value;
+        const missionTitle = missionItem.querySelector('.text-indigo-600').textContent;
+        
+        removeMission(missionItem, missionId, missionTitle);
+      });
+    });
+    
+    // Manejo de items de recompensa
+    const rewardItemsContainer = document.getElementById('reward-items-container');
+    const addRewardItemButton = document.getElementById('add-reward-item');
+    
+    addRewardItemButton.addEventListener('click', function() {
+      const newItem = document.createElement('div');
+      newItem.className = 'reward-item grid grid-cols-12 gap-2 mb-2 items-center';
+      newItem.innerHTML = `
+        <div class="col-span-8">
+          <select name="rewardItems[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            <% if (items && items.length > 0) { %>
+              <option value="">-- Selecciona un item --</option>
+              <% items.forEach(item => { %>
+                <option value="<%= item._id %>"><%= item.name %></option>
+              <% }); %>
+            <% } else { %>
+              <option disabled>No hay items disponibles</option>
+            <% } %>
+          </select>
+        </div>
+        <div class="col-span-3">
+          <input type="number" name="rewardItemsQuantity[]" min="1" value="1" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Cantidad">
+        </div>
+        <div class="col-span-1 flex justify-center">
+          <button type="button" class="remove-reward-item text-red-600 hover:text-red-900">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      `;
+      
+      rewardItemsContainer.appendChild(newItem);
+      
+      // Añadir evento al botón de eliminar
+      const removeButtons = document.querySelectorAll('.remove-reward-item');
+      removeButtons[removeButtons.length - 1].addEventListener('click', function() {
+        rewardItemsContainer.removeChild(newItem);
+      });
+    });
+    
+    // Añadir eventos a los botones de eliminar recompensa existentes
+    document.querySelectorAll('.remove-reward-item').forEach(button => {
+      button.addEventListener('click', function() {
+        const item = this.closest('.reward-item');
+        rewardItemsContainer.removeChild(item);
+      });
+    });
+    
+    // Manejo dinámico de razones de restricción
+    const raceSelect = document.getElementById('raceRestrictions');
+    const classSelect = document.getElementById('classRestrictions');
+    const reasonsContainer = document.getElementById('restriction-reasons-container');
+    
+    // Función para actualizar las razones de restricción
+    function updateRestrictionReasons() {
+      reasonsContainer.innerHTML = ''; // Limpiar contenedor
+      
+      // Obtener razas seleccionadas
+      const selectedRaces = Array.from(raceSelect.selectedOptions).map(option => option.value);
+      
+      // Obtener clases seleccionadas
+      const selectedClasses = Array.from(classSelect.selectedOptions).map(option => option.value);
+      
+      // Añadir campos para razones de restricción de razas
+      selectedRaces.forEach(race => {
+        const reasonField = document.createElement('div');
+        reasonField.className = 'mb-4';
+        reasonField.innerHTML = `
+          <label class="block text-sm font-medium text-gray-700">
+            Razón para restricción de ${race}
+          </label>
+          <div class="mt-1">
+            <input type="text" name="restrictionReasons[${race}]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="¿Por qué esta raza no puede participar?" 
+              value="<%= adventure.restrictionReasons && adventure.restrictionReasons.has('${race}') ? adventure.restrictionReasons.get('${race}') : '' %>">
+          </div>
+        `;
+        reasonsContainer.appendChild(reasonField);
+      });
+      
+      // Añadir campos para razones de restricción de clases
+      selectedClasses.forEach(cls => {
+        const reasonField = document.createElement('div');
+        reasonField.className = 'mb-4';
+        reasonField.innerHTML = `
+          <label class="block text-sm font-medium text-gray-700">
+            Razón para restricción de ${cls}
+          </label>
+          <div class="mt-1">
+            <input type="text" name="restrictionReasons[${cls}]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="¿Por qué esta clase no puede participar?"
+              value="<%= adventure.restrictionReasons && adventure.restrictionReasons.has('${cls}') ? adventure.restrictionReasons.get('${cls}') : '' %>">
+          </div>
+        `;
+        reasonsContainer.appendChild(reasonField);
+      });
+    }
+    
+    // Eventos para actualizar las razones de restricción
+    raceSelect.addEventListener('change', updateRestrictionReasons);
+    classSelect.addEventListener('change', updateRestrictionReasons);
+    
+    // Mejorar la experiencia de usuario para los select múltiples
+    const multiSelects = document.querySelectorAll('select[multiple]');
+    
+    multiSelects.forEach(select => {
+      select.addEventListener('mousedown', function(e) {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          
+          const option = e.target.closest('option');
+          if (!option) return;
+          
+          const alreadySelected = option.selected;
+          
+          if (!e.shiftKey) {
+            option.selected = !alreadySelected;
+          } else {
+            // Si se presiona Shift, seleccionar un rango
+            const options = Array.from(this.options);
+            const lastSelectedIndex = options.findIndex(opt => opt.dataset.lastSelected);
+            
+            if (lastSelectedIndex >= 0) {
+              const currentIndex = options.indexOf(option);
+              const start = Math.min(lastSelectedIndex, currentIndex);
+              const end = Math.max(lastSelectedIndex, currentIndex);
+              
+              for (let i = start; i <= end; i++) {
+                options[i].selected = true;
+              }
+            } else {
+              option.selected = !alreadySelected;
+            }
+          }
+          
+          // Marcar la última opción seleccionada
+          this.querySelectorAll('option').forEach(opt => {
+            opt.dataset.lastSelected = false;
+          });
+          option.dataset.lastSelected = true;
+          
+          const event = new Event('change', { bubbles: true });
+          this.dispatchEvent(event);
+        }
+      });
+    });
+    
+    // Validación del formulario antes de enviar
+    document.querySelector('form').addEventListener('submit', function(event) {
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+      
+      if (!title) {
+        event.preventDefault();
+        alert('El título de la aventura es obligatorio.');
+        switchTab(tabBasic, sectionBasic);
+        return;
+      }
+      
+      if (!description) {
+        event.preventDefault();
+        alert('La descripción de la aventura es obligatoria.');
+        switchTab(tabBasic, sectionBasic);
+        return;
+      }
+      
+      // Verificar si hay misiones seleccionadas
+      const missionInputs = document.querySelectorAll('input[name="missionIds[]"]');
+      if (missionInputs.length === 0) {
+        const confirmSubmit = confirm('No has seleccionado ninguna misión para esta aventura. ¿Estás seguro de que quieres continuar?');
+        if (!confirmSubmit) {
+          event.preventDefault();
+          switchTab(tabMissions, sectionMissions);
+          return;
+        }
+      }
+    });
+    
+    // Inicializar las razones de restricción al cargar la página
+    updateRestrictionReasons();
+  });
+</script>
+<%- include('../partials/footer') %>

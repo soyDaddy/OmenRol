@@ -1,0 +1,360 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Crear Nuevo Item - <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Añade un nuevo item a tu servidor</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/inventory" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a inventario
+      </a>
+    </div>
+  </div>
+  
+  <!-- Estado de error -->
+  <% if (req.query.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">Ha ocurrido un error al crear el item.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Formulario para crear item -->
+  <div class="bg-white shadow overflow-hidden rounded-lg">
+    <form method="POST" action="/servers/<%= guild.id %>/inventory/new">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Información básica
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Completa la información del nuevo item.
+        </p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <div class="sm:col-span-3">
+            <label for="name" class="block text-sm font-medium text-gray-700">
+              Nombre del item *
+            </label>
+            <div class="mt-1">
+              <input type="text" id="name" name="name" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+
+          <div class="sm:col-span-3">
+            <label for="price" class="block text-sm font-medium text-gray-700">
+              Precio *
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-coins text-yellow-500"></i>
+              </div>
+              <input type="number" id="price" name="price" min="0" required class="pl-10 focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+
+          <div class="sm:col-span-6">
+            <label for="description" class="block text-sm font-medium text-gray-700">
+              Descripción *
+            </label>
+            <div class="mt-1">
+              <textarea id="description" name="description" rows="3" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Descripción detallada del item y sus efectos.</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="image" class="block text-sm font-medium text-gray-700">
+              URL de imagen
+            </label>
+            <div class="mt-1">
+              <input type="text" id="image" name="image" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">URL de una imagen para representar el item (opcional).</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="levelRequired" class="block text-sm font-medium text-gray-700">
+              Nivel requerido
+            </label>
+            <div class="mt-1">
+              <input type="number" id="levelRequired" name="levelRequired" min="1" value="1" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Nivel mínimo para usar este item.</p>
+          </div>
+          
+          <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+            <h3 class="text-base font-medium text-gray-900">Tipo y categoría</h3>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="type" class="block text-sm font-medium text-gray-700">
+              Tipo de item *
+            </label>
+            <div class="mt-1">
+              <select id="type" name="type" required class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="collectable">Coleccionable</option>
+                <option value="usable">Consumible</option>
+                <option value="equipment">Equipamiento</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3" id="equipmentSlotContainer" style="display: none;">
+            <label for="equipmentSlot" class="block text-sm font-medium text-gray-700">
+              Ranura de equipamiento
+            </label>
+            <div class="mt-1">
+              <select id="equipmentSlot" name="equipmentSlot" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="head">Cabeza</option>
+                <option value="body">Cuerpo</option>
+                <option value="hands">Manos</option>
+                <option value="feet">Pies</option>
+                <option value="weapon">Arma</option>
+                <option value="accessory">Accesorio</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3" id="consumableContainer" style="display: none;">
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input id="consumable" name="consumable" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="consumable" class="font-medium text-gray-700">Item consumible</label>
+                <p class="text-gray-500">Al usarse, se elimina del inventario</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="sm:col-span-3" id="maxUsesContainer" style="display: none;">
+            <label for="maxUses" class="block text-sm font-medium text-gray-700">
+              Usos máximos
+            </label>
+            <div class="mt-1">
+              <input type="number" id="maxUses" name="maxUses" min="1" value="1" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Número de veces que se puede usar el item.</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="purchaseLimit" class="block text-sm font-medium text-gray-700">
+              Límite de compra
+            </label>
+            <div class="mt-1">
+              <input type="number" id="purchaseLimit" name="purchaseLimit" min="0" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Cantidad máxima que un usuario puede comprar (0 = sin límite).</p>
+          </div>
+          
+          <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+            <h3 class="text-base font-medium text-gray-900">Restricciones</h3>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="raceRestrictions" class="block text-sm font-medium text-gray-700">
+              Restricciones de raza
+            </label>
+            <div class="mt-1">
+              <select id="raceRestrictions" name="raceRestrictions" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="5">
+                <% if (serverConfig && serverConfig.roleplay.races.length > 0) { %>
+                  <% serverConfig.roleplay.races.forEach(race => { %>
+                    <option value="<%= race %>"><%= race %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Humano">Humano</option>
+                  <option value="Elfo">Elfo</option>
+                  <option value="Enano">Enano</option>
+                  <option value="Orco">Orco</option>
+                  <option value="Tiefling">Tiefling</option>
+                <% } %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona las razas que NO pueden usar este item (deja vacío para permitir todas).</p>
+          </div>
+          
+          <div class="sm:col-span-3">
+            <label for="classRestrictions" class="block text-sm font-medium text-gray-700">
+              Restricciones de clase
+            </label>
+            <div class="mt-1">
+              <select id="classRestrictions" name="classRestrictions" multiple class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" size="5">
+                <% if (serverConfig && serverConfig.roleplay.classes.length > 0) { %>
+                  <% serverConfig.roleplay.classes.forEach(cls => { %>
+                    <option value="<%= cls %>"><%= cls %></option>
+                  <% }); %>
+                <% } else { %>
+                  <option value="Guerrero">Guerrero</option>
+                  <option value="Mago">Mago</option>
+                  <option value="Clérigo">Clérigo</option>
+                  <option value="Pícaro">Pícaro</option>
+                  <option value="Bardo">Bardo</option>
+                <% } %>
+              </select>
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Selecciona las clases que NO pueden usar este item (deja vacío para permitir todas).</p>
+          </div>
+          
+          <div class="sm:col-span-6 border-t border-gray-200 pt-6">
+            <h3 class="text-base font-medium text-gray-900">Efectos</h3>
+            <p class="mt-1 text-sm text-gray-500">Estadísticas que modificará este item cuando se use o equipe.</p>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsHealth" class="block text-sm font-medium text-gray-700">
+              Salud
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsHealth" name="effectsHealth" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsMana" class="block text-sm font-medium text-gray-700">
+              Maná
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsMana" name="effectsMana" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsStrength" class="block text-sm font-medium text-gray-700">
+              Fuerza
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsStrength" name="effectsStrength" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsIntelligence" class="block text-sm font-medium text-gray-700">
+              Inteligencia
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsIntelligence" name="effectsIntelligence" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsDexterity" class="block text-sm font-medium text-gray-700">
+              Destreza
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsDexterity" name="effectsDexterity" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+          
+          <div class="sm:col-span-2">
+            <label for="effectsDefense" class="block text-sm font-medium text-gray-700">
+              Defensa
+            </label>
+            <div class="mt-1">
+              <input type="number" id="effectsDefense" name="effectsDefense" value="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Crear Item
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Mostrar/ocultar campos según el tipo de item
+  document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    const equipmentSlotContainer = document.getElementById('equipmentSlotContainer');
+    const consumableContainer = document.getElementById('consumableContainer');
+    const maxUsesContainer = document.getElementById('maxUsesContainer');
+    
+    function updateFormFields() {
+      const selectedType = typeSelect.value;
+      
+      // Mostrar/ocultar ranura de equipamiento
+      if (selectedType === 'equipment') {
+        equipmentSlotContainer.style.display = 'block';
+      } else {
+        equipmentSlotContainer.style.display = 'none';
+      }
+      
+      // Mostrar/ocultar opciones de consumible
+      if (selectedType === 'usable') {
+        consumableContainer.style.display = 'block';
+        maxUsesContainer.style.display = 'block';
+      } else {
+        consumableContainer.style.display = 'none';
+        maxUsesContainer.style.display = 'none';
+      }
+    }
+    
+    // Actualizar al cargar la página
+    updateFormFields();
+    
+    // Actualizar cuando cambia el tipo de item
+    typeSelect.addEventListener('change', updateFormFields);
+    
+    // Mejorar la experiencia de usuario para los select múltiples
+    const multiSelects = document.querySelectorAll('select[multiple]');
+    
+    multiSelects.forEach(select => {
+      select.addEventListener('mousedown', function(e) {
+        if (!e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          
+          const option = e.target.closest('option');
+          if (!option) return;
+          
+          const alreadySelected = option.selected;
+          
+          if (!e.shiftKey) {
+            option.selected = !alreadySelected;
+          } else {
+            // Si se presiona Shift, seleccionar un rango
+            const options = Array.from(this.options);
+            const lastSelectedIndex = options.findIndex(opt => opt.dataset.lastSelected);
+            
+            if (lastSelectedIndex >= 0) {
+              const currentIndex = options.indexOf(option);
+              const start = Math.min(lastSelectedIndex, currentIndex);
+              const end = Math.max(lastSelectedIndex, currentIndex);
+              
+              for (let i = start; i <= end; i++) {
+                options[i].selected = true;
+              }
+            } else {
+              option.selected = !alreadySelected;
+            }
+          }
+          
+          // Marcar la última opción seleccionada
+          this.querySelectorAll('option').forEach(opt => {
+            opt.dataset.lastSelected = false;
+          });
+          option.dataset.lastSelected = true;
+          
+          const event = new Event('change', { bubbles: true });
+          this.dispatchEvent(event);
+        }
+      });
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

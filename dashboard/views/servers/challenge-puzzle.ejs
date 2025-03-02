@@ -1,0 +1,410 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Puzzle: <%= currentStage.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Misión: <%= mission.title %></p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/progress" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a la misión
+      </a>
+    </div>
+  </div>
+  
+  <!-- Área del puzzle -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">🧩 Acertijo</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= currentStage.description %>
+      </p>
+    </div>
+    
+    <div class="border-t border-gray-200 p-6">
+      <% const puzzleData = currentStage.challengeData; %>
+      <% if (puzzleData && puzzleData.puzzleType) { %>
+        <% if (puzzleData.puzzleType === 'riddle') { %>
+          <!-- Acertijo simple -->
+          <div class="bg-blue-50 p-6 rounded-lg mb-6">
+            <h4 class="text-lg font-medium text-blue-900 mb-2">El acertijo:</h4>
+            <p class="text-blue-800"><%= puzzleData.puzzleContent.question %></p>
+            
+            <% if (puzzleData.timeLimit) { %>
+              <div class="mt-4 flex justify-between items-center">
+                <span class="text-sm text-blue-700">Tiempo restante:</span>
+                <span id="timer" class="text-lg font-medium text-blue-700"><%= puzzleData.timeLimit %>s</span>
+              </div>
+              <div class="w-full bg-blue-200 rounded-full h-2 mt-1">
+                <div id="timer-bar" class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            <% } %>
+          </div>
+          
+          <form id="riddle-form" class="mt-6">
+            <div>
+              <label for="answer" class="block text-sm font-medium text-gray-700">Tu respuesta</label>
+              <div class="mt-1">
+                <input type="text" name="answer" id="answer" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Escribe tu respuesta aquí">
+              </div>
+            </div>
+            
+            <div class="mt-4">
+              <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Responder
+              </button>
+            </div>
+          </form>
+        <% } else if (puzzleData.puzzleType === 'matching') { %>
+          <!-- Juego de emparejamiento -->
+          <div class="bg-purple-50 p-6 rounded-lg mb-6">
+            <h4 class="text-lg font-medium text-purple-900 mb-2">Empareja los elementos correctos</h4>
+            <p class="text-purple-800 mb-4"><%= puzzleData.puzzleContent.instructions %></p>
+            
+            <div id="matching-game" class="grid grid-cols-2 gap-4">
+              <div id="left-column" class="space-y-2">
+                <% puzzleData.puzzleContent.pairs.forEach((pair, index) => { %>
+                  <div class="matching-item p-3 bg-white rounded shadow cursor-pointer" data-index="<%= index %>" data-side="left">
+                    <%= pair.left %>
+                  </div>
+                <% }) %>
+              </div>
+              
+              <div id="right-column" class="space-y-2">
+                <% 
+                  // Barajar el lado derecho para el juego
+                  const shuffledRight = [...puzzleData.puzzleContent.pairs];
+                  for (let i = shuffledRight.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledRight[i], shuffledRight[j]] = [shuffledRight[j], shuffledRight[i]];
+                  }
+                %>
+                <% shuffledRight.forEach((pair, index) => { %>
+                  <div class="matching-item p-3 bg-white rounded shadow cursor-pointer" data-index="<%= index %>" data-side="right" data-match="<%= pair.id %>">
+                    <%= pair.right %>
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+            
+            <% if (puzzleData.timeLimit) { %>
+              <div class="mt-4 flex justify-between items-center">
+                <span class="text-sm text-purple-700">Tiempo restante:</span>
+                <span id="timer" class="text-lg font-medium text-purple-700"><%= puzzleData.timeLimit %>s</span>
+              </div>
+              <div class="w-full bg-purple-200 rounded-full h-2 mt-1">
+                <div id="timer-bar" class="bg-purple-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="mt-6 flex justify-center">
+            <button id="check-matches-btn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+              Verificar respuestas
+            </button>
+          </div>
+        <% } else if (puzzleData.puzzleType === 'sorting') { %>
+          <!-- Juego de ordenamiento -->
+          <div class="bg-green-50 p-6 rounded-lg mb-6">
+            <h4 class="text-lg font-medium text-green-900 mb-2">Ordena correctamente</h4>
+            <p class="text-green-800 mb-4"><%= puzzleData.puzzleContent.instructions %></p>
+            
+            <div id="sorting-container" class="space-y-2">
+              <% 
+                // Barajar los elementos para el juego
+                const shuffledItems = [...puzzleData.puzzleContent.items];
+                for (let i = shuffledItems.length - 1; i > 0; i--) {
+                  const j = Math.floor(Math.random() * (i + 1));
+                  [shuffledItems[i], shuffledItems[j]] = [shuffledItems[j], shuffledItems[i]];
+                }
+              %>
+              <% shuffledItems.forEach((item, index) => { %>
+                <div class="sorting-item p-3 bg-white rounded shadow cursor-move" data-index="<%= index %>" data-id="<%= item.id %>" draggable="true">
+                  <%= item.text %>
+                </div>
+              <% }) %>
+            </div>
+            
+            <% if (puzzleData.timeLimit) { %>
+              <div class="mt-4 flex justify-between items-center">
+                <span class="text-sm text-green-700">Tiempo restante:</span>
+                <span id="timer" class="text-lg font-medium text-green-700"><%= puzzleData.timeLimit %>s</span>
+              </div>
+              <div class="w-full bg-green-200 rounded-full h-2 mt-1">
+                <div id="timer-bar" class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+            <% } %>
+          </div>
+          
+          <div class="mt-6 flex justify-center">
+            <button id="check-order-btn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              Verificar orden
+            </button>
+          </div>
+        <% } %>
+      <% } else { %>
+        <div class="bg-yellow-50 p-4 rounded-lg">
+          <p class="text-yellow-700">Este puzzle no tiene datos configurados correctamente.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de resultado -->
+<div id="result-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden flex items-center justify-center">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <div id="success-view" class="hidden">
+      <h3 class="text-lg font-medium text-green-900 mb-4">¡Correcto!</h3>
+      <p class="mb-4 text-gray-700">Has resuelto el puzzle correctamente.</p>
+      <div class="flex justify-end">
+        <form action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/puzzle/complete" method="POST">
+          <input type="hidden" name="success" value="true">
+          <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none">
+            Continuar
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <div id="failure-view" class="hidden">
+      <h3 class="text-lg font-medium text-red-900 mb-4">Incorrecto</h3>
+      <p class="mb-4 text-gray-700">Esa no es la respuesta correcta. Inténtalo de nuevo.</p>
+      <div class="flex justify-end">
+        <button id="try-again-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+          Intentar de nuevo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const resultModal = document.getElementById('result-modal');
+    const successView = document.getElementById('success-view');
+    const failureView = document.getElementById('failure-view');
+    const tryAgainBtn = document.getElementById('try-again-btn');
+    
+    // Manejo de temporizador si existe
+    const timerEl = document.getElementById('timer');
+    const timerBar = document.getElementById('timer-bar');
+    
+    let timeLeft = <%= puzzleData && puzzleData.timeLimit ? puzzleData.timeLimit : 0 %>;
+    let timerInterval;
+    
+    if (timerEl && timeLeft > 0) {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = `${timeLeft}s`;
+        
+        // Actualizar barra de progreso
+        if (timerBar) {
+          const percentage = (timeLeft / <%= puzzleData && puzzleData.timeLimit ? puzzleData.timeLimit : 1 %>) * 100;
+          timerBar.style.width = `${percentage}%`;
+        }
+        
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          showFailure();
+        }
+      }, 1000);
+    }
+    
+    // Funciones auxiliares
+    function showSuccess() {
+      resultModal.classList.remove('hidden');
+      successView.classList.remove('hidden');
+      failureView.classList.add('hidden');
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    }
+    
+    function showFailure() {
+      resultModal.classList.remove('hidden');
+      successView.classList.add('hidden');
+      failureView.classList.remove('hidden');
+      
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    }
+    
+    // Cerrar modal de fallo
+    tryAgainBtn.addEventListener('click', function() {
+      resultModal.classList.add('hidden');
+    });
+    
+    <% if (puzzleData && puzzleData.puzzleType === 'riddle') { %>
+      // Código específico para acertijos
+      const riddleForm = document.getElementById('riddle-form');
+      const answerInput = document.getElementById('answer');
+      
+      riddleForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const userAnswer = answerInput.value.trim().toLowerCase();
+        const correctAnswer = '<%= puzzleData.puzzleContent.answer %>'.toLowerCase();
+        
+        if (userAnswer === correctAnswer) {
+          showSuccess();
+        } else {
+          showFailure();
+        }
+      });
+    <% } else if (puzzleData && puzzleData.puzzleType === 'matching') { %>
+      // Código específico para juego de emparejamiento
+      const matchingItems = document.querySelectorAll('.matching-item');
+      const checkMatchesBtn = document.getElementById('check-matches-btn');
+      
+      let selectedLeft = null;
+      let selectedRight = null;
+      let matches = [];
+      
+      matchingItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const side = this.dataset.side;
+          
+          if (side === 'left') {
+            // Deseleccionar el anterior si existe
+            if (selectedLeft) {
+              selectedLeft.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+            }
+            
+            // Seleccionar el nuevo
+            selectedLeft = this;
+            this.classList.add('bg-blue-100', 'border-blue-500', 'border-2');
+          } else if (side === 'right') {
+            // Deseleccionar el anterior si existe
+            if (selectedRight) {
+              selectedRight.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+            }
+            
+            // Seleccionar el nuevo
+            selectedRight = this;
+            this.classList.add('bg-blue-100', 'border-blue-500', 'border-2');
+          }
+          
+          // Si hay ambos seleccionados, hacer el match
+          if (selectedLeft && selectedRight) {
+            const leftIndex = parseInt(selectedLeft.dataset.index);
+            const rightMatch = selectedRight.dataset.match;
+            
+            matches.push({
+              left: leftIndex,
+              right: rightMatch
+            });
+            
+            // Marcar como emparejados
+            selectedLeft.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+            selectedLeft.classList.add('bg-green-100', 'border-green-500', 'border-2');
+            selectedRight.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+            selectedRight.classList.add('bg-green-100', 'border-green-500', 'border-2');
+            
+            // Desactivar los elementos emparejados
+            selectedLeft.classList.add('pointer-events-none');
+            selectedRight.classList.add('pointer-events-none');
+            
+            // Reiniciar selección
+            selectedLeft = null;
+            selectedRight = null;
+          }
+        });
+      });
+      
+      checkMatchesBtn.addEventListener('click', function() {
+        // Verificar si todos están emparejados
+        const allMatched = matches.length === <%= puzzleData.puzzleContent.pairs.length %>;
+        
+        if (allMatched) {
+          // Verificar si los emparejamientos son correctos
+          let allCorrect = true;
+          matches.forEach(match => {
+            const correctMatch = '<%= puzzleData.puzzleContent.pairs[match.left].id %>';
+            if (match.right !== correctMatch) {
+              allCorrect = false;
+            }
+          });
+          
+          if (allCorrect) {
+            showSuccess();
+          } else {
+            showFailure();
+          }
+        } else {
+          showFailure();
+        }
+      });
+    <% } else if (puzzleData && puzzleData.puzzleType === 'sorting') { %>
+      // Código específico para juego de ordenamiento
+      const sortingContainer = document.getElementById('sorting-container');
+      const sortingItems = document.querySelectorAll('.sorting-item');
+      const checkOrderBtn = document.getElementById('check-order-btn');
+      
+      // Implementar funcionalidad de arrastrar y soltar
+      sortingItems.forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+          e.dataTransfer.setData('text/plain', this.dataset.id);
+          this.classList.add('opacity-50');
+        });
+        
+        item.addEventListener('dragend', function() {
+          this.classList.remove('opacity-50');
+        });
+        
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault();
+        });
+        
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const draggedItem = document.querySelector(`.sorting-item[data-id="${draggedId}"]`);
+          
+          // Intercambiar posiciones
+          if (draggedItem !== this) {
+            const rect = this.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            
+            if (y < rect.height / 2) {
+              sortingContainer.insertBefore(draggedItem, this);
+            } else {
+              sortingContainer.insertBefore(draggedItem, this.nextSibling);
+            }
+          }
+        });
+      });
+      
+      checkOrderBtn.addEventListener('click', function() {
+        // Obtener el orden actual
+        const currentOrder = [];
+        document.querySelectorAll('.sorting-item').forEach(item => {
+          currentOrder.push(item.dataset.id);
+        });
+        
+        // Comparar con el orden correcto
+        const correctOrder = <%= JSON.stringify(puzzleData.puzzleContent.items.map(item => item.id)) %>;
+        let isCorrect = true;
+        
+        for (let i = 0; i < correctOrder.length; i++) {
+          if (currentOrder[i] !== correctOrder[i]) {
+            isCorrect = false;
+            break;
+          }
+        }
+        
+        if (isCorrect) {
+          showSuccess();
+        } else {
+          showFailure();
+        }
+      });
+    <% } %>
+  });
+</script>
+
+<%- include('../partials/footer') %>

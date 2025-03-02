@@ -1,0 +1,412 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Razas y Clases - <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Configura las razas y clases disponibles en tu servidor</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver al panel
+      </a>
+    </div>
+  </div>
+
+  <!-- Estado de éxito o error -->
+  <% if (req.query.success) { %>
+    <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-check-circle text-green-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-green-700">La configuración se ha guardado correctamente.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <% if (req.query.error) { %>
+    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-400"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">Ha ocurrido un error al guardar la configuración.</p>
+        </div>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Formulario de configuración -->
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <form method="POST" action="/servers/<%= guild.id %>/race-class">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Configuración de Razas y Clases
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Personaliza las razas y clases disponibles para los jugadores.
+        </p>
+      </div>
+      
+      <!-- Tabs para cambiar entre Razas y Clases -->
+      <div class="border-b border-gray-200">
+        <nav class="flex -mb-px" aria-label="Tabs">
+          <button type="button" id="tab-races" class="active-tab border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Razas
+          </button>
+          <button type="button" id="tab-classes" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Clases
+          </button>
+          <button type="button" id="tab-restrictions" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
+            Restricciones
+          </button>
+        </nav>
+      </div>
+      
+      <!-- Sección de Razas -->
+      <div id="races-section" class="px-4 py-5 sm:p-6">
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Lista de Razas</h3>
+          <div class="flex flex-col gap-4">
+            <p class="text-sm text-gray-500">Define las razas disponibles en tu servidor.</p>
+            
+            <div class="mt-1">
+              <div id="races-container">
+                <% if (serverConfig.roleplay.races && serverConfig.roleplay.races.length > 0) { %>
+                  <% serverConfig.roleplay.races.forEach((race, index) => { %>
+                    <div class="race-item grid grid-cols-12 gap-2 mb-2 items-center">
+                      <div class="col-span-11 grid grid-cols-12 gap-2">
+                        <div class="col-span-3">
+                          <input type="text" name="races[]" value="<%= race %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Nombre de la raza">
+                        </div>
+                        <div class="col-span-9">
+                          <input type="text" name="raceDescriptions[<%= race %>]" value="<%= serverConfig.roleplay.raceDescriptions && serverConfig.roleplay.raceDescriptions.get(race) || '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Descripción de la raza">
+                        </div>
+                      </div>
+                      <div class="col-span-1 flex justify-center">
+                        <button type="button" class="remove-race text-red-600 hover:text-red-900">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="race-item grid grid-cols-12 gap-2 mb-2 items-center">
+                    <div class="col-span-11 grid grid-cols-12 gap-2">
+                      <div class="col-span-3">
+                        <input type="text" name="races[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Nombre de la raza">
+                      </div>
+                      <div class="col-span-9">
+                        <input type="text" name="raceDescriptions[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Descripción de la raza">
+                      </div>
+                    </div>
+                    <div class="col-span-1 flex justify-center">
+                      <button type="button" class="remove-race text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+              
+              <div class="mt-2">
+                <button type="button" id="add-race" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <i class="fas fa-plus mr-2"></i>
+                  Añadir Raza
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección de Clases -->
+      <div id="classes-section" class="px-4 py-5 sm:p-6 hidden">
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Lista de Clases</h3>
+          <div class="flex flex-col gap-4">
+            <p class="text-sm text-gray-500">Define las clases disponibles en tu servidor.</p>
+            
+            <div class="mt-1">
+              <div id="classes-container">
+                <% if (serverConfig.roleplay.classes && serverConfig.roleplay.classes.length > 0) { %>
+                  <% serverConfig.roleplay.classes.forEach((cls, index) => { %>
+                    <div class="class-item grid grid-cols-12 gap-2 mb-2 items-center">
+                      <div class="col-span-11 grid grid-cols-12 gap-2">
+                        <div class="col-span-3">
+                          <input type="text" name="classes[]" value="<%= cls %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Nombre de la clase">
+                        </div>
+                        <div class="col-span-9">
+                          <input type="text" name="classDescriptions[<%= cls %>]" value="<%= serverConfig.roleplay.classDescriptions && serverConfig.roleplay.classDescriptions.get(cls) || '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Descripción de la clase">
+                        </div>
+                      </div>
+                      <div class="col-span-1 flex justify-center">
+                        <button type="button" class="remove-class text-red-600 hover:text-red-900">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </div>
+                  <% }); %>
+                <% } else { %>
+                  <div class="class-item grid grid-cols-12 gap-2 mb-2 items-center">
+                    <div class="col-span-11 grid grid-cols-12 gap-2">
+                      <div class="col-span-3">
+                        <input type="text" name="classes[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Nombre de la clase">
+                      </div>
+                      <div class="col-span-9">
+                        <input type="text" name="classDescriptions[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Descripción de la clase">
+                      </div>
+                    </div>
+                    <div class="col-span-1 flex justify-center">
+                      <button type="button" class="remove-class text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+              
+              <div class="mt-2">
+                <button type="button" id="add-class" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  <i class="fas fa-plus mr-2"></i>
+                  Añadir Clase
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sección de Restricciones -->
+      <div id="restrictions-section" class="px-4 py-5 sm:p-6 hidden">
+        <div class="mb-8">
+          <h3 class="text-base font-medium text-gray-900 mb-3">Restricciones de Raza-Clase</h3>
+          <p class="text-sm text-gray-500 mb-4">Define qué clases están disponibles para cada raza. Si no se selecciona ninguna clase para una raza, todas estarán disponibles.</p>
+          
+          <% if (serverConfig.roleplay.races && serverConfig.roleplay.races.length > 0) { %>
+            <% serverConfig.roleplay.races.forEach(race => { %>
+              <div class="mt-4">
+                <h4 class="text-sm font-medium text-gray-700 mb-2"><%= race %></h4>
+                <div class="bg-gray-50 p-3 rounded-md">
+                  <label class="text-xs text-gray-500 mb-2 block">Selecciona las clases disponibles para esta raza:</label>
+                  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-1 gap-2">
+                    <% if (serverConfig.roleplay.classes && serverConfig.roleplay.classes.length > 0) { %>
+                      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                        <% serverConfig.roleplay.classes.forEach(cls => { %>
+                          <button type="button" class="race-class-btn px-4 py-2 border rounded-md text-gray-700 bg-white hover:bg-gray-200" data-race="<%= race %>" data-class="<%= cls %>">
+                            <%= cls %>
+                          </button>
+                        <% }); %>
+                      </div>
+                      <input type="hidden" name="raceClassRestrictions[<%= race %>]" value="<%= serverConfig.roleplay.raceClassRestrictions?.get(race)?.join(',') || '' %>">                      
+                    <% } else { %>
+                      <p class="text-sm text-gray-500 col-span-full">No hay clases definidas. Por favor, define clases primero.</p>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="bg-gray-50 p-4 rounded-md">
+              <p class="text-sm text-gray-500">No hay razas definidas. Por favor, define razas primero.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Guardar configuración
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Navegación por tabs
+    const tabRaces = document.getElementById('tab-races');
+    const tabClasses = document.getElementById('tab-classes');
+    const tabRestrictions = document.getElementById('tab-restrictions');
+    
+    const racesSection = document.getElementById('races-section');
+    const classesSection = document.getElementById('classes-section');
+    const restrictionsSection = document.getElementById('restrictions-section');
+    
+    tabRaces.addEventListener('click', function() {
+      // Actualizar tabs
+      tabRaces.classList.add('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabRaces.classList.remove('border-transparent', 'text-gray-500');
+      
+      tabClasses.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabClasses.classList.add('border-transparent', 'text-gray-500');
+      
+      tabRestrictions.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabRestrictions.classList.add('border-transparent', 'text-gray-500');
+      
+      // Mostrar/ocultar secciones
+      racesSection.classList.remove('hidden');
+      classesSection.classList.add('hidden');
+      restrictionsSection.classList.add('hidden');
+    });
+    
+    tabClasses.addEventListener('click', function() {
+      // Actualizar tabs
+      tabClasses.classList.add('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabClasses.classList.remove('border-transparent', 'text-gray-500');
+      
+      tabRaces.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabRaces.classList.add('border-transparent', 'text-gray-500');
+      
+      tabRestrictions.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabRestrictions.classList.add('border-transparent', 'text-gray-500');
+      
+      // Mostrar/ocultar secciones
+      classesSection.classList.remove('hidden');
+      racesSection.classList.add('hidden');
+      restrictionsSection.classList.add('hidden');
+    });
+    
+    tabRestrictions.addEventListener('click', function() {
+      // Actualizar tabs
+      tabRestrictions.classList.add('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabRestrictions.classList.remove('border-transparent', 'text-gray-500');
+      
+      tabRaces.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabRaces.classList.add('border-transparent', 'text-gray-500');
+      
+      tabClasses.classList.remove('active-tab', 'border-indigo-500', 'text-indigo-600');
+      tabClasses.classList.add('border-transparent', 'text-gray-500');
+      
+      // Mostrar/ocultar secciones
+      restrictionsSection.classList.remove('hidden');
+      racesSection.classList.add('hidden');
+      classesSection.classList.add('hidden');
+    });
+    
+    // Funcionalidad para añadir/eliminar razas
+    const addRaceButton = document.getElementById('add-race');
+    const racesContainer = document.getElementById('races-container');
+    
+    addRaceButton.addEventListener('click', function() {
+      const newRace = document.createElement('div');
+      newRace.className = 'race-item grid grid-cols-12 gap-2 mb-2 items-center';
+      newRace.innerHTML = `
+        <div class="col-span-11 grid grid-cols-12 gap-2">
+          <div class="col-span-3">
+            <input type="text" name="races[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Nombre de la raza">
+          </div>
+          <div class="col-span-9">
+            <input type="text" name="raceDescriptions[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Descripción de la raza">
+          </div>
+        </div>
+        <div class="col-span-1 flex justify-center">
+          <button type="button" class="remove-race text-red-600 hover:text-red-900">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      `;
+      
+      racesContainer.appendChild(newRace);
+      
+      // Añadir evento al botón de eliminar
+      const removeButtons = document.querySelectorAll('.remove-race');
+      removeButtons[removeButtons.length - 1].addEventListener('click', function() {
+        racesContainer.removeChild(newRace);
+      });
+    });
+    
+    // Añadir eventos a los botones de eliminar raza existentes
+    document.querySelectorAll('.remove-race').forEach(button => {
+      button.addEventListener('click', function() {
+        const raceItem = this.closest('.race-item');
+        racesContainer.removeChild(raceItem);
+      });
+    });
+    
+    // Funcionalidad para añadir/eliminar clases
+    const addClassButton = document.getElementById('add-class');
+    const classesContainer = document.getElementById('classes-container');
+    
+    addClassButton.addEventListener('click', function() {
+      const newClass = document.createElement('div');
+      newClass.className = 'class-item grid grid-cols-12 gap-2 mb-2 items-center';
+      newClass.innerHTML = `
+        <div class="col-span-11 grid grid-cols-12 gap-2">
+          <div class="col-span-3">
+            <input type="text" name="classes[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Nombre de la clase">
+          </div>
+          <div class="col-span-9">
+            <input type="text" name="classDescriptions[]" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Descripción de la clase">
+          </div>
+        </div>
+        <div class="col-span-1 flex justify-center">
+          <button type="button" class="remove-class text-red-600 hover:text-red-900">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      `;
+      
+      classesContainer.appendChild(newClass);
+      
+      // Añadir evento al botón de eliminar
+      const removeButtons = document.querySelectorAll('.remove-class');
+      removeButtons[removeButtons.length - 1].addEventListener('click', function() {
+        classesContainer.removeChild(newClass);
+      });
+    });
+    
+    // Añadir eventos a los botones de eliminar clase existentes
+    document.querySelectorAll('.remove-class').forEach(button => {
+      button.addEventListener('click', function() {
+        const classItem = this.closest('.class-item');
+        classesContainer.removeChild(classItem);
+      });
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll(".race-class-btn").forEach(button => {
+    button.addEventListener("click", function() {
+      const race = this.getAttribute("data-race");
+      const className = this.getAttribute("data-class");
+      const hiddenInput = document.querySelector(`input[name="raceClassRestrictions[${race}]"]`);
+      
+      let selectedClasses = hiddenInput.value ? hiddenInput.value.split(",") : [];
+      
+      if (selectedClasses.includes(className)) {
+        // Si ya está seleccionada, la quitamos
+        selectedClasses = selectedClasses.filter(c => c !== className);
+        this.classList.remove("bg-indigo-600", "text-white");
+        this.classList.add("bg-white", "text-gray-700");
+      } else {
+        // Si no está seleccionada, la agregamos
+        selectedClasses.push(className);
+        this.classList.remove("bg-white", "text-gray-700");
+        this.classList.add("bg-indigo-600", "text-white");
+      }
+
+      // Actualizar el valor del input oculto
+      hiddenInput.value = selectedClasses.join(",");
+    });
+
+    // Estado inicial si la clase ya estaba seleccionada
+    const race = button.getAttribute("data-race");
+    const className = button.getAttribute("data-class");
+    const hiddenInput = document.querySelector(`input[name="raceClassRestrictions[${race}]"]`);
+    
+    if (hiddenInput.value.split(",").includes(className)) {
+      button.classList.add("bg-indigo-600", "text-white");
+    }
+  });
+});
+
+</script>
+
+<%- include('../partials/footer') %>

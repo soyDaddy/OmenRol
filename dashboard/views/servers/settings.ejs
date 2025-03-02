@@ -1,0 +1,89 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-6 py-12">
+  <!-- Encabezado -->
+  <div class="bg-gradient-to-br from-blue-600 to-cyan-500 text-white rounded-3xl shadow-2xl p-10 mb-12">
+    <h1 class="text-5xl font-extrabold"><%= guild.name %> - Configuración</h1>
+    <p class="mt-4 text-lg">Personaliza las opciones generales del bot para tu servidor.</p>
+    <a href="/servers/<%= guild.id %>" class="inline-block mt-6 bg-white text-blue-600 px-6 py-3 rounded-xl shadow-lg hover:bg-gray-200 transition">
+      <i class="fas fa-arrow-left mr-3"></i> Volver al panel
+    </a>
+  </div>
+
+  <% if (locals.success) { %>
+    <div class="bg-green-200 border-l-4 border-green-600 text-green-800 p-4 rounded-lg mb-6 shadow">
+      <i class="fas fa-check-circle mr-2"></i> La configuración se ha guardado correctamente.
+    </div>
+  <% } %>
+
+  <% if (locals.error) { %>
+    <div class="bg-red-200 border-l-4 border-red-600 text-red-800 p-4 rounded-lg mb-6 shadow">
+      <i class="fas fa-exclamation-circle mr-2"></i> Ha ocurrido un error al guardar la configuración.
+    </div>
+  <% } %>
+
+  <div class="bg-white shadow-2xl rounded-3xl overflow-hidden">
+    <form method="POST" action="/servers/<%= guild.id %>/settings" class="divide-y divide-gray-100">
+      <div class="p-10">
+        <h3 class="text-3xl font-semibold mb-6">Configuración Básica</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <label for="prefix" class="block text-base font-medium text-gray-700">Prefijo</label>
+            <input type="text" name="prefix" id="prefix" value="<%= serverConfig.config.prefix %>" class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500">
+          </div>
+          <div>
+            <label for="language" class="block text-base font-medium text-gray-700">Idioma</label>
+            <select name="language" id="language" class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500">
+              <option value="es" <%= serverConfig.config.language === 'es' ? 'selected' : '' %>>Español</option>
+              <option value="en" <%= serverConfig.config.language === 'en' ? 'selected' : '' %>>English</option>
+              <option value="fr" <%= serverConfig.config.language === 'fr' ? 'selected' : '' %>>Français</option>
+              <option value="pt" <%= serverConfig.config.language === 'pt' ? 'selected' : '' %>>Português</option>
+            </select>
+          </div>
+          <div>
+            <label for="spamThreshold" class="block text-base font-medium text-gray-700">Umbral de Spam</label>
+            <input type="number" name="spamThreshold" min="3" max="20" value="<%= serverConfig.config.automod.spamThreshold %>" class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500">
+          </div>
+        </div>
+      </div>
+
+      <div class="p-10">
+        <h3 class="text-3xl font-semibold mb-6">Automoderación</h3>
+        <div class="mb-6">
+          <input type="checkbox" id="automodEnabled" name="automodEnabled" <%= serverConfig.config.automod.enabled ? 'checked' : '' %> class="rounded-lg text-blue-600 focus:ring-blue-500">
+          <label for="automodEnabled" class="ml-3 text-base">Habilitar moderación automática</label>
+        </div>
+        <label for="bannedWords" class="block text-base font-medium text-gray-700">Palabras prohibidas</label>
+        <textarea id="bannedWords" name="bannedWords" rows="3" class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500"><%= serverConfig.config.automod.bannedWords.join(', ') %></textarea>
+      </div>
+
+      <div class="p-10">
+        <h3 class="text-3xl font-semibold mb-6">Roles Administrativos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <label for="adminRoles" class="block text-base font-medium text-gray-700">Roles de Administrador</label>
+            <select name="adminRoles" id="adminRoles" multiple size="5" class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500">
+              <% roles.forEach(role => { %>
+                <option value="<%= role.id %>" <%= serverConfig.config.adminRoles.includes(role.id) ? 'selected' : '' %>><%= role.name %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div>
+            <label for="modRoles" class="block text-base font-medium text-gray-700">Roles de Moderador</label>
+            <select name="modRoles" id="modRoles" multiple size="5" class="mt-2 block w-full rounded-xl border-gray-300 shadow-sm focus:ring-blue-500">
+              <% roles.forEach(role => { %>
+                <option value="<%= role.id %>" <%= serverConfig.config.modRoles.includes(role.id) ? 'selected' : '' %>><%= role.name %></option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-100 p-10 text-right">
+        <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-700 transition">Guardar configuración</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
