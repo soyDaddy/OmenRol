@@ -49,7 +49,7 @@
 
   <!-- Formulario del perfil -->
   <div class="bg-white shadow-md rounded-lg overflow-hidden">
-    <form method="POST" action="/servers/<%= guild.id %>/profile">
+    <form method="POST" action="/servers/<%= guild.id %>/profile" enctype="multipart/form-data">
       <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">
           <%= profile ? 'Información de Personaje' : 'Crear Nuevo Personaje' %>
@@ -80,10 +80,11 @@
               </div>
               
               <div class="flex-grow space-y-4">
+                <!-- Reemplazar el input de URL por un input de archivo -->
                 <div>
-                  <label for="characterAvatar" class="block text-sm font-medium text-gray-700 mb-1">URL del Avatar</label>
-                  <input type="text" name="characterAvatar" id="characterAvatar" value="<%= profile ? profile.character.avatar : '' %>" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" <%= !serverConfig.config.allowProfileEditing && profile ? 'readonly' : '' %>>
-                  <p class="mt-1 text-xs text-gray-500">URL de una imagen para tu personaje (opcional)</p>
+                  <label for="characterAvatar" class="block text-sm font-medium text-gray-700 mb-1">Avatar del personaje</label>
+                  <input type="file" name="characterAvatar" id="characterAvatar" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 focus:outline-none" <%= !serverConfig.config.allowProfileEditing && profile ? 'disabled' : '' %>>
+                  <p class="mt-1 text-xs text-gray-500">Sube una imagen para tu personaje</p>
                 </div>
                 
                 <div>
@@ -100,13 +101,18 @@
               Raza
             </label>
             <div class="mt-1">
-              <select id="race" name="race" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" required <%= !serverConfig.config.allowProfileEditing && profile ? 'disabled' : '' %>>
+              <select id="race" name="race" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" required <%= profile ? 'disabled' : '' %>>
                 <% serverConfig.roleplay.races.forEach(race => { %>
                   <option value="<%= race %>" <%= profile && profile.character.race === race ? 'selected' : '' %>><%= race %></option>
                 <% }) %>
               </select>
             </div>
             <p class="mt-1 text-xs text-gray-500">La raza de tu personaje</p>
+            
+            <!-- Contenedor para la descripción de la raza -->
+            <div id="raceDescription" class="mt-2 p-3 bg-gray-50 rounded-md text-sm text-gray-700 transition-all duration-300" style="min-height: 80px; opacity: 0;">
+              Selecciona una raza para ver su descripción.
+            </div>
           </div>
 
           <div class="sm:col-span-3">
@@ -114,17 +120,91 @@
               Clase
             </label>
             <div class="mt-1">
-              <select id="class" name="class" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md transition-all duration-300 ease-in-out" required <%= !serverConfig.config.allowProfileEditing && profile ? 'disabled' : '' %>>
-                <% 
-                  const selectedRace = profile ? profile.character.race : serverConfig.roleplay.races[0]; 
-                  const allowedClasses = serverConfig.roleplay.raceClassRestrictions[selectedRace] || [];
-                  allowedClasses.forEach(characterClass => { 
+              <select id="class" name="class" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" required <%= profile ? 'disabled' : '' %>>
+                <%
+                  // Obtener la raza seleccionada
+                  const selectedRace = profile ? profile.character.race : serverConfig.roleplay.races[0];
+                  
+                  // Intentar obtener las clases permitidas para la raza seleccionada
+                  let allowedClasses = [];
+                  
+                  try {
+                    // Convertir el documento Mongoose a un objeto JavaScript plano
+                    // Esto nos permitirá acceder a sus propiedades normalmente
+                    const restrictions = serverConfig.roleplay.raceClassRestrictions.toObject ? serverConfig.roleplay.raceClassRestrictions.toObject() : serverConfig.roleplay.raceClassRestrictions;
+
+                    // Ahora podemos acceder a las propiedades normalmente
+                    if (restrictions && restrictions[selectedRace] && Array.isArray(restrictions[selectedRace])) {
+                      const racialRestrictions = restrictions[selectedRace];
+                      
+                      // Si es un array con strings que contienen comas, procesarlos
+                      if (racialRestrictions.length > 0 && typeof racialRestrictions[0] === 'string') {
+                        if (racialRestrictions[0].includes(',')) {
+                          // Dividir por comas y limpiar espacios
+                          allowedClasses = racialRestrictions[0].split(',').map(c => c.trim());
+                        } else {
+                          allowedClasses = racialRestrictions;
+                        }
+                      }
+                    }
+                    
+                    // Si no se encontraron clases, usar la función get directamente
+                    if (allowedClasses.length === 0 && typeof serverConfig.roleplay.raceClassRestrictions.get === 'function') {
+                      const racialRestrictions = serverConfig.roleplay.raceClassRestrictions.get(selectedRace);
+                      
+                      if (racialRestrictions && Array.isArray(racialRestrictions)) {
+                        if (racialRestrictions.length > 0 && typeof racialRestrictions[0] === 'string') {
+                          if (racialRestrictions[0].includes(',')) {
+                            allowedClasses = racialRestrictions[0].split(',').map(c => c.trim());
+                          } else {
+                            allowedClasses = racialRestrictions;
+                          }
+                        }
+                      }
+                    }
+                  } catch (error) {
+                    console.error("Error al obtener restricciones:", error);
+                  }
+                  
+                  // Si aún no tenemos clases, intentar una última opción
+                  if (allowedClasses.length === 0) {
+                    try {
+                      // Usar la notación de punto para acceder a las propiedades
+                      const raceClassRestrictions = serverConfig.toObject().roleplay.raceClassRestrictions;
+                      if (raceClassRestrictions && raceClassRestrictions[selectedRace]) {
+                        const restrictions = raceClassRestrictions[selectedRace];
+                        if (Array.isArray(restrictions) && restrictions.length > 0) {
+                          if (typeof restrictions[0] === 'string' && restrictions[0].includes(',')) {
+                            allowedClasses = restrictions[0].split(',').map(c => c.trim());
+                          } else {
+                            allowedClasses = restrictions;
+                          }
+                        }
+                      }
+                    } catch (error) {
+                      console.error("Error al obtener restricciones (segunda opción):", error);
+                    }
+                  }
+                  
+                  // Si no pudimos obtener las clases de ninguna forma, usar todas como fallback
+                  if (allowedClasses.length === 0) {
+                    allowedClasses = serverConfig.roleplay.classes;
+                  }
                 %>
-                  <option value="<%= characterClass %>" <%= profile && profile.character.class === characterClass ? 'selected' : '' %>><%= characterClass %></option>
-                <% }) %>
+                
+                <% allowedClasses.forEach(characterClass => { %>
+                  <option value="<%= characterClass %>" <% if (profile && profile.character.class === characterClass) { %>selected="selected"<% } %>>
+                    <%= characterClass %>
+                  </option>
+                <% }); %>
               </select>
             </div>
             <p class="mt-1 text-xs text-gray-500">La clase o profesión de tu personaje</p>
+            
+            <!-- Contenedor para la descripción de la clase -->
+            <div id="classDescription" class="mt-2 p-3 bg-gray-50 rounded-md text-sm text-gray-700 transition-all duration-300" style="min-height: 80px; opacity: 0;">
+              Selecciona una clase para ver su descripción.
+            </div>
           </div>
 
           <div class="sm:col-span-2">
@@ -197,17 +277,6 @@
             
             <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label for="theme" class="block text-sm font-medium text-gray-700">Tema</label>
-                <select id="theme" name="theme" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                  <option value="default" <%= profile && profile.preferences.theme === 'default' ? 'selected' : '' %>>Por defecto</option>
-                  <option value="dark" <%= profile && profile.preferences.theme === 'dark' ? 'selected' : '' %>>Oscuro</option>
-                  <option value="light" <%= profile && profile.preferences.theme === 'light' ? 'selected' : '' %>>Claro</option>
-                  <option value="fantasy" <%= profile && profile.preferences.theme === 'fantasy' ? 'selected' : '' %>>Fantasía</option>
-                  <option value="cyberpunk" <%= profile && profile.preferences.theme === 'cyberpunk' ? 'selected' : '' %>>Cyberpunk</option>
-                </select>
-              </div>
-              
-              <div>
                 <label for="visibility" class="block text-sm font-medium text-gray-700">Visibilidad</label>
                 <select id="visibility" name="visibility" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                   <option value="public" <%= profile && profile.preferences.visibility === 'public' ? 'selected' : '' %>>Público - Visible para todos</option>
@@ -248,141 +317,369 @@
     </form>
   </div>
   
-  <% if (profile) { %>
-    <!-- Inventario y habilidades (solo visibles si el perfil ya existe) -->
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Inventario -->
-      <div class="bg-white shadow-md rounded-lg">
-        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Inventario
-          </h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Items que posee tu personaje. Se gestionan con comandos del bot.
-          </p>
-        </div>
-        <div class="px-4 py-5 sm:p-6">
-          <% if (profile.character.inventory && profile.character.inventory.length > 0) { %>
-            <ul class="divide-y divide-gray-200">
-              <% profile.character.inventory.forEach(item => { %>
-                <li class="py-3">
-                  <div class="flex justify-between">
-                    <span class="text-sm font-medium text-gray-900"><%= item.item %></span>
-                    <span class="text-sm text-gray-500">x<%= item.quantity %></span>
-                  </div>
-                  <% if (item.description) { %>
-                    <p class="text-xs text-gray-500 mt-1"><%= item.description %></p>
-                  <% } %>
-                </li>
-              <% }); %>
-            </ul>
-          <% } else { %>
-            <div class="text-center py-6">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No hay items</h3>
-              <p class="mt-1 text-sm text-gray-500">
-                Tu inventario está vacío. Utiliza los comandos del bot para conseguir items.
-              </p>
-            </div>
-          <% } %>
-        </div>
+  <!-- Inventario y habilidades (solo visibles si el perfil ya existe) -->
+<% if (profile) { %>
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Inventario -->
+    <div class="bg-white shadow-md rounded-lg">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Inventario
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Items que posee tu personaje. Se gestionan con comandos del bot.
+        </p>
       </div>
-      
-      <!-- Habilidades -->
-      <div class="bg-white shadow-md rounded-lg">
-        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
-            Habilidades
-          </h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            Habilidades de tu personaje. Se mejoran con comandos del bot.
-          </p>
-        </div>
-        <div class="px-4 py-5 sm:p-6">
-          <% if (profile.character.skills && profile.character.skills.length > 0) { %>
-            <ul class="divide-y divide-gray-200">
-              <% profile.character.skills.forEach(skill => { %>
-                <li class="py-3">
-                  <div class="flex justify-between">
-                    <span class="text-sm font-medium text-gray-900"><%= skill.name %></span>
-                    <span class="text-sm text-gray-500">Nivel <%= skill.level %></span>
+      <div class="px-4 py-5 sm:p-6">
+        <% if (profile.character.inventory && profile.character.inventory.length > 0) { %>
+          <ul class="divide-y divide-gray-200">
+            <% profile.character.inventory.forEach(inventoryItem => { %>
+              <% console.log(inventoryItem); %>
+              <li class="py-3">
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">
+                    <!-- Usar el nombre del item enriquecido si está disponible -->
+                    <%= inventoryItem.item ? inventoryItem.item.name : 'Item desconocido' %>
+                  </span>
+                  <span class="text-sm text-gray-500">x<%= inventoryItem.quantity %></span>
+                </div>
+                <!-- Mostrar descripción si está disponible -->
+                <% if (inventoryItem.item && inventoryItem.item.description) { %>
+                  <p class="text-xs text-gray-500 mt-1"><%= inventoryItem.item.description.substring(0, 120) %><%= inventoryItem.item.description.length > 120 ? '...' : '' %></p>
+                <% } %>
+                
+                <!-- Mostrar información adicional en etiquetas -->
+                <div class="mt-2 flex flex-wrap gap-1">
+                  <% if (inventoryItem.item && inventoryItem.item.type) { %>
+                    <% let typeColor = 'blue'; %>
+                    <% if (inventoryItem.item.type === 'equipment') typeColor = 'indigo'; %>
+                    <% if (inventoryItem.item.type === 'consumable') typeColor = 'purple'; %>
+                    <% if (inventoryItem.item.type === 'quest') typeColor = 'yellow'; %>
+                    <% if (inventoryItem.item.type === 'resource') typeColor = 'green'; %>
+                    
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-<%= typeColor %>-100 text-<%= typeColor %>-800">
+                      <%= inventoryItem.item.type %>
+                    </span>
+                  <% } %>
+                  
+                  <% if (inventoryItem.item && inventoryItem.item.equipmentSlot) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800">
+                      <%= inventoryItem.item.equipmentSlot %>
+                    </span>
+                  <% } %>
+                  
+                  <% if (inventoryItem.equipped) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                      Equipado
+                    </span>
+                  <% } %>
+                  
+                  <% if (inventoryItem.uses) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                      Usos: <%= inventoryItem.uses %>
+                    </span>
+                  <% } %>
+                  
+                  <% if (inventoryItem.item && inventoryItem.item.levelRequired > 1) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                      Nivel <%= inventoryItem.item.levelRequired %>+
+                    </span>
+                  <% } %>
+                </div>
+                
+                <!-- Mostrar efectos del item si los tiene -->
+                <% if (inventoryItem.item && inventoryItem.item.effects && 
+                       (inventoryItem.item.effects.health || 
+                        inventoryItem.item.effects.mana || 
+                        inventoryItem.item.effects.strength || 
+                        inventoryItem.item.effects.intelligence || 
+                        inventoryItem.item.effects.dexterity || 
+                        inventoryItem.item.effects.defense)) { %>
+                  <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                    <% if (inventoryItem.item.effects.health) { %>
+                      <span class="<%= inventoryItem.item.effects.health > 0 ? 'text-green-600' : 'text-red-600' %>">
+                        Salud: <%= inventoryItem.item.effects.health > 0 ? '+' : '' %><%= inventoryItem.item.effects.health %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (inventoryItem.item.effects.mana) { %>
+                      <span class="<%= inventoryItem.item.effects.mana > 0 ? 'text-blue-600' : 'text-red-600' %>">
+                        Maná: <%= inventoryItem.item.effects.mana > 0 ? '+' : '' %><%= inventoryItem.item.effects.mana %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (inventoryItem.item.effects.strength) { %>
+                      <span class="<%= inventoryItem.item.effects.strength > 0 ? 'text-red-600' : 'text-gray-600' %>">
+                        Fuerza: <%= inventoryItem.item.effects.strength > 0 ? '+' : '' %><%= inventoryItem.item.effects.strength %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (inventoryItem.item.effects.intelligence) { %>
+                      <span class="<%= inventoryItem.item.effects.intelligence > 0 ? 'text-purple-600' : 'text-gray-600' %>">
+                        Inteligencia: <%= inventoryItem.item.effects.intelligence > 0 ? '+' : '' %><%= inventoryItem.item.effects.intelligence %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (inventoryItem.item.effects.dexterity) { %>
+                      <span class="<%= inventoryItem.item.effects.dexterity > 0 ? 'text-yellow-600' : 'text-gray-600' %>">
+                        Destreza: <%= inventoryItem.item.effects.dexterity > 0 ? '+' : '' %><%= inventoryItem.item.effects.dexterity %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (inventoryItem.item.effects.defense) { %>
+                      <span class="<%= inventoryItem.item.effects.defense > 0 ? 'text-blue-600' : 'text-gray-600' %>">
+                        Defensa: <%= inventoryItem.item.effects.defense > 0 ? '+' : '' %><%= inventoryItem.item.effects.defense %>
+                      </span>
+                    <% } %>
                   </div>
-                  <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                    <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <%= Math.min(100, skill.level * 10) %>%"></div>
+                <% } %>
+                
+                <!-- Mostrar restricciones de raza/clase si existen -->
+                <% if (inventoryItem.item && 
+                      ((inventoryItem.item.raceRestrictions && inventoryItem.item.raceRestrictions.length > 0) || 
+                       (inventoryItem.item.classRestrictions && inventoryItem.item.classRestrictions.length > 0))) { %>
+                  <div class="mt-2 text-xs italic text-gray-500">
+                    <% if (inventoryItem.item.raceRestrictions && inventoryItem.item.raceRestrictions.length > 0) { %>
+                      <div>Razas: <%= inventoryItem.item.raceRestrictions.length === serverConfig.roleplay.races.length ? 'Todas' : inventoryItem.item.raceRestrictions.slice(0, 3).join(', ') %><%= inventoryItem.item.raceRestrictions.length > 3 ? '...' : '' %></div>
+                    <% } %>
+                    
+                    <% if (inventoryItem.item.classRestrictions && inventoryItem.item.classRestrictions.length > 0) { %>
+                      <div>Clases: <%= inventoryItem.item.classRestrictions.length === serverConfig.roleplay.classes.length ? 'Todas' : inventoryItem.item.classRestrictions.slice(0, 3).join(', ') %><%= inventoryItem.item.classRestrictions.length > 3 ? '...' : '' %></div>
+                    <% } %>
                   </div>
-                </li>
-              <% }); %>
-            </ul>
-          <% } else { %>
-            <div class="text-center py-6">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">Sin habilidades</h3>
-              <p class="mt-1 text-sm text-gray-500">
-                Aún no has desbloqueado habilidades. Usa los comandos del bot para obtenerlas.
-              </p>
-            </div>
-          <% } %>
-        </div>
+                <% } %>
+              </li>
+            <% }); %>
+          </ul>
+        <% } else { %>
+          <div class="text-center py-6">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No hay items</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Tu inventario está vacío. Utiliza los comandos del bot para conseguir items.
+            </p>
+          </div>
+        <% } %>
       </div>
     </div>
-  <% } %>
+    
+    <!-- Habilidades -->
+    <div class="bg-white shadow-md rounded-lg">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Habilidades
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Habilidades de tu personaje. Se mejoran con comandos del bot.
+        </p>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <% if (profile.character.skills && profile.character.skills.length > 0) { %>
+          <ul class="divide-y divide-gray-200">
+            <% profile.character.skills.forEach(characterSkill => { %>
+              <li class="py-3">
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">
+                    <!-- Usar el nombre de la habilidad enriquecida si está disponible -->
+                    <%= characterSkill.skill ? characterSkill.skill.name : 'Habilidad desconocida' %>
+                  </span>
+                  <span class="text-sm text-gray-500">Nivel <%= characterSkill.level %></span>
+                </div>
+                
+                <!-- Mostrar descripción si está disponible -->
+                <% if (characterSkill.skill && characterSkill.skill.description) { %>
+                  <p class="text-xs text-gray-500 mt-1"><%= characterSkill.skill.description.substring(0, 120) %><%= characterSkill.skill.description.length > 120 ? '...' : '' %></p>
+                <% } %>
+                
+                <!-- Barra de nivel -->
+                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                  <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <%= Math.min(100, characterSkill.level * 10) %>%"></div>
+                </div>
+                
+                <!-- Mostrar información adicional en etiquetas -->
+                <div class="mt-2 flex flex-wrap gap-1">
+                  <% if (characterSkill.skill && characterSkill.skill.category) { %>
+                    <% let categoryColor = 'blue'; %>
+                    <% if (characterSkill.skill.category === 'attack') categoryColor = 'red'; %>
+                    <% if (characterSkill.skill.category === 'defense') categoryColor = 'blue'; %>
+                    <% if (characterSkill.skill.category === 'healing') categoryColor = 'green'; %>
+                    <% if (characterSkill.skill.category === 'utility') categoryColor = 'yellow'; %>
+                    <% if (characterSkill.skill.category === 'passive') categoryColor = 'purple'; %>
+                    
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-<%= categoryColor %>-100 text-<%= categoryColor %>-800">
+                      <%= characterSkill.skill.category %>
+                    </span>
+                  <% } %>
+                  
+                  <% if (characterSkill.skill && characterSkill.skill.targetType) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                      <%= characterSkill.skill.targetType %>
+                    </span>
+                  <% } %>
+                  
+                  <% if (characterSkill.skill && characterSkill.skill.levelRequired > 1) { %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                      Req. Nivel <%= characterSkill.skill.levelRequired %>
+                    </span>
+                  <% } %>
+                </div>
+                
+                <!-- Mostrar efectos de la habilidad -->
+                <% if (characterSkill.skill && characterSkill.skill.effects) { %>
+                  <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                    <% if (characterSkill.skill.effects.damage) { %>
+                      <span class="text-red-600">
+                        Daño: <%= characterSkill.skill.effects.damage %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.effects.healing) { %>
+                      <span class="text-green-600">
+                        Curación: <%= characterSkill.skill.effects.healing %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.manaCost) { %>
+                      <span class="text-blue-600">
+                        Coste de maná: <%= characterSkill.skill.manaCost %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.cooldown) { %>
+                      <span class="text-purple-600">
+                        Cooldown: <%= characterSkill.skill.cooldown %>s
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.effects.duration) { %>
+                      <span class="text-amber-600">
+                        Duración: <%= characterSkill.skill.effects.duration %>s
+                      </span>
+                    <% } %>
+                  </div>
+                <% } %>
+                
+                <!-- Mostrar buffs y otras características especiales -->
+                <% if (characterSkill.skill && characterSkill.skill.effects && 
+                       (characterSkill.skill.effects.buffStrength || 
+                        characterSkill.skill.effects.buffIntelligence || 
+                        characterSkill.skill.effects.buffDexterity || 
+                        characterSkill.skill.effects.buffDefense)) { %>
+                  <div class="mt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                    <% if (characterSkill.skill.effects.buffStrength) { %>
+                      <span class="text-red-600">
+                        Fuerza: +<%= characterSkill.skill.effects.buffStrength %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.effects.buffIntelligence) { %>
+                      <span class="text-purple-600">
+                        Inteligencia: +<%= characterSkill.skill.effects.buffIntelligence %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.effects.buffDexterity) { %>
+                      <span class="text-yellow-600">
+                        Destreza: +<%= characterSkill.skill.effects.buffDexterity %>
+                      </span>
+                    <% } %>
+                    
+                    <% if (characterSkill.skill.effects.buffDefense) { %>
+                      <span class="text-blue-600">
+                        Defensa: +<%= characterSkill.skill.effects.buffDefense %>
+                      </span>
+                    <% } %>
+                  </div>
+                <% } %>
+                
+                <!-- Mostrar estado de cooldown si existe -->
+                <% if (characterSkill.cooldownUntil) { %>
+                  <% 
+                    const now = new Date();
+                    const cooldownDate = new Date(characterSkill.cooldownUntil);
+                    const isOnCooldown = cooldownDate > now;
+                  %>
+                  <% if (isOnCooldown) { %>
+                    <div class="mt-2">
+                      <span class="text-xs text-red-600">
+                        En cooldown hasta: <%= cooldownDate.toLocaleTimeString() %>
+                      </span>
+                    </div>
+                  <% } %>
+                <% } %>
+                
+                <!-- Mostrar usos restantes si aplica -->
+                <% if (characterSkill.usesLeft !== null && characterSkill.usesLeft !== undefined) { %>
+                  <div class="mt-2">
+                    <span class="text-xs <%= characterSkill.usesLeft > 0 ? 'text-blue-600' : 'text-red-600' %>">
+                      Usos restantes: <%= characterSkill.usesLeft %>
+                    </span>
+                  </div>
+                <% } %>
+              </li>
+            <% }); %>
+          </ul>
+        <% } else { %>
+          <div class="text-center py-6">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">Sin habilidades</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Aún no has desbloqueado habilidades. Usa los comandos del bot para obtenerlas.
+            </p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+<% } %>
 </div>
 
 <script>
-  // Actualizar vista previa del avatar
   document.addEventListener('DOMContentLoaded', function() {
+    // PARTE 1: GESTIÓN DEL AVATAR
     const avatarInput = document.getElementById('characterAvatar');
     const avatarPreview = document.getElementById('avatarPreview');
     const characterName = document.getElementById('characterName');
     
     if (avatarInput && avatarPreview) {
-      avatarInput.addEventListener('input', updateAvatarPreview);
+      avatarInput.addEventListener('change', updateAvatarPreview);
       
       function updateAvatarPreview() {
-        const avatarUrl = avatarInput.value.trim();
-        
-        if (avatarUrl) {
-          // Crear una imagen y probar cargarla
-          const img = new Image();
+        if (avatarInput.files && avatarInput.files[0]) {
+          const file = avatarInput.files[0];
           
-          img.onload = function() {
-            // Si el elemento actual es una imagen, actualizarla
+          // Verificar el tamaño del archivo (máx 1GB)
+          if (file.size > 1024 * 1024 * 1024) {
+            alert('La imagen no debe superar 1GB');
+            avatarInput.value = '';
+            return;
+          }
+          
+          const reader = new FileReader();
+          
+          reader.onload = function(e) {
             if (avatarPreview.tagName === 'IMG') {
-              avatarPreview.src = avatarUrl;
+              avatarPreview.src = e.target.result;
             } else {
-              // Si no, reemplazar el contenido
-              avatarPreview.innerHTML = '';
-              avatarPreview.className = 'w-32 h-32 rounded-full object-cover border-4 border-white shadow';
-              avatarPreview.src = avatarUrl;
-            }
-          };
-          
-          img.onerror = function() {
-            // Si hay error, mostrar las iniciales
-            const initial = characterName.value ? characterName.value.charAt(0) : '?';
-            if (avatarPreview.tagName === 'IMG') {
-              // Reemplazar la imagen con un div
+              // Si es un div con iniciales, reemplazarlo por una imagen
               const parent = avatarPreview.parentNode;
-              const newDiv = document.createElement('div');
-              newDiv.id = 'avatarPreview';
-              newDiv.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
-              newDiv.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
-              parent.replaceChild(newDiv, avatarPreview);
-              avatarPreview = newDiv;
-            } else {
-              // Actualizar el div existente
-              avatarPreview.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
-              avatarPreview.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
+              const newImg = document.createElement('img');
+              newImg.id = 'avatarPreview';
+              newImg.src = e.target.result;
+              newImg.alt = characterName.value || 'Avatar';
+              newImg.className = 'w-32 h-32 rounded-full object-cover border-4 border-white shadow';
+              parent.replaceChild(newImg, avatarPreview);
+              avatarPreview = newImg;
             }
           };
           
-          img.src = avatarUrl;
+          reader.readAsDataURL(file);
         } else {
-          // Si no hay URL, mostrar las iniciales
+          // Si no hay archivo seleccionado, mostrar las iniciales
           const initial = characterName.value ? characterName.value.charAt(0) : '?';
           if (avatarPreview.tagName === 'IMG') {
             // Reemplazar la imagen con un div
@@ -393,10 +690,6 @@
             newDiv.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
             parent.replaceChild(newDiv, avatarPreview);
             avatarPreview = newDiv;
-          } else {
-            // Actualizar el div existente
-            avatarPreview.className = 'w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center';
-            avatarPreview.innerHTML = `<span class="text-indigo-800 font-bold text-4xl">${initial}</span>`;
           }
         }
       }
@@ -404,7 +697,7 @@
       // También actualizar cuando cambia el nombre (para las iniciales)
       if (characterName) {
         characterName.addEventListener('input', function() {
-          if (!avatarInput.value.trim()) {
+          if (!avatarInput.files || !avatarInput.files[0]) {
             const initial = characterName.value ? characterName.value.charAt(0) : '?';
             if (avatarPreview.tagName !== 'IMG') {
               const span = avatarPreview.querySelector('span');
@@ -416,61 +709,144 @@
         });
       }
     }
-  });
 
-  document.addEventListener("DOMContentLoaded", function () {
+    // PARTE 2: GESTIÓN DE RAZAS Y CLASES
     const raceSelect = document.getElementById("race");
     const classSelect = document.getElementById("class");
+    const raceDescriptionEl = document.getElementById("raceDescription");
+    const classDescriptionEl = document.getElementById("classDescription");
 
-    // Verificar que los elementos existen antes de ejecutar el script
-    if (!raceSelect || !classSelect) {
-      console.error("Error: No se encontraron los elementos <select> de raza o clase.");
-      return;
+    // Verificar que los elementos existen
+    if (!raceSelect || !classSelect || !raceDescriptionEl || !classDescriptionEl) {
+        console.error("Error: No se encontraron todos los elementos necesarios.");
+        return;
     }
 
     // Obtener las restricciones de clases por raza desde el servidor
-    const raceClassRestrictions = <%- JSON.stringify(serverConfig.roleplay.raceClassRestrictions) %>;
+    const rawRaceClassRestrictions = <%- JSON.stringify(serverConfig.roleplay.raceClassRestrictions || {}) %>;
+    
+    // Procesamos las restricciones para manejar el formato especial
+    const raceClassRestrictions = {};
+    for (const race in rawRaceClassRestrictions) {
+        if (Array.isArray(rawRaceClassRestrictions[race]) && rawRaceClassRestrictions[race].length > 0) {
+            // Si es un array, procesamos cada entrada
+            const processedClasses = [];
+            
+            rawRaceClassRestrictions[race].forEach(classEntry => {
+                // Verificamos si la entrada tiene comas
+                if (typeof classEntry === 'string' && classEntry.includes(',')) {
+                    // Dividimos por comas y añadimos cada clase
+                    const splitClasses = classEntry.split(',').map(cls => cls.trim());
+                    processedClasses.push(...splitClasses);
+                } else {
+                    // Si no tiene comas, lo añadimos tal cual
+                    processedClasses.push(classEntry);
+                }
+            });
+            
+            raceClassRestrictions[race] = processedClasses;
+        } else {
+            // Si no es un array, usamos el valor tal cual
+            raceClassRestrictions[race] = rawRaceClassRestrictions[race];
+        }
+    }
+    
+    // Obtener las descripciones
+    const raceDescriptions = <%- JSON.stringify(serverConfig.roleplay.raceDescriptions || {}) %>;
+    const classDescriptions = <%- JSON.stringify(serverConfig.roleplay.classDescriptions || {}) %>;
 
-    function updateClassOptions() {
-      const selectedRace = raceSelect.value;
-      const allowedClasses = raceClassRestrictions[selectedRace] || [];
-
-      // Limpiar el select de clases
-      classSelect.innerHTML = "";
-
-      if (allowedClasses.length === 0) {
-        // Si la raza no tiene clases asignadas, mostrar un mensaje
-        const option = document.createElement("option");
-        option.value = "";
-        option.textContent = "No hay clases disponibles";
-        option.disabled = true;
-        option.selected = true;
-        classSelect.appendChild(option);
-      } else {
-        // Agregar las clases disponibles para la raza seleccionada
-        allowedClasses.forEach(className => {
-          const option = document.createElement("option");
-          option.value = className;
-          option.textContent = className;
-          classSelect.appendChild(option);
-        });
-      }
-
-      // Aplicar animación de opacidad para mejorar la transición
-      classSelect.style.opacity = "0";
-      setTimeout(() => {
-        classSelect.style.opacity = "1";
-      }, 200);
+    function updateRaceDescription() {
+        const selectedRace = raceSelect.value;
+        const description = raceDescriptions[selectedRace] || "No hay descripción disponible para esta raza.";
+        
+        // Animación de fundido
+        raceDescriptionEl.style.opacity = "0";
+        setTimeout(() => {
+            raceDescriptionEl.textContent = description;
+            raceDescriptionEl.style.opacity = "1";
+        }, 300);
+    }
+    
+    function updateClassDescription() {
+        const selectedClass = classSelect.value;
+        const description = classDescriptions[selectedClass] || "No hay descripción disponible para esta clase.";
+        
+        // Animación de fundido
+        classDescriptionEl.style.opacity = "0";
+        setTimeout(() => {
+            classDescriptionEl.textContent = description;
+            classDescriptionEl.style.opacity = "1";
+        }, 300);
     }
 
-    // Ejecutar la función al cargar la página para establecer las opciones iniciales
-    updateClassOptions();
+    function updateClassOptions() {
+        const selectedRace = raceSelect.value;
+        const allowedClasses = raceClassRestrictions[selectedRace] || [];
+        
+        console.log("Raza seleccionada:", selectedRace);
+        console.log("Clases permitidas:", allowedClasses);
 
-    // Escuchar cambios en la selección de raza y actualizar la lista de clases
-    raceSelect.addEventListener("change", updateClassOptions);
+        // Limpiar el select de clases
+        classSelect.innerHTML = "";
+
+        if (!allowedClasses || allowedClasses.length === 0) {
+            // Si la raza no tiene clases asignadas
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "No hay clases disponibles";
+            option.disabled = true;
+            option.selected = true;
+            classSelect.appendChild(option);
+        } else {
+            // Agregar cada clase como una opción individual
+            allowedClasses.forEach(className => {
+                const option = document.createElement("option");
+                option.value = className;
+                option.textContent = className;
+                classSelect.appendChild(option);
+            });
+        }
+
+        // Animación de opacidad
+        classSelect.style.opacity = "0";
+        setTimeout(() => {
+            classSelect.style.opacity = "1";
+            updateClassDescription();
+        }, 200);
+    }
+
+    // Inicializar descripciones y opciones
+    updateClassOptions();
+    updateRaceDescription();
+    updateClassDescription();
+
+    // Escuchar cambios
+    raceSelect.addEventListener("change", function() {
+        updateClassOptions();
+        updateRaceDescription();
+    });
+    
+    classSelect.addEventListener("change", updateClassDescription);
+});
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const classSelect = document.getElementById('class');
+    const profileClass = '<%= profile ? profile.character.class : null %>';
+    
+    if (classSelect && profileClass) {
+      let found = false;
+      for (let i = 0; i < classSelect.options.length; i++) {
+        const option = classSelect.options[i];
+        if (option.value === profileClass) {
+          classSelect.selectedIndex = i;
+          option.selected = true;
+          found = true;
+          break;
+        }
+      }
+    }
   });
 
 </script>
-
 
 <%- include('../partials/footer') %>

@@ -1,0 +1,438 @@
+/**
+ * TEMA MARIO BROS - OMENROL
+ * Estética inspirada en el universo de Mario Bros con colores rojo, azul y elementos característicos
+ */
+
+/* Colores base */
+body {
+    background-color: #89C4FF !important; /* Cielo azul claro */
+    color: #333333 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70' viewBox='0 0 70 70'%3E%3Cg fill='%2363B336' fill-opacity='0.2'%3E%3Cpath d='M0 0h35v35H0zM35 35h35v35H35z'/%3E%3C/g%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cpath d='M0 15 L15 0 L30 15 L45 0 L60 15 L45 30 L30 15 L15 30 Z' fill='%23F5CC59' fill-opacity='0.1'/%3E%3C/svg%3E") !important;
+    background-attachment: fixed !important;
+  }
+  
+  /* Navbar */
+  .bg-gray-800 {
+    background-color: #E52521 !important; /* Rojo Mario */
+    border-bottom: 3px solid #9B1A19 !important;
+    box-shadow: 0 4px 12px rgba(229, 37, 33, 0.4) !important;
+  }
+  
+  .bg-gray-900 {
+    background-color: #9B1A19 !important; /* Rojo oscuro */
+  }
+  
+  nav a.text-gray-300 {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+  }
+  
+  nav a.hover\:bg-gray-700:hover {
+    background-color: #FE950A !important; /* Naranja de bloques ? */
+    color: #000000 !important;
+  }
+  
+  .text-gray-400 {
+    color: #FFEEB8 !important;
+  }
+  
+  .hover\:text-white:hover {
+    color: #FFDB4A !important; /* Amarillo moneda */
+    text-shadow: 0 0 5px #FFDB4A, 0 0 10px rgba(255, 219, 74, 0.5) !important;
+  }
+  
+  /* Breadcrumb */
+  .bg-white.shadow-sm {
+    background-color: #4469B0 !important; /* Azul Mario (overalls) */
+    border-bottom: 2px solid #344F8C !important;
+    box-shadow: 0 4px 6px -1px rgba(68, 105, 176, 0.3) !important;
+  }
+  
+  .text-gray-500 {
+    color: #FFD54A !important;
+  }
+  
+  .text-gray-700, .hover\:text-gray-700:hover {
+    color: #FFFFFF !important;
+  }
+  
+  .text-gray-900 {
+    color: #FFFFFF !important;
+  }
+  
+  /* Tarjetas y contenedores */
+  .bg-white {
+    background-color: #FFEEB8 !important; /* Color crema suave */
+    border: 4px solid #F5CC59 !important; /* Borde amarillo bloque */
+    border-radius: 0.5rem !important;
+    box-shadow: 0 6px 0 #BB9A43 !important; /* Sombra inferior estilo Mario */
+    transform: translateY(-2px) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+  }
+  
+  .bg-white:hover {
+    transform: translateY(0) !important;
+    box-shadow: 0 4px 0 #BB9A43 !important;
+  }
+  
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #F5CC59 !important;
+  }
+  
+  .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+    box-shadow: 0 6px 0 #BB9A43, 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Botones */
+  .bg-indigo-600 {
+    background-color: #E52521 !important; /* Rojo Mario */
+    box-shadow: 0 4px 0 #9B1A19 !important;
+    border: none !important;
+    transform: translateY(-2px) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: #D01C19 !important;
+    box-shadow: 0 2px 0 #9B1A19 !important;
+    transform: translateY(0) !important;
+  }
+  
+  .from-indigo-600 {
+    background-image: linear-gradient(to right, #E52521, #D01C19) !important;
+  }
+  
+  .to-indigo-800 {
+    background-image: linear-gradient(to left, #E52521, #9B1A19) !important;
+  }
+  
+  .bg-gray-700 {
+    background-color: #4469B0 !important; /* Azul Mario */
+  }
+  
+  .hover\:bg-gray-600:hover {
+    background-color: #5A7BC0 !important;
+  }
+  
+  /* Menús desplegables */
+  #themeMenu, #userMenu {
+    background-color: #FFEEB8 !important;
+    border: 3px solid #F5CC59 !important;
+    box-shadow: 0 6px 0 #BB9A43, 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+    border-radius: 0.5rem !important;
+  }
+  
+  #themeMenu button, #userMenu a {
+    color: #333333 !important;
+    font-weight: 500 !important;
+  }
+  
+  #themeMenu button:hover, #userMenu a:hover {
+    background-color: #FE950A !important; /* Naranja bloque ? */
+    color: #000000 !important;
+  }
+  
+  /* Corregir visualización de menús desplegables */
+  #themeMenu.hidden, #userMenu.hidden {
+    display: none !important;
+  }
+  
+  /* Tablas */
+  .bg-gray-50 {
+    background-color: #E8DAAB !important; /* Crema más suave para tablas */
+  }
+  
+  .divide-gray-200 > * + * {
+    border-color: #F5CC59 !important;
+  }
+  
+  tbody.bg-white {
+    background-color: #FFEEB8 !important;
+  }
+  
+  tbody tr:hover {
+    background-color: rgba(245, 204, 89, 0.3) !important;
+  }
+  
+  /* Formularios */
+  input, select, textarea {
+    background-color: #FFFFFF !important;
+    border: 3px solid #F5CC59 !important;
+    color: #333333 !important;
+    border-radius: 0.375rem !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: #FE950A !important;
+    box-shadow: 0 0 0 3px rgba(254, 149, 10, 0.3) !important;
+  }
+  
+  /* Loader */
+  .loader-container {
+    background-color: rgba(137, 196, 255, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Asegurar que el loader se oculte correctamente */
+  .loader-container.hidden {
+    display: none !important;
+  }
+
+  .loader-container[style*="display: none"] {
+    display: none !important;
+}
+  
+  .loader {
+    border-top-color: #FE950A !important;
+    box-shadow: 0 0 15px #FFDB4A !important;
+  }
+  
+  /* Footer */
+  footer.bg-white {
+    background-color: #63B336 !important; /* Verde tubo */
+    border-top: 3px solid #4A8829 !important;
+    color: #FFFFFF !important;
+  }
+  
+  footer .text-gray-900 {
+    color: #FFFFFF !important;
+  }
+  
+  footer a {
+    color: #FFDB4A !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Tabs y navegación */
+  .border-indigo-500 {
+    border-color: #E52521 !important;
+  }
+  
+  .bg-indigo-50 {
+    background-color: rgba(229, 37, 33, 0.1) !important;
+  }
+  
+  .text-indigo-700 {
+    color: #E52521 !important;
+  }
+  
+  /* Alerts y notificaciones */
+  .bg-green-50 {
+    background-color: rgba(99, 179, 54, 0.2) !important;
+  }
+  
+  .bg-red-50 {
+    background-color: rgba(229, 37, 33, 0.2) !important;
+  }
+  
+  .text-green-700 {
+    color: #4A8829 !important;
+  }
+  
+  .text-red-700 {
+    color: #9B1A19 !important;
+  }
+  
+  /* Badges y elementos decorativos */
+  .bg-indigo-100 {
+    background-color: rgba(229, 37, 33, 0.2) !important;
+  }
+  
+  .text-indigo-800 {
+    color: #9B1A19 !important;
+  }
+  
+  .bg-red-100 {
+    background-color: rgba(229, 37, 33, 0.2) !important;
+  }
+  
+  .text-red-800 {
+    color: #9B1A19 !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: rgba(255, 219, 74, 0.2) !important;
+  }
+  
+  .text-yellow-800 {
+    color: #BB9A43 !important;
+  }
+  
+  .bg-green-100 {
+    background-color: rgba(99, 179, 54, 0.2) !important;
+  }
+  
+  .text-green-800 {
+    color: #4A8829 !important;
+  }
+  
+  .bg-blue-100 {
+    background-color: rgba(68, 105, 176, 0.2) !important;
+  }
+  
+  .text-blue-800 {
+    color: #344F8C !important;
+  }
+  
+  /* Enlaces y botones */
+  .text-indigo-600 {
+    color: #E52521 !important;
+    font-weight: 600 !important;
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: #FE950A !important;
+    text-shadow: 0 0 3px rgba(254, 149, 10, 0.5) !important;
+  }
+  
+  /* Efectos adicionales */
+  a, button {
+    transition: all 0.2s ease !important;
+  }
+  
+  .ring-black {
+    --tw-ring-opacity: 0 !important;
+  }
+  
+  .focus\:ring-indigo-500:focus {
+    --tw-ring-color: rgba(229, 37, 33, var(--tw-ring-opacity)) !important;
+  }
+  
+  .focus\:border-indigo-500:focus {
+    border-color: #E52521 !important;
+  }
+  
+  /* Personalización de scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #89C4FF;
+    border-radius: 5px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #4469B0;
+    border-radius: 5px;
+    border: 2px solid #89C4FF;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E52521;
+  }
+  
+  /* Efectos especiales para el tema Mario */
+  .bg-white::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    background-color: #FE950A;
+    border-radius: 50%;
+    border: 4px solid #F5CC59;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    opacity: 0.85;
+    display: none; /* Solo se mostrará en hover */
+  }
+  
+  .bg-white:hover::before {
+    display: block;
+    animation: coinBounce 0.5s ease;
+  }
+  
+  @keyframes coinBounce {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0); }
+  }
+  
+  /* Estilos para el avatar del usuario */
+  .user-menu-btn img {
+    border: 3px solid #FFDB4A !important;
+    box-shadow: 0 0 0 3px #E52521 !important;
+  }
+  
+  /* Barra de navegación móvil */
+  #mobileMenu {
+    background-color: #4469B0 !important;
+    border-top: 3px solid #344F8C !important;
+  }
+  
+  /* Estilos para las listas */
+  ul.list-disc li::marker {
+    color: #E52521 !important;
+    font-size: 1.2em !important;
+  }
+  
+  /* Personalización de bloques de código */
+  code {
+    background-color: #E8DAAB !important;
+    border: 2px solid #F5CC59 !important;
+    color: #333333 !important;
+  }
+  
+  /* Estadísticas en la página de inicio con efecto moneda */
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-card::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: #FFDB4A;
+    border-radius: 50%;
+    border: 2px solid #BB9A43;
+    bottom: -15px;
+    right: -15px;
+    opacity: 0.5;
+  }
+  
+  /* Estilizar botones específicos */
+  .bg-indigo-600.rounded-full {
+    border-radius: 9999px !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+  
+  /* Efecto especial para botones grandes */
+  .px-8.py-3 {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .px-8.py-3::after {
+    content: "→";
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+  
+  .px-8.py-3:hover::after {
+    right: 15px;
+    opacity: 1;
+  }
+  
+  .px-8.py-3:hover {
+    padding-right: 2.5rem !important;
+  }

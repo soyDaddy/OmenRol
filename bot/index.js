@@ -4,6 +4,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const config = require('../config');
 const Logger = require('../services/logger');
+const activityLogger = require('../utils/activityLogger');
 
 // Iniciar la conexión a MongoDB
 mongoose.connect(config.database.uri, config.database.options).then(() => console.log('Conectado a MongoDB'))
@@ -33,6 +34,9 @@ client.config = config;
 // Logger
 const logger = new Logger(client);
 global.logger = logger; 
+
+const Activity = activityLogger;
+global.activity = Activity;
 
 // Cargar eventos
 const eventsPath = path.join(__dirname, 'events');

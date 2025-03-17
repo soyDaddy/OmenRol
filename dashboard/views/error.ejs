@@ -1,14 +1,66 @@
 <%- include('partials/header') %>
 
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-  <div class="bg-white p-10 rounded-lg shadow-lg text-center">
-    <h1 class="text-4xl font-extrabold text-red-600"><%= status %></h1>
-    <p class="mt-4 text-xl text-gray-700"><%= message %></p>
-    <div class="mt-6">
-      <a href="/" class="inline-flex items-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-        <i class="fas fa-home mr-2"></i>
-        Volver al inicio
-      </a>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white rounded-xl shadow-2xl overflow-hidden">
+    <!-- Encabezado de error con el código de estado -->
+    <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-6 py-8 text-center">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-4">
+        <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+      </div>
+      <h1 class="text-5xl font-extrabold text-white"><%= status %></h1>
+      <div class="h-1 w-16 bg-white mx-auto mt-4 rounded-full opacity-50"></div>
+    </div>
+    
+    <!-- Contenido de error con detalles y opciones -->
+    <div class="px-8 py-6">
+      <div class="text-center">
+        <p class="text-xl text-gray-700 font-medium mb-4"><%= message %></p>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <a href="/" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200">
+            <i class="fas fa-home mr-2"></i>
+            Inicio
+          </a>
+          <a href="/support" class="inline-flex items-center justify-center px-5 py-3 border border-indigo-300 text-base font-medium rounded-md text-indigo-700 bg-white hover:bg-indigo-50 transition-colors duration-200">
+            <i class="fas fa-question-circle mr-2"></i>
+            Soporte
+          </a>
+        </div>
+      </div>
+      
+      <!-- Sugerencias adicionales -->
+      <div class="border-t border-gray-200 pt-6">
+        <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">Sugerencias</h3>
+        <ul class="space-y-2 text-sm">
+          <li class="flex">
+            <i class="fas fa-arrow-right text-indigo-500 mt-1 mr-2"></i>
+            <span>Verifica tu conexión a internet</span>
+          </li>
+          <li class="flex">
+            <i class="fas fa-arrow-right text-indigo-500 mt-1 mr-2"></i>
+            <span>Asegúrate de tener los permisos necesarios</span>
+          </li>
+          <li class="flex">
+            <i class="fas fa-arrow-right text-indigo-500 mt-1 mr-2"></i>
+            <span>Si el problema persiste, contacta con nuestro <a href="/support" class="text-indigo-600 hover:text-indigo-800 underline">equipo de soporte</a></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- Pie de página -->
+    <div class="bg-gray-50 px-6 py-4">
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-gray-500">OmenRol</span>
+        <div class="flex space-x-4">
+          <a href="/commands" class="text-sm text-gray-500 hover:text-indigo-600">
+            <i class="fas fa-terminal mr-1"></i> Comandos
+          </a>
+          <a href="/invite" class="text-sm text-gray-500 hover:text-indigo-600">
+            <i class="fas fa-robot mr-1"></i> Invitar bot
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

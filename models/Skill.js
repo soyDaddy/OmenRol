@@ -69,14 +69,14 @@ const SkillSchema = new mongoose.Schema({
   // Categoría de habilidad
   category: {
     type: String,
-    enum: ['attack', 'defense', 'healing', 'utility', 'passive', 'debuff', 'buff'],
+    enum: ['attack', 'combat', 'defense', 'healing', 'utility', 'passive', 'debuff', 'buff'],
     default: 'utility'
   },
   
   // Tipo de objetivo
   targetType: {
     type: String,
-    enum: ['self', 'single', 'area', 'all'],
+    enum: ['self', 'single', 'area', 'group', 'all'],
     default: 'self'
   },
   

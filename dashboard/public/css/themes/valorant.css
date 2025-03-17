@@ -1,0 +1,595 @@
+/**
+ * TEMA VALORANT - OMENROL
+ * Estética inspirada en Valorant con sus colores característicos rojo, negro y blanco
+ * y su diseño minimalista de alta tecnología
+ */
+
+/* Colores base */
+body {
+    background-color: #0F1923 !important; /* Azul oscuro fondo Valorant */
+    color: #ECE8E1 !important; /* Blanco hueso Valorant */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpolygon points='50,15 65,35 50,55 35,35' stroke='%23FF4655' stroke-width='1' fill='none' opacity='0.2'/%3E%3C/svg%3E") !important;
+    background-attachment: fixed !important;
+    background-size: 200px !important;
+  }
+  
+  /* Navbar */
+  .bg-gray-800 {
+    background-color: #0F1923 !important;
+    border-bottom: 2px solid #FF4655 !important; /* Rojo Valorant */
+    box-shadow: 0 4px 12px rgba(255, 70, 85, 0.2) !important;
+  }
+  
+  .bg-gray-900 {
+    background-color: #081218 !important; /* Más oscuro para contraste */
+  }
+  
+  nav a.text-gray-300 {
+    color: #ECE8E1 !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+  }
+  
+  nav a.hover\:bg-gray-700:hover {
+    background-color: #BD3944 !important; /* Rojo oscuro */
+    color: #ECE8E1 !important;
+    transform: translateY(-2px) !important;
+  }
+  
+  .text-gray-400 {
+    color: #8B978F !important; /* Verde grisáceo sutil */
+  }
+  
+  .hover\:text-white:hover {
+    color: #FF4655 !important;
+    text-shadow: 0 0 8px rgba(255, 70, 85, 0.5) !important;
+  }
+  
+  /* Breadcrumb */
+  .bg-white.shadow-sm {
+    background-color: #121C26 !important; /* Azul oscuro levemente más claro */
+    border-bottom: 1px solid #1F2B39 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .text-gray-500 {
+    color: #8B978F !important;
+  }
+  
+  .text-gray-700, .hover\:text-gray-700:hover {
+    color: #ECE8E1 !important;
+  }
+  
+  .text-gray-900 {
+    color: #ECE8E1 !important;
+  }
+  
+  /* Tarjetas y contenedores */
+  .bg-white {
+    background-color: #1F2B39 !important; /* Azul oscuro medio */
+    border: none !important;
+    border-radius: 2px !important; /* Angular, al estilo Valorant */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .bg-white::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #FF4655;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .bg-white:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .bg-white:hover::before {
+    opacity: 1;
+  }
+  
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #1F2B39 !important;
+  }
+  
+  .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Botones */
+  .bg-indigo-600 {
+    background-color: #FF4655 !important; /* Rojo Valorant */
+    border: none !important;
+    border-radius: 2px !important; /* Angular, al estilo Valorant */
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease !important;
+  }
+  
+  .bg-indigo-600::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: height 0.3s ease;
+    z-index: 1;
+  }
+  
+  .bg-indigo-600:hover::after {
+    height: 100%;
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: #BD3944 !important;
+    transform: translateY(-2px) !important;
+  }
+  
+  .from-indigo-600 {
+    background-image: linear-gradient(to right, #FF4655, #BD3944) !important;
+  }
+  
+  .to-indigo-800 {
+    background-image: linear-gradient(to left, #FF4655, #BD3944) !important;
+  }
+  
+  .bg-gray-700 {
+    background-color: #1F2B39 !important;
+  }
+  
+  .hover\:bg-gray-600:hover {
+    background-color: #283C53 !important;
+  }
+  
+  /* Menús desplegables */
+  #themeMenu, #userMenu {
+    background-color: #1F2B39 !important;
+    border: 1px solid #283C53 !important;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 2px !important;
+    overflow: hidden;
+  }
+  
+  #themeMenu button, #userMenu a {
+    color: #ECE8E1 !important;
+    font-size: 0.85rem !important;
+    transition: all 0.2s ease !important;
+    position: relative;
+    z-index: 2;
+  }
+  
+  #themeMenu button::before, #userMenu a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #FF4655;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+  }
+  
+  #themeMenu button:hover::before, #userMenu a:hover::before {
+    opacity: 1;
+  }
+  
+  #themeMenu button:hover, #userMenu a:hover {
+    background-color: #283C53 !important;
+    padding-left: 1.5rem !important;
+  }
+  
+  /* Corregir visualización de menús desplegables */
+  #themeMenu.hidden, #userMenu.hidden {
+    display: none !important;
+  }
+  
+  /* Tablas */
+  .bg-gray-50 {
+    background-color: #121C26 !important;
+  }
+  
+  .divide-gray-200 > * + * {
+    border-color: #283C53 !important;
+  }
+  
+  tbody.bg-white {
+    background-color: #1F2B39 !important;
+  }
+  
+  tbody tr:hover {
+    background-color: #283C53 !important;
+  }
+  
+  /* Encabezados de tabla */
+  th {
+    background-color: #121C26 !important;
+    color: #8B978F !important;
+    text-transform: uppercase !important;
+    font-size: 0.75rem !important;
+    letter-spacing: 0.05em !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Formularios */
+  input, select, textarea {
+    background-color: #121C26 !important;
+    border: 1px solid #283C53 !important;
+    color: #ECE8E1 !important;
+    border-radius: 2px !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: #FF4655 !important;
+    box-shadow: 0 0 0 2px rgba(255, 70, 85, 0.2) !important;
+  }
+  
+  /* Loader */
+  .loader-container {
+    background-color: rgba(15, 25, 35, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .loader-container::before {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    border: 2px solid #FF4655;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    animation: pulse 1.5s ease-in-out infinite alternate;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0.5; }
+  }
+  
+  /* Asegurar que el loader se oculte correctamente */
+  .loader-container.hidden {
+    display: none !important;
+  }
+
+  .loader-container[style*="display: none"] {
+    display: none !important;
+}
+  
+  .loader {
+    border-top-color: #FF4655 !important;
+    box-shadow: 0 0 15px rgba(255, 70, 85, 0.5) !important;
+  }
+  
+  /* Footer */
+  footer.bg-white {
+    background-color: #0F1923 !important;
+    border-top: 1px solid #1F2B39 !important;
+  }
+  
+  footer .text-gray-900 {
+    color: #ECE8E1 !important;
+  }
+  
+  footer a {
+    color: #8B978F !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  footer a:hover {
+    color: #FF4655 !important;
+  }
+  
+  /* Tabs y navegación */
+  .border-indigo-500 {
+    border-color: #FF4655 !important;
+  }
+  
+  .bg-indigo-50 {
+    background-color: rgba(255, 70, 85, 0.1) !important;
+  }
+  
+  .text-indigo-700 {
+    color: #FF4655 !important;
+  }
+  
+  /* Alerts y notificaciones */
+  .bg-green-50 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+  }
+  
+  .bg-red-50 {
+    background-color: rgba(255, 70, 85, 0.1) !important;
+  }
+  
+  .text-green-700 {
+    color: #10B981 !important;
+  }
+  
+  .text-red-700 {
+    color: #FF4655 !important;
+  }
+  
+  /* Badges y elementos decorativos */
+  .bg-indigo-100 {
+    background-color: rgba(255, 70, 85, 0.2) !important;
+  }
+  
+  .text-indigo-800 {
+    color: #FF4655 !important;
+  }
+  
+  .bg-red-100 {
+    background-color: rgba(255, 70, 85, 0.2) !important;
+  }
+  
+  .text-red-800 {
+    color: #FF4655 !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+  }
+  
+  .text-yellow-800 {
+    color: #F59E0B !important;
+  }
+  
+  .bg-green-100 {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+  }
+  
+  .text-green-800 {
+    color: #10B981 !important;
+  }
+  
+  .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+  }
+  
+  .text-blue-800 {
+    color: #3B82F6 !important;
+  }
+  
+  /* Enlaces y botones */
+  .text-indigo-600 {
+    color: #FF4655 !important;
+    font-weight: 500 !important;
+    position: relative;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.05em !important;
+  }
+  
+  .text-indigo-600::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #FF4655;
+    transition: width 0.3s ease;
+  }
+  
+  .text-indigo-600:hover::after {
+    width: 100%;
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: #FF637A !important;
+  }
+  
+  /* Efectos adicionales */
+  a, button {
+    transition: all 0.3s ease !important;
+  }
+  
+  .ring-black {
+    --tw-ring-opacity: 0 !important;
+  }
+  
+  .focus\:ring-indigo-500:focus {
+    --tw-ring-color: rgba(255, 70, 85, var(--tw-ring-opacity)) !important;
+  }
+  
+  .focus\:border-indigo-500:focus {
+    border-color: #FF4655 !important;
+  }
+  
+  /* Personalización de scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #0F1923;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #283C53;
+    border-radius: 0;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #FF4655;
+  }
+  
+  /* Estilos para la página de comandos */
+  .bg-indigo-600.text-white {
+    background-color: #FF4655 !important;
+  }
+  
+  /* Botones de categoría */
+  .rounded-full {
+    border-radius: 2px !important; /* Valorant tiene diseño angular, no redondeado */
+  }
+  
+  .bg-indigo-500.text-white.hover\:bg-indigo-600 {
+    background-color: #FF4655 !important;
+  }
+  
+  .bg-indigo-500.text-white.hover\:bg-indigo-600:hover {
+    background-color: #BD3944 !important;
+  }
+  
+  /* Íconos de categoría */
+  .text-indigo-500 {
+    color: #FF4655 !important;
+  }
+  
+  /* Estilos para las estadísticas en la página de inicio */
+  .stats-container .bg-white {
+    background: linear-gradient(135deg, #1F2B39 0%, #222F3D 100%) !important;
+    border-left: 4px solid #FF4655 !important;
+    border-radius: 2px !important;
+  }
+  
+  /* Efectos para los elementos de tipo badge */
+  .px-2.inline-flex.text-xs {
+    border-radius: 2px !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.05em !important;
+  }
+  
+  /* Estilos para el avatar del usuario */
+  .user-menu-btn img {
+    border: 2px solid #FF4655 !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .user-menu-btn:hover img {
+    filter: brightness(1.2) !important;
+  }
+  
+  /* Animación para el logotipo */
+  .logo, img[src*="logo"] {
+    transition: filter 0.3s ease !important;
+  }
+  
+  .logo:hover, img[src*="logo"]:hover {
+    filter: drop-shadow(0 0 4px #FF4655) !important;
+  }
+  
+  /* Personalización de código */
+  code {
+    background-color: #121C26 !important;
+    border-radius: 2px !important;
+    border-left: 2px solid #FF4655 !important;
+    color: #ECE8E1 !important;
+  }
+  
+  /* Clases para agentes Valorant */
+  .agent-jett { color: #7FBCE6 !important; }
+  .agent-raze { color: #D7812A !important; }
+  .agent-breach { color: #B35723 !important; }
+  .agent-omen { color: #3E3CCC !important; }
+  .agent-brimstone { color: #826941 !important; }
+  .agent-phoenix { color: #FF9344 !important; }
+  .agent-sage { color: #31A0AC !important; }
+  .agent-sova { color: #2A7AB8 !important; }
+  .agent-viper { color: #2BBA6A !important; }
+  .agent-cypher { color: #FFFFFF !important; }
+  .agent-reyna { color: #9B3BDC !important; }
+  .agent-killjoy { color: #FFDD00 !important; }
+  .agent-skye { color: #A3D165 !important; }
+  .agent-yoru { color: #1C4AC7 !important; }
+  .agent-astra { color: #8817E3 !important; }
+  .agent-kayo { color: #255B9A !important; }
+  .agent-chamber { color: #CDA078 !important; }
+  .agent-neon { color: #158FFF !important; }
+  .agent-fade { color: #36349B !important; }
+  .agent-harbor { color: #18788C !important; }
+  .agent-gekko { color: #97F340 !important; }
+  .agent-deadlock { color: #D54B4B !important; }
+  .agent-iso { color: #FFB347 !important; }
+  .agent-clove { color: #FFB7C5 !important; }
+  
+  /* Valorant armas */
+  .weapon-classic { background-color: #1F2B39 !important; }
+  .weapon-shorty { background-color: #1F2B39 !important; }
+  .weapon-frenzy { background-color: #1F2B39 !important; }
+  .weapon-ghost { background-color: #1F2B39 !important; }
+  .weapon-sheriff { background-color: #1F2B39 !important; }
+  .weapon-stinger { background-color: #1F2B39 !important; }
+  .weapon-spectre { background-color: #1F2B39 !important; }
+  .weapon-bucky { background-color: #1F2B39 !important; }
+  .weapon-judge { background-color: #1F2B39 !important; }
+  .weapon-bulldog { background-color: #1F2B39 !important; }
+  .weapon-guardian { background-color: #1F2B39 !important; }
+  .weapon-phantom { background-color: #1F2B39 !important; }
+  .weapon-vandal { background-color: #1F2B39 !important; }
+  .weapon-marshal { background-color: #1F2B39 !important; }
+  .weapon-operator { background-color: #1F2B39 !important; }
+  .weapon-ares { background-color: #1F2B39 !important; }
+  .weapon-odin { background-color: #1F2B39 !important; }
+  
+  /* Glitch effect para elementos especiales */
+  .valorant-glitch {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .valorant-glitch::before,
+  .valorant-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    color: #FF4655;
+  }
+  
+  .valorant-glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 #00FFFF;
+    clip: rect(24px, 550px, 90px, 0);
+    animation: glitch-anim 3s linear infinite alternate-reverse;
+  }
+  
+  .valorant-glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 #FF00FF;
+    clip: rect(85px, 550px, 140px, 0);
+    animation: glitch-anim 2.5s linear infinite alternate-reverse;
+  }
+  
+  @keyframes glitch-anim {
+    0% { clip: rect(90px, 9999px, 10px, 0); }
+    5% { clip: rect(10px, 9999px, 50px, 0); }
+    10% { clip: rect(25px, 9999px, 115px, 0); }
+    15% { clip: rect(80px, 9999px, 40px, 0); }
+    20% { clip: rect(100px, 9999px, 60px, 0); }
+    25% { clip: rect(75px, 9999px, 100px, 0); }
+    30% { clip: rect(50px, 9999px, 130px, 0); }
+    100% { clip: rect(0, 0, 0, 0); }
+  }

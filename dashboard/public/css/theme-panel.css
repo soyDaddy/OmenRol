@@ -1,0 +1,509 @@
+/* Estilos para el panel lateral de temas */
+.theme-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .theme-panel:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .theme-panel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+  }
+  
+  .theme-panel-container {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 90%;
+    max-width: 500px;
+    background-color: #fff;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  }
+  
+  .theme-panel:not(.hidden) .theme-panel-container {
+    transform: translateX(0);
+  }
+  
+  /* Cuando la clase .hidden está presente, el panel se oculta con animación */
+  .theme-panel.hidden {
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  .theme-panel-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .theme-panel-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  
+  .theme-panel-close {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f3f4f6;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: none;
+  }
+  
+  .theme-panel-close:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .theme-panel-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+  
+  .theme-panel-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+  }
+  
+  /* Rejilla de temas */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .theme-card {
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+  }
+  
+  .theme-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .theme-card.active {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  }
+  
+  .theme-preview {
+    height: 100px;
+    position: relative;
+  }
+  
+  .theme-name {
+    padding: 0.75rem;
+    text-align: center;
+    font-weight: 500;
+    background-color: #f9fafb;
+    font-size: 0.875rem;
+  }
+  
+  /* Vistas previas de temas */
+  .preview-navbar {
+    height: 20%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+  }
+  
+  .preview-content {
+    height: 80%;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .preview-card {
+    width: 60%;
+    height: 50%;
+    border-radius: 0.25rem;
+  }
+  
+  /* Tema Light */
+  .light-preview .preview-navbar {
+    background-color: #1F2937;
+  }
+  
+  .light-preview .preview-content {
+    background-color: #F9FAFB;
+  }
+  
+  .light-preview .preview-card {
+    background-color: #FFFFFF;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  /* Tema Dark */
+  .dark-preview .preview-navbar {
+    background-color: #020617;
+  }
+  
+  .dark-preview .preview-content {
+    background-color: #0f172a;
+  }
+  
+  .dark-preview .preview-card {
+    background-color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  
+  /* Tema Cyberpunk */
+  .cyberpunk-preview .preview-navbar {
+    background-color: #1A1625;
+  }
+  
+  .cyberpunk-preview .preview-content {
+    background-color: #13111C;
+  }
+  
+  .cyberpunk-preview .preview-card {
+    background-color: #1E1A2E;
+    border: 1px solid #392D5C;
+    box-shadow: 0 0 10px rgba(255, 46, 151, 0.3);
+  }
+  
+  /* Tema Fantasy */
+  .fantasy-preview .preview-navbar {
+    background-color: #0F172A;
+    border-bottom: 1px solid #8B5CF6;
+  }
+  
+  .fantasy-preview .preview-content {
+    background-color: #1E293B;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%238B5CF6' fill-opacity='0.05'%3E%3Cpath d='M0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .fantasy-preview .preview-card {
+    background-color: rgba(30, 41, 59, 0.8);
+    border: 1px solid #8B5CF6;
+    box-shadow: 0 4px 6px rgba(139, 92, 246, 0.2);
+  }
+  
+  /* Tema Hell */
+  .hell-preview .preview-navbar {
+    background-color: #18070B;
+    border-bottom: 1px solid #B91C1C;
+  }
+  
+  .hell-preview .preview-content {
+    background-color: #0C0908;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23991b1b' fill-opacity='0.1'%3E%3Cpath d='M0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .hell-preview .preview-card {
+    background-color: #18070B;
+    border: 1px solid #B91C1C;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3);
+  }
+  
+  /* Tema God */
+  .god-preview .preview-navbar {
+    background-color: #1E40AF;
+    background-image: linear-gradient(to right, #1E40AF, #2563EB, #1E40AF);
+    border-bottom: 1px solid #DBEAFE;
+  }
+  
+  .god-preview .preview-content {
+    background-color: #EFF6FF;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%232563eb' fill-opacity='0.08'%3E%3Cpath d='M0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .god-preview .preview-card {
+    background-color: rgba(255, 255, 255, 0.85);
+    border: 1px solid #BFDBFE;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1);
+  }
+  
+  /* Tema Nature */
+  .nature-preview .preview-navbar {
+    background-color: #3E5641;
+    border-bottom: 1px solid #8BAA74;
+    background-image: linear-gradient(to right, #3E5641, #4D6B53, #3E5641);
+  }
+  
+  .nature-preview .preview-content {
+    background-color: #F1F8E9;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2366895b' fill-opacity='0.1'%3E%3Cpath d='M0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .nature-preview .preview-card {
+    background-color: rgba(242, 250, 235, 0.9);
+    border: 1px solid #8BAA74;
+    box-shadow: 0 4px 6px rgba(95, 143, 89, 0.2);
+  }
+  
+  /* Tema Ocean */
+  .ocean-preview .preview-navbar {
+    background-color: #164E63;
+    border-bottom: 1px solid #83C1D7;
+    background-image: linear-gradient(to right, #164E63, #0E7490, #164E63);
+  }
+  
+  .ocean-preview .preview-content {
+    background-color: #E5F2F7;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230e7490' fill-opacity='0.1'%3E%3Cpath d='M0 0h20v20H0z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .ocean-preview .preview-card {
+    background-color: rgba(236, 254, 255, 0.85);
+    border: 1px solid #67C3D7;
+    box-shadow: 0 10px 15px -3px rgba(14, 116, 144, 0.1);
+  }
+  
+  /* Tema Cosmos */
+  .cosmos-preview .preview-navbar {
+    background-color: rgba(8, 3, 36, 0.8);
+    border-bottom: 1px solid #4C1D95;
+    box-shadow: 0 4px 15px rgba(88, 28, 135, 0.4);
+  }
+  
+  .cosmos-preview .preview-content {
+    background-color: #030014;
+    background-image: radial-gradient(circle at top right, #1E0953 0%, #090423 25%, #030014 50%);
+  }
+  
+  .cosmos-preview .preview-card {
+    background-color: rgba(15, 3, 35, 0.8);
+    border: 1px solid #4C1D95;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+  }
+  
+  /* Tema Mario */
+  .mario-preview .preview-navbar {
+    background-color: #E52521;
+    border-bottom: 3px solid #9B1A19;
+  }
+  
+  .mario-preview .preview-content {
+    background-color: #89C4FF;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2363B336' fill-opacity='0.2'%3E%3Cpath d='M0 0h10v10H0z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  .mario-preview .preview-card {
+    background-color: #FFEEB8;
+    border: 4px solid #F5CC59;
+    box-shadow: 0 6px 0 #BB9A43;
+  }
+  
+  /* Tema Pokémon */
+  .pokemon-preview .preview-navbar {
+    background-color: #EE1515;
+    border-bottom: 3px solid #222224;
+    background-image: linear-gradient(to right, #EE1515, #CC0000, #EE1515);
+  }
+  
+  .pokemon-preview .preview-content {
+    background-color: #F2F2F2;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='9' stroke='%23EAEAEA' stroke-width='2' fill='none' /%3E%3C/svg%3E");
+  }
+  
+  .pokemon-preview .preview-card {
+    background-color: #FFFFFF;
+    border: 2px solid #DEDEDE;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Tema Valorant */
+  .valorant-preview .preview-navbar {
+    background-color: #0F1923;
+    border-bottom: 2px solid #FF4655;
+  }
+  
+  .valorant-preview .preview-content {
+    background-color: #0F1923;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='10,3 13,7 10,11 7,7' stroke='%23FF4655' stroke-width='1' fill='none' opacity='0.2'/%3E%3C/svg%3E");
+  }
+  
+  .valorant-preview .preview-card {
+    background-color: #1F2B39;
+    border-left: 4px solid #FF4655;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Tema Pac-Man */
+  .pacman-preview .preview-navbar {
+    background-color: #0000FF;
+    border-bottom: 3px solid #FFFFFF;
+  }
+  
+  .pacman-preview .preview-content {
+    background-color: #000000;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 L2 0 L2 2 L0 2 Z M4 0 L6 0 L6 2 L4 2 Z M8 0 L10 0 L10 2 L8 2 Z M12 0 L14 0 L14 2 L12 2 Z M16 0 L18 0 L18 2 L16 2 Z' fill='%233333FF' opacity='0.1'/%3E%3C/svg%3E");
+  }
+  
+  .pacman-preview .preview-card {
+    background-color: #000000;
+    border: 2px solid #0000FF;
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.3);
+  }
+  
+  /* Para cuando un tema es seleccionado */
+  .theme-selected-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: #4f46e5;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+  }
+  
+  .theme-card.active .theme-selected-indicator {
+    display: flex;
+  }
+  
+  /* Añadir efecto de bloqueo de scroll cuando el panel está abierto */
+  body.theme-panel-open {
+    overflow: hidden;
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px) {
+    .theme-grid {
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 1rem;
+    }
+    
+    .theme-panel-container {
+      width: 100%;
+    }
+    
+    .theme-preview {
+      height: 80px;
+    }
+    
+    .theme-name {
+      padding: 0.5rem;
+      font-size: 0.75rem;
+    }
+  }
+  
+  /* Animación para la transición entre temas */
+  @keyframes theme-fade {
+    0% { opacity: 0.7; }
+    100% { opacity: 1; }
+  }
+  
+  /* Aplicar la animación cuando cambia el tema */
+  body:after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  body.theme-changing:after {
+    animation: theme-fade 0.5s ease;
+    z-index: 9999;
+  }
+  
+  /* Estilo para botón de tema en la barra de navegación */
+  #themePanelButton {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+  }
+  
+  #themePanelButton:hover {
+    transform: scale(1.05);
+  }
+
+  .space-preview .preview-navbar {
+    background-color: rgba(10, 10, 40, 0.8);
+    border-bottom: 1px solid rgba(123, 97, 255, 0.3);
+    background-image: linear-gradient(to right, rgba(10, 10, 40, 0.8), rgba(30, 20, 80, 0.8), rgba(10, 10, 40, 0.8));
+  }
+  
+  .space-preview .preview-content {
+    background-color: #050314;
+    background-image: 
+      radial-gradient(circle at 25% 50%, rgba(76, 0, 255, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 75% 30%, rgba(123, 97, 255, 0.15) 0%, transparent 40%);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .space-preview .preview-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(1px 1px at 20px 10px, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0)),
+      radial-gradient(1px 1px at 40px 30px, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0)),
+      radial-gradient(1px 1px at 60px 50px, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0)),
+      radial-gradient(1px 1px at 10px 40px, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+    background-repeat: repeat;
+    background-size: 100px 100px;
+    opacity: 0.5;
+  }
+  
+  .space-preview .preview-card {
+    background-color: rgba(15, 10, 40, 0.7);
+    border: 1px solid rgba(123, 97, 255, 0.3);
+    box-shadow: 0 0 10px rgba(76, 0, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .space-preview .preview-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(123, 97, 255, 0.6), transparent);
+  }

@@ -1,0 +1,82 @@
+
+<%
+const { getActivityIcon, getActivityColor, formatDateRelative } = require('../../utils/dateHelpers');
+%>
+
+<% if (Object.keys(groupedActivities).length === 0) { %>
+  <div class="text-center py-12">
+    <i class="fas fa-history text-gray-400 text-5xl mb-4"></i>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No hay actividades que mostrar</h3>
+    <p class="text-gray-500">Usa comandos en los servidores para registrar actividades.</p>
+  </div>
+<% } else { %>
+  <!-- Timeline de actividades agrupadas por fecha -->
+  <ul class="-mb-8" id="activity-timeline">
+    <% Object.keys(groupedActivities).forEach((dateLabel, dateIndex) => { %>
+      <!-- Separador de fecha -->
+      <li>
+        <div class="relative pb-8">
+          <% if (dateIndex !== Object.keys(groupedActivities).length - 1) { %>
+            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+          <% } %>
+          <div class="relative flex space-x-3">
+            <div>
+              <span class="h-8 w-24 rounded-md flex items-center justify-center <%= dateLabel === 'Hoy' ? 'bg-indigo-500' : 'bg-gray-500' %> text-white text-sm font-medium">
+                <%= dateLabel %>
+              </span>
+            </div>
+          </div>
+        </div>
+      </li>
+      
+      <!-- Actividades para esta fecha -->
+      <% groupedActivities[dateLabel].forEach((activity, index) => { 
+         const isLastItem = dateIndex === Object.keys(groupedActivities).length - 1 && 
+                          index === groupedActivities[dateLabel].length - 1;
+      %>
+        <li>
+          <div class="relative pb-8">
+            <% if (!isLastItem) { %>
+              <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+            <% } %>
+            <div class="relative flex space-x-3">
+              <div>
+                <span class="h-8 w-8 rounded-full <%= getActivityColor(activity.type, activity.success) %> flex items-center justify-center ring-8 ring-white">
+                  <i class="fas <%= getActivityIcon(activity.type) %> text-white"></i>
+                </span>
+              </div>
+              <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                <div>
+                  <p class="text-sm text-gray-900"><%- activity.action %> en <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500"><%= activity.serverName %></a>.</p>
+                  
+                  <% if (activity.rewards && activity.rewards.length > 0) { %>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      <% activity.rewards.forEach(reward => { %>
+                        <% if (reward.type === 'currency') { %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <i class="fas fa-coins mr-1"></i>+<%= reward.value %> monedas
+                          </span>
+                        <% } else if (reward.type === 'exp') { %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <i class="fas fa-star mr-1"></i>+<%= reward.value %> exp
+                          </span>
+                        <% } else if (reward.type === 'item') { %>
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-box mr-1"></i><%= reward.name %> <%= reward.quantity > 1 ? 'x' + reward.quantity : '' %>
+                          </span>
+                        <% } %>
+                      <% }) %>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                  <time datetime="<%= activity.timestamp %>"><%= formatDateRelative(activity.timestamp) %></time>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+      <% }) %>
+    <% }) %>
+  </ul>
+<% } %>

@@ -1,6 +1,9 @@
-// profileUtils.js
 const botClient = require('../bot/index');
 const Server = require('../models/Server');
+const Item = require('../models/Items');
+const Skill = require('../models/Skill');
+const { Mission } = require('../models/Missions');
+const { PermissionsBitField, EmbedBuilder } = require('discord.js');
 
 async function createOrUpdateProfileChannel(serverId, userId, profile) {
   try {
@@ -59,26 +62,33 @@ async function createOrUpdateProfileChannel(serverId, userId, profile) {
     }
     
     // Crear el canal
-    const characterName = profile.character.name || `Perfil-${member.user.username}`;
-    const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9-]/g, '-').substring(0, 30);
+    const characterName = profile?.character?.name || member?.user?.username || `perfil-${userId}`;
+    
+    const sanitizedName = characterName.toLowerCase().replace(/[^a-z0-9-]/g, '-').substring(0, 30) || `perfil-${userId}`;
     
     const channelOptions = {
+      name: sanitizedName,
       type: 0, // Canal de texto
       topic: `Perfil de rol de ${characterName} (${member.user.tag})`,
       permissionOverwrites: [
         {
           id: guild.id, // @everyone
-          allow: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'],
-          deny: ['SEND_MESSAGES']
+          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory],
+          deny: [PermissionsBitField.Flags.SendMessages]
         },
         {
           id: userId,
-          allow: ['VIEW_CHANNEL', 'READ_MESSAGE_HISTORY'],
-          deny: ['SEND_MESSAGES']
+          allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.ReadMessageHistory],
+          deny: [PermissionsBitField.Flags.SendMessages]
         },
         {
           id: botClient.user.id, // El bot
-          allow: ['VIEW_CHANNEL', 'SEND_MESSAGES', 'MANAGE_MESSAGES', 'READ_MESSAGE_HISTORY']
+          allow: [
+            PermissionsBitField.Flags.ViewChannel,
+            PermissionsBitField.Flags.SendMessages,
+            PermissionsBitField.Flags.ManageMessages,
+            PermissionsBitField.Flags.ReadMessageHistory
+          ]
         }
       ]
     };
@@ -88,7 +98,7 @@ async function createOrUpdateProfileChannel(serverId, userId, profile) {
       channelOptions.parent = category.id;
     }
     
-    const channel = await guild.channels.create(`perfil-${sanitizedName}`, channelOptions);
+    const channel = await guild.channels.create(channelOptions);
     
     // Actualizar el nuevo canal con la información del perfil
     await updateProfileChannel(channel, userId, profile, guild);
@@ -111,77 +121,82 @@ async function updateProfileChannel(channel, userId, profile, guild) {
   try {
     // Limpiar el canal
     await channel.bulkDelete(100).catch(() => {});
-    
+
     // Obtener el miembro
     const member = await guild.members.fetch(userId).catch(() => null);
-    const username = member ? member.user.tag : 'Usuario desconocido';
-    
-    // Crear mensaje de perfil
-    let message = `# Perfil de ${profile.character.name || 'Sin nombre'}\n\n`;
-    
-    if (profile.character.avatar) {
-      message += `![Avatar](${profile.character.avatar})\n\n`;
-    }
-    
-    message += `**Usuario Discord:** ${username}\n`;
-    message += `**Raza:** ${profile.character.race || 'No especificada'}\n`;
-    message += `**Clase:** ${profile.character.class || 'No especificada'}\n`;
-    message += `**Nivel:** ${profile.character.level}\n`;
-    message += `**Experiencia:** ${profile.character.experience}\n`;
-    
-    // Añadir estadísticas
-    message += `\n## Estadísticas\n\n`;
-    message += `**Salud:** ${profile.character.health.current}/${profile.character.health.max}\n`;
-    message += `**Maná:** ${profile.character.mana.current}/${profile.character.mana.max}\n`;
-    message += `**Fuerza:** ${profile.character.stats.strength}\n`;
-    message += `**Inteligencia:** ${profile.character.stats.intelligence}\n`;
-    message += `**Destreza:** ${profile.character.stats.dexterity}\n`;
-    message += `**Defensa:** ${profile.character.stats.defense}\n`;
-    message += `**Monedas:** ${profile.character.currency}\n`;
-    
+    const username = member ? member.user.globalName || member.user.username : 'Usuario desconocido';
+
+    // Crear el embed principal
+    const embed = new EmbedBuilder()
+      .setTitle(`📜 Perfil de ${profile.character.name || 'Sin nombre'}`)
+      .setColor(0x7289DA) // Color del embed (puedes personalizarlo)
+      .setThumbnail((profile.character.avatar && profile.character.avatar.startsWith('http')) ? profile.character.avatar : ('https://roleplay.pulsey.xyz'+profile.character.avatar) || guild.iconURL())
+      .addFields(
+        { name: '👤 Usuario Discord', value: username, inline: true },
+        { name: '🧝 Raza', value: profile?.character?.race || 'No especificada', inline: true },
+        { name: '⚔️ Clase', value: profile?.character?.class || 'No especificada', inline: true },
+        { name: '📊 Nivel', value: `${profile?.character?.level}`, inline: true },
+        { name: '⭐ Experiencia', value: `${profile?.character?.experience}`, inline: true },
+        { name: '💰 Monedas', value: `${profile?.character?.currency}`, inline: true }
+      )
+      .addFields(
+        { name: '❤️ Salud', value: `${profile?.character?.health?.current}/${profile?.character?.health?.max}`, inline: true },
+        { name: '🔮 Maná', value: `${profile?.character?.mana?.current}/${profile?.character?.mana?.max}`, inline: true },
+        { name: '💪 Fuerza', value: `${profile?.character?.stats?.strength}`, inline: true },
+        { name: '🧠 Inteligencia', value: `${profile?.character?.stats?.intelligence}`, inline: true },
+        { name: '🏹 Destreza', value: `${profile?.character?.stats?.dexterity}`, inline: true },
+        { name: '🛡️ Defensa', value: `${profile?.character?.stats?.defense}`, inline: true }
+      );
+
     // Añadir biografía si existe
     if (profile.character.bio) {
-      message += `\n## Biografía\n\n${profile.character.bio}\n`;
+      const bio = profile.character.bio.length > 2048 ? profile.character.bio.slice(0, 2040) + '...' : profile.character.bio;
+      embed.setDescription('📖 Biografía: \n\n'+ bio);
     }
+
+   // Añadir habilidades
+  if (profile.character.skills && profile.character.skills.length > 0) {
+    const skillPromises = profile.character.skills.map(async skillData => {
+      const skill = await Skill.findById(skillData.skillId);
+      return `- **${skill.name}** (Nivel ${skillData.level})`;
+    });
     
-    // Añadir habilidades
-    if (profile.character.skills && profile.character.skills.length > 0) {
-      message += `\n## Habilidades\n\n`;
-      
-      for (const skill of profile.character.skills) {
-        message += `- **${skill.skillId}** (Nivel ${skill.level})\n`;
-      }
-    }
+    // Esperar a que todas las promesas se resuelvan
+    const skills = await Promise.all(skillPromises);
+    embed.addFields({ name: '🔹 Habilidades', value: skills.join('\n') });
+  }
+
+  // Añadir inventario
+  if (profile.character.inventory && profile.character.inventory.length > 0) {
+    const inventoryPromises = profile.character.inventory.map(async itemData => {
+      const item = await Item.findById(itemData.itemId);
+      let status = '';
+      if (itemData.equipped) status = ' (Equipado)';
+      else if (itemData.uses !== null) status = ` (Usos: ${itemData.uses})`;
+      return `- **${item.name}** x${itemData.quantity}${status}`;
+    });
     
-    // Añadir inventario
-    if (profile.character.inventory && profile.character.inventory.length > 0) {
-      message += `\n## Inventario\n\n`;
-      
-      for (const item of profile.character.inventory) {
-        let itemStatus = '';
-        if (item.equipped) {
-          itemStatus = ' (Equipado)';
-        } else if (item.uses !== null) {
-          itemStatus = ` (Usos: ${item.uses})`;
-        }
-        
-        message += `- **${item.itemId}** x${item.quantity}${itemStatus}\n`;
-      }
-    }
+    // Esperar a que todas las promesas se resuelvan
+    const inventory = await Promise.all(inventoryPromises);
+    embed.addFields({ name: '🎒 Inventario', value: inventory.join('\n') });
+  }
+
+  // Añadir misiones activas
+  if (profile.progress.activeMissions && profile.progress.activeMissions.length > 0) {
+    const missionPromises = profile.progress.activeMissions.map(async missionData => {
+      const mission = await Mission.findById(missionData.missionId);
+      const status = missionData.completed ? '✅ Completada' : `⌛ En progreso (${missionData.generalProgress}%)`;
+      return `- **${mission.title}** - ${status}`;
+    });
     
-    // Añadir misiones activas
-    if (profile.progress.activeMissions && profile.progress.activeMissions.length > 0) {
-      message += `\n## Misiones activas\n\n`;
-      
-      for (const mission of profile.progress.activeMissions) {
-        let status = mission.completed ? 'Completada' : `En progreso (${mission.progress}%)`;
-        message += `- **${mission.missionId}** - ${status}\n`;
-      }
-    }
-    
-    // Enviar el mensaje
-    await channel.send(message);
-    
+    // Esperar a que todas las promesas se resuelvan
+    const missions = await Promise.all(missionPromises);
+    embed.addFields({ name: '📜 Misiones activas', value: missions.join('\n') });
+  }
+
+    // Enviar el embed
+    await channel.send({ embeds: [embed] });
+
   } catch (error) {
     console.error('Error al actualizar canal de perfil:', error);
   }

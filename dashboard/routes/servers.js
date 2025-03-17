@@ -9,8 +9,46 @@ const { Mission, Adventure } = require('../../models/Missions');
 const { Race, Class } = require('../../models/Razas');
 const Profile = require('../../models/Profile');
 const profileUtils = require('../../utils/profileUtils');
+const characterUtils = require('../../utils/characterUtils');
 const Logs = require('../../models/Logs');
 const config = require('../config');
+const fs = require('fs');
+const path = require('path');
+const multer = require('multer');
+
+// Configurar almacenamiento
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const dir = path.join(__dirname, '../public/uploads/avatars');
+    // Crear directorio si no existe
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
+  },
+  filename: function(req, file, cb) {
+    // Generar nombre único basado en ID de usuario y timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, `avatar-${req.user.id}-${uniqueSuffix}${ext}`);
+  }
+});
+
+// Filtrar por tipo de archivo
+const fileFilter = (req, file, cb) => {
+  // Aceptar solo imágenes
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Solo se permiten archivos de imagen'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 1024 }, // 1GB
+  fileFilter: fileFilter
+});
 
 // Middleware para verificar si el bot está en el servidor
 const checkBotInGuild = async (req, res, next) => {
@@ -40,19 +78,35 @@ const checkBotInGuild = async (req, res, next) => {
 };
 
 // Middleware para verificar si el usuario tiene permisos de administrador
-const isGuildAdmin = (req, res, next) => {
+const isGuildAdmin = async (req, res, next) => {
   const { guildId } = req.params;
   const userGuild = req.user.guilds.find(g => g.id === guildId);
   
   if (userGuild && ( (userGuild?.permissions & 0x8) === 0x8 || userGuild?.owner || config.adminUsers.includes(req.user.id) )) {
     return next();
   }
-  
-  res.status(403).render('error', {
-    title: 'Acceso denegado',
-    message: 'No tienes permisos para administrar este servidor.',
-    status: 403
-  });
+    const guild = req.guild;
+    
+    // Obtener configuración del servidor
+    let serverConfig = await Server.findOne({ serverId: guildId });
+    
+    if (!serverConfig) {
+      return res.status(404).render('error', {
+        title: 'Acceso denegado',
+        message: 'No tienes permisos para administrar este servidor.',
+        status: 403
+      });
+    }
+    
+    const profile = await Profile.findOne({ userId: req.user.id, serverId: guildId });
+    
+    res.render('servers/publicDash', {
+      title: `Panel - ${guild.name}`,
+      guild,
+      serverConfig,
+      req,
+      profile
+    });
 };
 
 // Lista de servidores del usuario
@@ -473,9 +527,9 @@ router.get('/:guildId/profiles/:profileId', checkBotInGuild, isGuildAdmin, async
     const guild = req.guild;
     
     // Obtener el perfil
-    const profile = await Profile.findById(profileId);
+    const DBprofile = await Profile.findById(profileId);
     
-    if (!profile || profile.serverId !== guildId) {
+    if (!DBprofile || DBprofile.serverId !== guildId) {
       return res.redirect('/error?message=Perfil no encontrado&status=404');
     }
     
@@ -487,7 +541,7 @@ router.get('/:guildId/profiles/:profileId', checkBotInGuild, isGuildAdmin, async
     };
     
     try {
-      const member = await guild.members.fetch(profile.userId).catch(() => null);
+      const member = await guild.members.fetch(DBprofile.userId).catch(() => null);
       if (member) {
         user = {
           tag: `${member.user.username}${member.user.discriminator ? `#${member.user.discriminator}` : ''}`,
@@ -496,14 +550,81 @@ router.get('/:guildId/profiles/:profileId', checkBotInGuild, isGuildAdmin, async
         };
       }
     } catch (err) {
-      console.error(`Error al obtener miembro ${profile.userId}:`, err);
+      console.error(`Error al obtener miembro ${DBprofile.userId}:`, err);
     }
     
     // Obtener la configuración del servidor para razas y clases disponibles
     const serverConfig = await Server.findOne({ serverId: guildId });
+
+    const profile = JSON.parse(JSON.stringify(DBprofile));
+
+    // Procesamos los items del inventario
+    if (profile.character.inventory && profile.character.inventory.length > 0) {
+      for (let i = 0; i < profile.character.inventory.length; i++) {
+        const inventoryItem = profile.character.inventory[i];
+        
+        try {
+          // Buscar el item en la DB
+          const itemData = await Item.findById(inventoryItem.itemId);
+          
+          if (itemData) {
+            // Convertimos a objeto plano para evitar referencias
+            const itemObj = JSON.parse(JSON.stringify(itemData));
+
+            // Verificar que la asignación funciona
+            profile.character.inventory[i].item = itemObj;
+          } else {
+            profile.character.inventory[i].item = {
+              name: `Item no encontrado (${inventoryItem.itemId})`,
+              description: 'Este item no existe o ha sido eliminado',
+              type: 'unknown'
+            };
+          }
+        } catch (error) {
+          console.error(`Error procesando item ${inventoryItem.itemId}:`, error);
+          profile.character.inventory[i].item = {
+            name: 'Error',
+            description: `Error al cargar el item: ${error.message}`,
+            type: 'error'
+          };
+        }
+      }
+    }
+    
+    // Procesamos las habilidades
+    if (profile.character.skills && profile.character.skills.length > 0) {
+      for (let i = 0; i < profile.character.skills.length; i++) {
+        const characterSkill = profile.character.skills[i];
+        try {
+          // Buscar la habilidad en la DB
+          const skillData = await Skill.findById(characterSkill.skillId);
+          
+          if (skillData) {
+            // Convertimos a objeto plano para evitar referencias
+            const skillObj = JSON.parse(JSON.stringify(skillData));
+            
+            // Verificar que la asignación funciona
+            profile.character.skills[i].skill = skillObj;
+          } else {
+            profile.character.skills[i].skill = {
+              name: `Habilidad no encontrada (${characterSkill.skillId})`,
+              description: 'Esta habilidad no existe o ha sido eliminada',
+              category: 'unknown'
+            };
+          }
+        } catch (error) {
+          console.error(`Error procesando habilidad ${characterSkill.skillId}:`, error);
+          profile.character.skills[i].skill = {
+            name: 'Error',
+            description: `Error al cargar la habilidad: ${error.message}`,
+            category: 'error'
+          };
+        }
+      }
+    }
     
     res.render('servers/profileView', {
-      title: `Perfil de ${profile.character.name || user.tag}`,
+      title: `Perfil de ${DBprofile.character.name || user.tag}`,
       guild,
       profile,
       req,
@@ -573,6 +694,8 @@ router.post('/:guildId/profiles/:profileId/edit', checkBotInGuild, isGuildAdmin,
     
     // Obtener el perfil
     const profile = await Profile.findById(profileId);
+
+    const serverConfig = await Server.findOne({ serverId: guildId });
     
     if (!profile || profile.serverId !== guildId) {
       return res.redirect('/error?message=Perfil no encontrado&status=404');
@@ -580,7 +703,9 @@ router.post('/:guildId/profiles/:profileId/edit', checkBotInGuild, isGuildAdmin,
     
     // Actualizar datos del personaje
     profile.character.name = req.body.characterName || profile.character.name;
-    profile.character.avatar = req.body.characterAvatar || profile.character.avatar;
+    if (req.file) {
+      profile.character.avatar = `/uploads/avatars/${req.file.filename}`;
+    }
     profile.character.race = req.body.race || profile.character.race;
     profile.character.class = req.body.class || profile.character.class;
     profile.character.age = parseInt(req.body.age) || profile.character.age;
@@ -594,6 +719,21 @@ router.post('/:guildId/profiles/:profileId/edit', checkBotInGuild, isGuildAdmin,
     // Actualizar la fecha de modificación
     profile.updatedAt = Date.now();
     
+    if (serverConfig.config.autoCreateProfileChannels || serverConfig.config.profilesChannel) {
+      const channelId = await profileUtils.createOrUpdateProfileChannel(guildId, req.user.id, profile);
+      
+      // Si se creó un canal individual, actualizar el ID en el perfil
+      if (channelId && channelId !== serverConfig.config.profilesChannel) {
+        profile.profileChannelId = channelId;
+        await profile.save();
+      }
+      
+      // Actualizar también el canal general de perfiles
+      if (serverConfig.config.profilesChannel) {
+        await profileUtils.updateGeneralProfilesChannel(guildId);
+      }
+    }
+
     await profile.save();
     
     res.redirect(`/servers/${guildId}/profiles/${profileId}?success=true`);
@@ -632,16 +772,97 @@ router.get('/:guildId/profile', checkBotInGuild, async (req, res) => {
     const guild = req.guild;
     
     // Buscar el perfil del usuario
-    const profile = await Profile.findOne({
+    const dbProfile = await Profile.findOne({
       userId: req.user.id,
       serverId: guildId
     });
     
     // Obtener la configuración del servidor
     const serverConfig = await Server.findOne({ serverId: guildId });
+
+    // Si no hay perfil, simplemente renderizamos la vista de creación
+    if (!dbProfile) {
+      return res.render('servers/userProfile', {
+        title: 'Crear Perfil',
+        guild,
+        req,
+        profile: null,
+        serverConfig
+      });
+    }
     
+    // Convertir a objeto plano para poder modificarlo
+    // Usamos JSON para una conversión completa sin referencias
+    const profile = JSON.parse(JSON.stringify(dbProfile));
+
+    // Procesamos los items del inventario
+    if (profile.character.inventory && profile.character.inventory.length > 0) {
+      for (let i = 0; i < profile.character.inventory.length; i++) {
+        const inventoryItem = profile.character.inventory[i];
+        
+        try {
+          // Buscar el item en la DB
+          const itemData = await Item.findById(inventoryItem.itemId);
+          
+          if (itemData) {
+            // Convertimos a objeto plano para evitar referencias
+            const itemObj = JSON.parse(JSON.stringify(itemData));
+
+            // Verificar que la asignación funciona
+            profile.character.inventory[i].item = itemObj;
+          } else {
+            profile.character.inventory[i].item = {
+              name: `Item no encontrado (${inventoryItem.itemId})`,
+              description: 'Este item no existe o ha sido eliminado',
+              type: 'unknown'
+            };
+          }
+        } catch (error) {
+          console.error(`Error procesando item ${inventoryItem.itemId}:`, error);
+          profile.character.inventory[i].item = {
+            name: 'Error',
+            description: `Error al cargar el item: ${error.message}`,
+            type: 'error'
+          };
+        }
+      }
+    }
+    
+    // Procesamos las habilidades
+    if (profile.character.skills && profile.character.skills.length > 0) {
+      for (let i = 0; i < profile.character.skills.length; i++) {
+        const characterSkill = profile.character.skills[i];
+        try {
+          // Buscar la habilidad en la DB
+          const skillData = await Skill.findById(characterSkill.skillId);
+          
+          if (skillData) {
+            // Convertimos a objeto plano para evitar referencias
+            const skillObj = JSON.parse(JSON.stringify(skillData));
+            
+            // Verificar que la asignación funciona
+            profile.character.skills[i].skill = skillObj;
+          } else {
+            profile.character.skills[i].skill = {
+              name: `Habilidad no encontrada (${characterSkill.skillId})`,
+              description: 'Esta habilidad no existe o ha sido eliminada',
+              category: 'unknown'
+            };
+          }
+        } catch (error) {
+          console.error(`Error procesando habilidad ${characterSkill.skillId}:`, error);
+          profile.character.skills[i].skill = {
+            name: 'Error',
+            description: `Error al cargar la habilidad: ${error.message}`,
+            category: 'error'
+          };
+        }
+      }
+    }
+    
+    // Renderizar la vista
     res.render('servers/userProfile', {
-      title: profile ? 'Mi Perfil' : 'Crear Perfil',
+      title: 'Mi Perfil',
       guild,
       req,
       profile,
@@ -654,7 +875,7 @@ router.get('/:guildId/profile', checkBotInGuild, async (req, res) => {
 });
 
 // Crear/Actualizar el perfil del usuario
-router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
+router.post('/:guildId/profile', checkBotInGuild, upload.single('characterAvatar'), async (req, res) => {
   try {
     const { guildId } = req.params;
     
@@ -710,10 +931,21 @@ router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
       
       // Comprobar si hay restricciones de clase por raza
       if (selectedRace && selectedClass && 
-          serverConfig.roleplay.raceClassRestrictions && 
-          serverConfig.roleplay.raceClassRestrictions.has(selectedRace)) {
+        serverConfig.roleplay.raceClassRestrictions && 
+        serverConfig.roleplay.raceClassRestrictions[selectedRace]) {
+      
+        // Obtener las clases permitidas (puede ser un string con comas o un array)
+        let allowedClasses = serverConfig.roleplay.raceClassRestrictions[selectedRace];
         
-        const allowedClasses = serverConfig.roleplay.raceClassRestrictions.get(selectedRace);
+        // Si es un array con un string que contiene comas, procesarlo
+        if (Array.isArray(allowedClasses) && allowedClasses.length > 0 && 
+            typeof allowedClasses[0] === 'string' && allowedClasses[0].includes(',')) {
+          // Dividir por comas y eliminar espacios en blanco
+          allowedClasses = allowedClasses[0].split(',').map(cls => cls.trim());
+        } else if (!Array.isArray(allowedClasses)) {
+          // Si no es un array, convertirlo a array
+          allowedClasses = [allowedClasses];
+        }
         
         // Si hay restricciones y la clase seleccionada no está permitida para esta raza
         if (allowedClasses.length > 0 && !allowedClasses.includes(selectedClass)) {
@@ -775,28 +1007,46 @@ router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
         }
       });
     }
-    
-    // Actualizar datos del personaje
-    profile.character.name = req.body.characterName || profile.character.name;
-    profile.character.avatar = req.body.characterAvatar || profile.character.avatar;
-    profile.character.race = req.body.race || profile.character.race;
-    profile.character.class = req.body.class || profile.character.class;
-    profile.character.age = parseInt(req.body.age) || profile.character.age;
-    profile.character.bio = req.body.bio || profile.character.bio;
-    
-    // Actualizar preferencias
-    if (req.body.theme) {
-      profile.preferences.theme = req.body.theme;
+
+    req.body.hasOwnProperty = function (key) {
+      return Object.prototype.hasOwnProperty.call(this, key);
     }
     
-    if (req.body.visibility) {
+    // Actualizar datos del personaje con manejo mejorado
+    if (req.body.hasOwnProperty('characterName')) {
+      profile.character.name = req.body.characterName;
+    }
+    
+    if (req.file) {
+      profile.character.avatar = `/uploads/avatars/${req.file.filename}`;
+    }
+    
+    if (req.body.hasOwnProperty('race')) {
+      profile.character.race = req.body.race;
+    }
+    
+    if (req.body.hasOwnProperty('class')) {
+      profile.character.class = req.body.class;
+    }
+    
+    if (req.body.hasOwnProperty('age')) {
+      const age = parseInt(req.body.age);
+      profile.character.age = !isNaN(age) ? age : null;
+    }
+    
+    if (req.body.hasOwnProperty('bio')) {
+      profile.character.bio = req.body.bio;
+    }
+  
+    if (req.body.hasOwnProperty('visibility')) {
       profile.preferences.visibility = req.body.visibility;
     }
     
-    if (req.body.customTitle) {
+    if (req.body.hasOwnProperty('customTitle')) {
       profile.preferences.customTitle = req.body.customTitle;
     }
     
+    // Para checkboxes, verificar si el campo existe en el req.body
     profile.preferences.notifications = req.body.notifications === 'on';
     
     // Actualizar la fecha de modificación
@@ -849,6 +1099,7 @@ router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
         if (raceInfo && raceInfo.racialSkills && raceInfo.racialSkills.length > 0) {
           for (const skillId of raceInfo.racialSkills) {
             if (!profile.character.skills.some(s => s.skillId === skillId)) {
+              // Usar characterUtils para añadir habilidad cuando guardemos el perfil
               profile.character.skills.push({
                 skillId,
                 level: 1,
@@ -863,6 +1114,7 @@ router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
         if (classInfo && classInfo.classSkills && classInfo.classSkills.length > 0) {
           for (const skillId of classInfo.classSkills) {
             if (!profile.character.skills.some(s => s.skillId === skillId)) {
+              // Usar characterUtils para añadir habilidad cuando guardemos el perfil
               profile.character.skills.push({
                 skillId,
                 level: 1,
@@ -881,20 +1133,8 @@ router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
     await profile.save();
     
     // Actualizar o crear el canal de perfil si está habilitado
-    if (serverConfig.config.autoCreateProfileChannels || serverConfig.config.profilesChannel) {
-      const channelId = await profileUtils.createOrUpdateProfileChannel(guildId, req.user.id, profile);
-      
-      // Si se creó un canal individual, actualizar el ID en el perfil
-      if (channelId && channelId !== serverConfig.config.profilesChannel) {
-        profile.profileChannelId = channelId;
-        await profile.save();
-      }
-      
-      // Actualizar también el canal general de perfiles
-      if (serverConfig.config.profilesChannel) {
-        await profileUtils.updateGeneralProfilesChannel(guildId);
-      }
-    }
+    // Ahora usamos characterUtils para actualizar los canales
+    await characterUtils.updateProfileChannels(req.user.id, guildId, profile);
 
     // Registrar la actividad
     if (global.logger) {
@@ -933,7 +1173,7 @@ router.post('/:guildId/profile', checkBotInGuild, async (req, res) => {
     res.redirect(`/servers/${guildId}/profile?success=true`);
   } catch (error) {
     console.error('Error al actualizar el perfil del usuario:', error);
-    res.redirect(`/servers/${req.params.guildId}/profile?error=true`);
+    res.redirect(`/servers/${req.params.guildId}/profile?error=${encodeURIComponent(error.message || 'Error al actualizar el perfil')}`);
   }
 });
 
@@ -1907,11 +2147,15 @@ router.get('/:guildId/missions/new', checkBotInGuild, isGuildAdmin, async (req, 
 });
 
 // Procesar la creación de una nueva misión
-router.post('/:guildId/missions/new', checkBotInGuild, isGuildAdmin, async (req, res) => {
+// Controlador actualizado para procesar la creación y actualización de misiones
+router.post('/:guildId/missions/:missionId?', checkBotInGuild, isGuildAdmin, async (req, res) => {
   try {
-    const { guildId } = req.params;
+    const { guildId, missionId } = req.params;
+    const isEditing = !!missionId;
     
-    // Validar datos del formulario
+    console.log("Procesando misión - Formulario recibido:", JSON.stringify(req.body, null, 2));
+    
+    // Extraer datos básicos del formulario
     const {
       title,
       description,
@@ -1934,19 +2178,144 @@ router.post('/:guildId/missions/new', checkBotInGuild, isGuildAdmin, async (req,
       costItemsQuantity,
       availableFrom,
       availableUntil,
-      stages,
-      image,
       status,
-      featured
+      featured,
+      stages
     } = req.body;
     
-    // Preparar las restricciones de raza/clase y sus razones
+    // Procesar las etapas con la estructura correcta
+    let stagesData = [];
+    
+    if (stages && stages.name && Array.isArray(stages.name)) {
+      console.log(`Procesando ${stages.name.length} etapas`);
+      
+      for (let i = 0; i < stages.name.length; i++) {
+        // Validar que tenga al menos nombre y descripción
+        if (!stages.name[i] || !stages.description[i]) {
+          console.log(`Saltando etapa ${i} por falta de datos básicos`);
+          continue;
+        }
+        
+        // Crear objeto base de la etapa
+        const stageData = {
+          name: stages.name[i],
+          description: stages.description[i],
+          taskType: stages.taskType[i] || 'custom',
+          targetAmount: parseInt(stages.targetAmount[i]) || 1,
+          completionMessage: stages.completionMessage[i] || ''
+        };
+        
+        console.log(`Procesando etapa ${i}: ${stageData.name} (${stageData.taskType})`);
+        
+        // Inicializar challengeData con valores por defecto según el tipo
+        let challengeData = {
+          gameType: stageData.taskType 
+        };
+        
+        // Extraer campos de challengeData para esta etapa
+        if (stages.challengeData) {
+          // Usaremos un enfoque diferente según el tipo de etapa
+          switch (stageData.taskType) {
+            case 'combat':
+              // Valores para la primera etapa (índice 0) - Combat
+              if (i === 0) {
+                challengeData = {
+                  gameType: 'combat',
+                  enemyName: stages.challengeData.enemyName[0] || 'Enemigo',
+                  enemyType: stages.challengeData.enemyType[0] || 'humanoid',
+                  enemyLevel: parseInt(stages.challengeData.enemyLevel[0]) || 1,
+                  enemyHealth: parseInt(stages.challengeData.enemyHealth[0]) || 100,
+                  enemyDescription: stages.challengeData.enemyDescription[0] || '',
+                  rewards: {
+                    experience: parseInt(stages.challengeData.rewardExperience[0]) || 0,
+                    currency: parseInt(stages.challengeData.rewardCurrency[0]) || 0
+                  },
+                  difficulty: 'medium',
+                };
+              }
+              break;
+              
+            case 'dialogue':
+              // Valores para la segunda etapa (índice 1) - Dialogue
+              if (i === 1) {
+                challengeData = {
+                  gameType: 'dialogue',
+                  npcName: stages.challengeData.npcName[0] || 'NPC',
+                  // Importante: guardar dialogueScript como script
+                  script: stages.challengeData.dialogueScript[0] || '',
+                  result: stages.challengeData.result[0] || '',
+                  difficulty: 'medium',
+                  rewards: {
+                    experience: 0,
+                    currency: 0
+                  }
+                };
+              }
+              break;
+              
+            case 'collection':
+              challengeData = {
+                gameType: 'collection',
+                itemName: 'Objeto',
+                quantity: 1,
+                location: '',
+                rewards: {
+                  experience: 0,
+                  currency: 0
+                }
+              };
+              break;
+              
+            case 'puzzle':
+              challengeData = {
+                gameType: 'puzzle',
+                puzzleType: 'riddle',
+                timeLimit: 0,
+                maxAttempts: 3,
+                puzzleContent: {
+                  question: '',
+                  answer: '',
+                  instructions: ''
+                },
+                rewards: {
+                  experience: 0,
+                  currency: 0
+                }
+              };
+              break;
+              
+            case 'minigame':
+              challengeData = {
+                gameType: 'minigame',
+                gameConfig: {},
+                timeLimit: 0,
+                passingScore: 70,
+                rewards: {
+                  experience: 0,
+                  currency: 0
+                }
+              };
+              break;
+          }
+        }
+        
+        // Asignar challengeData a la etapa
+        stageData.challengeData = challengeData;
+        
+        // Añadir la etapa a la lista
+        stagesData.push(stageData);
+        console.log(`Etapa ${i} procesada correctamente`);
+      }
+    }
+    
+    console.log(`Total ${stagesData.length} etapas procesadas`);
+    
+    // Procesar restricciones
     const raceRestrictionArray = Array.isArray(raceRestrictions) ? raceRestrictions : (raceRestrictions ? [raceRestrictions] : []);
     const classRestrictionArray = Array.isArray(classRestrictions) ? classRestrictions : (classRestrictions ? [classRestrictions] : []);
     
-    // Crear un Map para las razones de restricción
+    // Crear Map para las razones de restricción
     const restrictionReasonsMap = new Map();
-    
     if (restrictionReasons && typeof restrictionReasons === 'object') {
       Object.entries(restrictionReasons).forEach(([key, value]) => {
         if (value && value.trim() !== '') {
@@ -1955,71 +2324,40 @@ router.post('/:guildId/missions/new', checkBotInGuild, isGuildAdmin, async (req,
       });
     }
     
-    // Preparar los items de recompensa
+    // Procesar items de recompensa
     const rewardItemsArray = [];
     if (rewardItems) {
       const itemIds = Array.isArray(rewardItems) ? rewardItems : [rewardItems];
       const quantities = Array.isArray(rewardItemsQuantity) ? rewardItemsQuantity : [rewardItemsQuantity];
       
-      itemIds.forEach((itemId, index) => {
-        const quantity = parseInt(quantities[index]) || 1;
-        if (itemId && itemId.trim() !== '') {
+      for (let i = 0; i < itemIds.length; i++) {
+        if (itemIds[i] && itemIds[i].trim() !== '') {
           rewardItemsArray.push({
-            itemId,
-            quantity
-          });
-        }
-      });
-    }
-    
-    // Preparar los items de costo
-    const costItemsArray = [];
-    if (costItems) {
-      const itemIds = Array.isArray(costItems) ? costItems : [costItems];
-      const quantities = Array.isArray(costItemsQuantity) ? costItemsQuantity : [costItemsQuantity];
-      
-      itemIds.forEach((itemId, index) => {
-        const quantity = parseInt(quantities[index]) || 1;
-        if (itemId && itemId.trim() !== '') {
-          costItemsArray.push({
-            itemId,
-            quantity
-          });
-        }
-      });
-    }
-    
-    // Preparar las etapas de la misión
-    const stagesArray = [];
-    if (stages && typeof stages === 'object') {
-      const stageNames = stages.name || [];
-      const stageDescriptions = stages.description || [];
-      const stageTaskTypes = stages.taskType || [];
-      const stageTargetAmounts = stages.targetAmount || [];
-      const stageCompletionMessages = stages.completionMessage || [];
-      
-      // Convertir a arrays si no lo son
-      const namesArray = Array.isArray(stageNames) ? stageNames : [stageNames];
-      const descArray = Array.isArray(stageDescriptions) ? stageDescriptions : [stageDescriptions];
-      const taskTypesArray = Array.isArray(stageTaskTypes) ? stageTaskTypes : [stageTaskTypes];
-      const targetAmountsArray = Array.isArray(stageTargetAmounts) ? stageTargetAmounts : [stageTargetAmounts];
-      const completionMsgsArray = Array.isArray(stageCompletionMessages) ? stageCompletionMessages : [stageCompletionMessages];
-      
-      for (let i = 0; i < namesArray.length; i++) {
-        if (namesArray[i] && descArray[i]) {
-          stagesArray.push({
-            name: namesArray[i],
-            description: descArray[i],
-            taskType: taskTypesArray[i] || 'custom',
-            targetAmount: parseInt(targetAmountsArray[i]) || 1,
-            completionMessage: completionMsgsArray[i] || ''
+            itemId: itemIds[i],
+            quantity: parseInt(quantities[i]) || 1
           });
         }
       }
     }
     
-    // Crear la nueva misión
-    const mission = new Mission({
+    // Procesar items de costo
+    const costItemsArray = [];
+    if (costItems) {
+      const itemIds = Array.isArray(costItems) ? costItems : [costItems];
+      const quantities = Array.isArray(costItemsQuantity) ? costItemsQuantity : [costItemsQuantity];
+      
+      for (let i = 0; i < itemIds.length; i++) {
+        if (itemIds[i] && itemIds[i].trim() !== '') {
+          costItemsArray.push({
+            itemId: itemIds[i],
+            quantity: parseInt(quantities[i]) || 1
+          });
+        }
+      }
+    }
+    
+    // Crear el objeto de misión con todos los datos
+    const missionData = {
       title,
       description,
       type: type || 'custom',
@@ -2043,20 +2381,80 @@ router.post('/:guildId/missions/new', checkBotInGuild, isGuildAdmin, async (req,
       },
       availableFrom: availableFrom ? new Date(availableFrom) : null,
       availableUntil: availableUntil ? new Date(availableUntil) : null,
-      stages: stagesArray,
-      image: image || null,
+      stages: stagesData,
       status: status || 'draft',
       featured: featured === 'on',
       serverId: guildId,
-      createdBy: req.user.id
-    });
+      updatedAt: Date.now()
+    };
     
-    await mission.save();
+    console.log(`Datos de misión preparados: ${missionData.title}, ${missionData.stages.length} etapas, estado: ${missionData.status}`);
     
-    res.redirect(`/servers/${guildId}/missions?success=true`);
+    // En caso de edición, actualizar la misión existente
+    if (isEditing) {
+      console.log(`Editando misión existente: ${missionId}`);
+      // Guardar el usuario que hizo la modificación
+      missionData.modifiedBy = req.user.id;
+      
+      const mission = await Mission.findById(missionId);
+      
+      if (!mission || mission.serverId !== guildId) {
+        return res.redirect(`/servers/${guildId}/missions?error=Misión no encontrada`);
+      }
+      
+      // Actualizar todos los campos
+      Object.keys(missionData).forEach(key => {
+        mission[key] = missionData[key];
+      });
+      
+      // Añadir entrada al historial de versiones si existe
+      if (mission.versionHistory) {
+        const lastVersion = mission.versionHistory.length > 0 
+          ? mission.versionHistory[0].version 
+          : 0;
+          
+        mission.versionHistory.unshift({
+          version: lastVersion + 1,
+          changedBy: req.user.id,
+          changedAt: Date.now(),
+          changes: ['Actualización de misión desde el panel de administración']
+        });
+      }
+      
+      await mission.save();
+      console.log(`Misión actualizada correctamente: ${mission._id}`);
+      
+      // Redireccionar con mensaje de éxito
+      return res.redirect(`/servers/${guildId}/missions?updated=true`);
+    } else {
+      console.log('Creando nueva misión');
+      // En caso de una nueva misión, establecer el creador
+      missionData.createdBy = req.user.id;
+      missionData.createdAt = Date.now();
+      
+      // Crear la nueva misión
+      const mission = new Mission(missionData);
+      
+      // Inicializar historial de versiones
+      mission.versionHistory = [{
+        version: 1,
+        changedBy: req.user.id,
+        changedAt: Date.now(),
+        changes: ['Creación inicial de la misión']
+      }];
+      
+      await mission.save();
+      console.log(`Nueva misión creada correctamente: ${mission._id}`);
+      
+      // Redireccionar con mensaje de éxito
+      return res.redirect(`/servers/${guildId}/missions?created=true`);
+    }
   } catch (error) {
-    console.error('Error al crear la misión:', error);
-    res.redirect(`/servers/${req.params.guildId}/missions/new?error=true`);
+    console.error('Error al procesar la misión:', error);
+    if (error.name === 'ValidationError') {
+      console.error('Errores de validación:', JSON.stringify(error.errors, null, 2));
+    }
+    return res.redirect(`/servers/${req.params.guildId}/missions/${req.params.missionId ? req.params.missionId + '?error=' + encodeURIComponent(error.message) : 'new?error=' + encodeURIComponent(error.message)}`);
   }
 });
 
@@ -2918,7 +3316,7 @@ router.post('/:guildId/regenerate-profiles', checkBotInGuild, isGuildAdmin, asyn
 });
 
 // Ruta para ver misiones activas del usuario
-router.get('/:guildId/missions-active', checkBotInGuild, async (req, res) => {
+router.get('/:guildId/my-missions', checkBotInGuild, async (req, res) => {
   try {
     const { guildId } = req.params;
     const guild = req.guild;
@@ -2935,13 +3333,22 @@ router.get('/:guildId/missions-active', checkBotInGuild, async (req, res) => {
     
     // Si no tiene misiones activas
     if (!profile.progress.activeMissions || profile.progress.activeMissions.length === 0) {
-      return res.render('servers/mission-empty', {
-        title: 'Misiones Activas',
-        guild,
-        req,
-        message: 'No tienes misiones activas. Acepta nuevas misiones para comenzar tu aventura.',
-        type: 'active'
-      });
+      if (profile.progress.completedMissions.length > 0) {
+        const completedMissions = profile.progress.completedMissions.map(m => m.missionId);
+        const completed = await Mission.find({
+          _id: { $in: completedMissions },
+          serverId: guildId
+        });
+        return res.render('servers/mission-empty', {
+          title: 'Misiones Completas',
+          guild,
+          req,
+          profile,
+          message: 'No tienes misiones activas. Acepta nuevas misiones para comenzar tu aventura.',
+          type: 'active',
+          completed
+        });
+      }
     }
     
     // Obtener misiones activas con detalles
@@ -3003,6 +3410,9 @@ router.get('/:guildId/missions/:missionId/progress', checkBotInGuild, async (req
     if (!mission || mission.serverId !== guildId) {
       return res.redirect(`/servers/${guildId}/missions/active?error=Misión no encontrada`);
     }
+
+    const items = await Item.find({ serverId: guildId });
+    const skills = await Skill.find({ serverId: guildId });
     
     res.render('servers/mission-progress', {
       title: `Misión: ${mission.title}`,
@@ -3010,6 +3420,8 @@ router.get('/:guildId/missions/:missionId/progress', checkBotInGuild, async (req
       req,
       profile,
       mission,
+      items,
+      skills,
       activeMission
     });
     
@@ -3125,65 +3537,22 @@ router.post('/:guildId/missions/:missionId/challenge/:type/complete', checkBotIn
     const { guildId, missionId, type } = req.params;
     const { success, data } = req.body;
     
-    // Buscar el perfil del usuario
-    const profile = await Profile.findOne({
-      userId: req.user.id,
-      serverId: guildId
-    });
-    
-    if (!profile) {
-      return res.status(404).json({ error: 'Perfil no encontrado' });
-    }
-    
-    // Buscar la misión activa
-    const activeMissionIndex = profile.progress.activeMissions.findIndex(m => m.missionId === missionId);
-    
-    if (activeMissionIndex === -1) {
-      return res.status(404).json({ error: 'Misión no encontrada' });
-    }
-    
-    const activeMission = profile.progress.activeMissions[activeMissionIndex];
-    
-    // Obtener detalles de la misión
-    const mission = await Mission.findById(missionId);
-    
-    if (!mission || mission.serverId !== guildId) {
-      return res.status(404).json({ error: 'Misión no encontrada en el servidor' });
-    }
-    
-    // Si el desafío fue completado con éxito
-    if (success) {
-      // Marcar la etapa actual como completada
-      activeMission.progress = 100;
-      
-      // Verificar si hay más etapas
-      if (activeMission.currentStage < mission.stages.length - 1) {
-        // Avanzar a la siguiente etapa
-        activeMission.currentStage++;
-        activeMission.progress = 0;
-      } else {
-        // Marcar la misión como completada
-        activeMission.completed = true;
-      }
-      
-      // Guardar cambios en el perfil
-      await profile.save();
-      
-      return res.json({
-        success: true,
-        completed: activeMission.completed,
-        nextStage: activeMission.currentStage,
-        message: activeMission.completed ? 
-          '¡Has completado todas las etapas de la misión!' : 
-          `Has avanzado a la etapa ${activeMission.currentStage + 1}`
-      });
-    } else {
+    if (!success) {
       // Si el desafío no fue completado
       return res.json({
         success: false,
         message: 'No has completado el desafío. Inténtalo de nuevo.'
       });
     }
+    
+    // Utilizar characterUtils para actualizar el progreso de la misión
+    const result = await characterUtils.updateMissionProgress(req.user.id, guildId, missionId, 100);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    return res.redirect(`/servers/${guildId}/missions/${missionId}/progress`);
     
   } catch (error) {
     console.error('Error al completar desafío:', error);
@@ -3227,6 +3596,9 @@ router.get('/:guildId/missions/:missionId/complete', checkBotInGuild, async (req
     if (!mission || mission.serverId !== guildId) {
       return res.redirect(`/servers/${guildId}/missions/active?error=Misión no encontrada`);
     }
+
+    const items = await Item.find({ serverId: guildId });
+    const skills = await Skill.find({ serverId: guildId });
     
     // Renderizar vista de confirmación para reclamar recompensas
     res.render('servers/mission-complete', {
@@ -3235,6 +3607,8 @@ router.get('/:guildId/missions/:missionId/complete', checkBotInGuild, async (req
       req,
       profile,
       mission,
+      items,
+      skills,
       activeMission
     });
     
@@ -3249,204 +3623,214 @@ router.post('/:guildId/missions/:missionId/claim-rewards', checkBotInGuild, asyn
   try {
     const { guildId, missionId } = req.params;
     
-    // Buscar el perfil del usuario
-    const profile = await Profile.findOne({
+    // Utilizar characterUtils para completar la misión y reclamar recompensas
+    const result = await characterUtils.completeMission(req.user.id, guildId, missionId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    const guild = botClient.guilds.cache.get(guildId);
+
+    // Registrar la actividad de misión
+    await global.activity.logQuest({
       userId: req.user.id,
-      serverId: guildId
+      serverId: guildId, 
+      serverName: guild.name,
+      questId: missionId,
+      questName: result.mission.title,
+      description: result.mission.description,
+      success: true,
+      character: result.character,
+      rewards: [
+        { type: 'currency', name: 'Monedas', value: result.rewards.currency },
+        { type: 'exp', name: 'Experiencia', value: result.rewards.experience }
+      ]
     });
-    
-    if (!profile) {
-      return res.status(404).json({ error: 'Perfil no encontrado' });
-    }
-    
-    // Buscar la misión activa
-    const activeMissionIndex = profile.progress.activeMissions.findIndex(m => m.missionId === missionId);
-    
-    if (activeMissionIndex === -1) {
-      return res.status(404).json({ error: 'Misión no encontrada' });
-    }
-    
-    const activeMission = profile.progress.activeMissions[activeMissionIndex];
-    
-    // Verificar que la misión esté completada
-    if (!activeMission.completed) {
-      return res.status(400).json({ error: 'Esta misión no está completada' });
-    }
-    
-    // Obtener detalles de la misión
-    const mission = await Mission.findById(missionId);
-    
-    if (!mission || mission.serverId !== guildId) {
-      return res.status(404).json({ error: 'Misión no encontrada en el servidor' });
-    }
-    
-    // Aplicar recompensas
-    const rewards = {
-      experience: 0,
-      currency: 0,
-      items: [],
-      skills: []
-    };
-    
-    // Experiencia
-    if (mission.rewards.experience > 0) {
-      profile.character.experience += mission.rewards.experience;
-      rewards.experience = mission.rewards.experience;
-      
-      // Verificar si sube de nivel
-      const oldLevel = profile.character.level;
-      
-      // Fórmula de nivel: cada nivel requiere un 20% más de experiencia que el anterior
-      let expRequired = 100;
-      let currentLevel = 1;
-      let remainingExp = profile.character.experience;
-      
-      while (remainingExp >= expRequired) {
-        remainingExp -= expRequired;
-        currentLevel++;
-        expRequired = Math.floor(expRequired * 1.2);
-      }
-      
-      profile.character.level = currentLevel;
-      
-      if (currentLevel > oldLevel) {
-        rewards.levelUp = {
-          from: oldLevel,
-          to: currentLevel
-        };
-      }
-    }
-    
-    // Monedas
-    if (mission.rewards.currency > 0) {
-      profile.character.currency += mission.rewards.currency;
-      rewards.currency = mission.rewards.currency;
-    }
-    
-    // Items
-    if (mission.rewards.items && mission.rewards.items.length > 0) {
-      for (const rewardItem of mission.rewards.items) {
-        const item = await Item.findById(rewardItem.itemId);
-        
-        if (item) {
-          // Añadir el item al inventario
-          const existingItemIndex = profile.character.inventory.findIndex(i => i.itemId === rewardItem.itemId);
-          
-          if (existingItemIndex !== -1) {
-            profile.character.inventory[existingItemIndex].quantity += rewardItem.quantity;
-          } else {
-            profile.character.inventory.push({
-              itemId: rewardItem.itemId,
-              quantity: rewardItem.quantity,
-              equipped: false,
-              uses: item.maxUses > 0 ? item.maxUses : null
-            });
-          }
-          
-          rewards.items.push({
-            name: item.name,
-            quantity: rewardItem.quantity,
-            item
-          });
-        }
-      }
-    }
-    
-    // Habilidades
-    if (mission.rewards.skills && mission.rewards.skills.length > 0) {
-      for (const skillId of mission.rewards.skills) {
-        const skill = await Skill.findById(skillId);
-        
-        if (skill) {
-          // Verificar si ya tiene la habilidad
-          const existingSkillIndex = profile.character.skills.findIndex(s => s.skillId === skillId);
-          
-          if (existingSkillIndex === -1) {
-            // Añadir la nueva habilidad
-            profile.character.skills.push({
-              skillId: skillId,
-              level: 1,
-              usesLeft: skill.maxUses > 0 ? skill.maxUses : null,
-              cooldownUntil: null
-            });
-            
-            rewards.skills.push({
-              name: skill.name,
-              skill
-            });
-          }
-        }
-      }
-    }
-    
-    // Mover la misión de activas a completadas
-    profile.progress.completedMissions.push({
-      missionId: missionId,
-      completedAt: new Date()
-    });
-    
-    // Eliminar la misión de activas
-    profile.progress.activeMissions.splice(activeMissionIndex, 1);
-    
-    // Actualizar estadísticas de misiones
-    profile.stats.quests.completed += 1;
-    
-    // Verificar si la misión forma parte de una aventura
-    const adventures = await Adventure.find({
-      serverId: guildId,
-      'missions.missionId': missionId,
-      status: 'active'
-    });
-    
-    const adventureUpdates = [];
-    
-    for (const adventure of adventures) {
-      // Verificar si el usuario tiene la aventura activa
-      const activeAdventureIndex = profile.progress.activeAdventures.findIndex(a => a.adventureId === adventure._id.toString());
-      
-      if (activeAdventureIndex !== -1) {
-        const activeAdventure = profile.progress.activeAdventures[activeAdventureIndex];
-        
-        // Marcar la misión como completada en la aventura
-        if (!activeAdventure.completedMissions.includes(missionId)) {
-          activeAdventure.completedMissions.push(missionId);
-          
-          // Verificar si se ha completado la aventura
-          const requiredMissions = adventure.missions.filter(m => m.required).map(m => m.missionId);
-          const allRequiredCompleted = requiredMissions.every(m => activeAdventure.completedMissions.includes(m));
-          
-          if (allRequiredCompleted) {
-            activeAdventure.completed = true;
-            adventureUpdates.push({
-              title: adventure.title,
-              id: adventure._id,
-              completed: true
-            });
-          } else {
-            const remainingRequired = requiredMissions.filter(m => !activeAdventure.completedMissions.includes(m)).length;
-            adventureUpdates.push({
-              title: adventure.title,
-              id: adventure._id,
-              completed: false,
-              remainingMissions: remainingRequired
-            });
-          }
-        }
-      }
-    }
-    
-    // Guardar cambios en el perfil
-    await profile.save();
     
     res.json({
       success: true,
-      rewards,
-      adventureUpdates
+      rewards: result.rewards,
+      adventureUpdates: result.adventureUpdates
     });
     
   } catch (error) {
     console.error('Error al reclamar recompensas:', error);
     res.status(500).json({ error: 'Error al reclamar recompensas' });
+  }
+});
+
+router.post('/:guildId/missions/:missionId/start', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, missionId } = req.params;
+    
+    // Utilizar characterUtils para iniciar la misión
+    const result = await characterUtils.startMission(req.user.id, guildId, missionId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.redirect(`/servers/${guildId}/missions/${missionId}/progress`);
+    
+  } catch (error) {
+    console.error('Error al iniciar misión:', error);
+    res.status(500).json({ error: 'Error al iniciar la misión' });
+  }
+});
+
+// Ruta para iniciar una aventura - NUEVA USANDO characterUtils
+router.post('/:guildId/adventures/:adventureId/start', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, adventureId } = req.params;
+    
+    // Utilizar characterUtils para iniciar la aventura
+    const result = await characterUtils.startAdventure(req.user.id, guildId, adventureId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.redirect(`/servers/${guildId}/adventures/${adventureId}/progress`);
+    
+  } catch (error) {
+    console.error('Error al iniciar aventura:', error);
+    res.status(500).json({ error: 'Error al iniciar la aventura' });
+  }
+});
+
+// Ruta para completar una aventura - NUEVA USANDO characterUtils
+router.post('/:guildId/adventures/:adventureId/complete', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, adventureId } = req.params;
+    
+    // Utilizar characterUtils para completar la aventura
+    const result = await characterUtils.completeAdventure(req.user.id, guildId, adventureId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({
+      success: true,
+      rewards: result.rewards
+    });
+    
+  } catch (error) {
+    console.error('Error al completar aventura:', error);
+    res.status(500).json({ error: 'Error al completar la aventura' });
+  }
+});
+
+// Ruta para usar un objeto - NUEVA USANDO characterUtils
+router.post('/:guildId/inventory/use/:itemId', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, itemId } = req.params;
+    
+    // Utilizar characterUtils para usar el objeto
+    const result = await characterUtils.useItem(req.user.id, guildId, itemId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({
+      success: true,
+      effects: result.effects
+    });
+    
+  } catch (error) {
+    console.error('Error al usar objeto:', error);
+    res.status(500).json({ error: 'Error al usar el objeto' });
+  }
+});
+
+// Ruta para equipar un objeto - NUEVA USANDO characterUtils
+router.post('/:guildId/inventory/equip/:itemId', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, itemId } = req.params;
+    
+    // Utilizar characterUtils para equipar el objeto
+    const result = await characterUtils.equipItem(req.user.id, guildId, itemId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({
+      success: true,
+      slot: result.slot
+    });
+    
+  } catch (error) {
+    console.error('Error al equipar objeto:', error);
+    res.status(500).json({ error: 'Error al equipar el objeto' });
+  }
+});
+
+// Ruta para desequipar un objeto - NUEVA USANDO characterUtils
+router.post('/:guildId/inventory/unequip/:itemId', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, itemId } = req.params;
+    
+    // Utilizar characterUtils para desequipar el objeto
+    const result = await characterUtils.unequipItem(req.user.id, guildId, itemId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({
+      success: true
+    });
+    
+  } catch (error) {
+    console.error('Error al desequipar objeto:', error);
+    res.status(500).json({ error: 'Error al desequipar el objeto' });
+  }
+});
+
+// Ruta para usar una habilidad - NUEVA USANDO characterUtils
+router.post('/:guildId/skills/use/:skillId', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId, skillId } = req.params;
+    const { targetId } = req.body;
+    
+    // Utilizar characterUtils para usar la habilidad
+    const result = await characterUtils.useSkill(req.user.id, guildId, skillId, targetId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json({
+      success: true,
+      effects: result.effects
+    });
+    
+  } catch (error) {
+    console.error('Error al usar habilidad:', error);
+    res.status(500).json({ error: 'Error al usar la habilidad' });
+  }
+});
+
+// Ruta para obtener información detallada del personaje - NUEVA USANDO characterUtils
+router.get('/:guildId/character/info', checkBotInGuild, async (req, res) => {
+  try {
+    const { guildId } = req.params;
+    
+    // Utilizar characterUtils para obtener información del personaje
+    const result = await characterUtils.getCharacterInfo(req.user.id, guildId);
+    
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    
+    res.json(result);
+    
+  } catch (error) {
+    console.error('Error al obtener información del personaje:', error);
+    res.status(500).json({ error: 'Error al obtener información del personaje' });
   }
 });
 

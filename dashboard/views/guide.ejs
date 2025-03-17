@@ -1,0 +1,688 @@
+<%- include('partials/header', { title: 'Guía de Uso' }) %>
+
+<div class="max-w-6xl mx-auto px-4 pt-8 pb-16">
+  <!-- Cabecera de la página -->
+  <div class="mb-12 text-center">
+    <h1 class="text-4xl font-bold mb-4">Guía de Uso</h1>
+    <p class="text-lg text-gray-600 max-w-3xl mx-auto">Aprende a utilizar todas las funcionalidades de OmenRol en tu servidor de Discord y saca el máximo provecho del sistema de rol, minijuegos y opciones de personalización.</p>
+  </div>
+
+  <!-- Navegación de la guía -->
+  <div class="sticky top-4 z-10 bg-white shadow rounded-lg p-4 mb-8 flex overflow-x-auto">
+    <nav class="flex space-x-4" id="guide-nav">
+      <a href="#inicio" class="nav-link text-indigo-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap active">Primeros pasos</a>
+      <a href="#comandos" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">Comandos básicos</a>
+      <a href="#sistema-rol" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">Sistema de rol</a>
+      <a href="#personajes" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">Creación de personajes</a>
+      <a href="#misiones" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">Misiones y aventuras</a>
+      <a href="#minijuegos" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">Trivia y minijuegos</a>
+      <a href="#panel" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">Panel web</a>
+      <a href="#faq" class="nav-link text-gray-600 hover:text-indigo-500 px-3 py-2 font-medium text-sm rounded-md whitespace-nowrap">FAQ</a>
+    </nav>
+  </div>
+
+  <!-- Contenido de la guía -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <!-- Primeros pasos -->
+    <section id="inicio" class="guide-section border-b border-gray-200">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold mb-6">Primeros pasos con OmenRol</h2>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+              <i class="fas fa-plus-circle text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">1. Añadir el bot</h3>
+            <p class="text-gray-600 mb-4">Invita a OmenRol a tu servidor de Discord usando el botón "Invitar" en nuestra página principal.</p>
+            <a href="/invite" class="text-indigo-600 hover:text-indigo-500 font-medium">Añadir bot <i class="fas fa-arrow-right ml-1"></i></a>
+          </div>
+          
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+              <i class="fas fa-cog text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">2. Configuración inicial</h3>
+            <p class="text-gray-600 mb-4">Usa el comando <code>!setup</code> en tu servidor o accede al panel web para configurar los ajustes básicos.</p>
+            <a href="/servers" class="text-indigo-600 hover:text-indigo-500 font-medium">Panel de control <i class="fas fa-arrow-right ml-1"></i></a>
+          </div>
+          
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 mb-4">
+              <i class="fas fa-terminal text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">3. Explorar comandos</h3>
+            <p class="text-gray-600 mb-4">Usa <code>!help</code> para ver la lista de comandos disponibles y empezar a usar el bot.</p>
+            <a href="/commands" class="text-indigo-600 hover:text-indigo-500 font-medium">Ver comandos <i class="fas fa-arrow-right ml-1"></i></a>
+          </div>
+        </div>
+        
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h4 class="text-lg font-medium text-blue-800">Personalización del bot</h4>
+              <p class="text-blue-700 mt-1">El prefijo predeterminado es <code>!</code> pero puedes cambiarlo usando <code>!setprefix [nuevo_prefijo]</code>. También puedes configurar canales específicos, roles administrativos y personalizar el idioma desde el panel web.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Comandos básicos -->
+    <section id="comandos" class="guide-section border-b border-gray-200 hidden">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold mb-6">Comandos básicos</h2>
+        
+        <p class="text-gray-600 mb-6">Estos son los comandos fundamentales que te ayudarán a empezar a usar OmenRol en tu servidor:</p>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comando</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ejemplos</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!help</td>
+                <td class="px-6 py-4">Muestra la lista de comandos disponibles o información sobre un comando específico</td>
+                <td class="px-6 py-4"><code>!help</code>, <code>!help roll</code></td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!setup</td>
+                <td class="px-6 py-4">Inicia el asistente de configuración del bot para tu servidor</td>
+                <td class="px-6 py-4"><code>!setup</code></td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!roll</td>
+                <td class="px-6 py-4">Lanza dados con notación estándar de rol</td>
+                <td class="px-6 py-4"><code>!roll 1d20</code>, <code>!roll 2d6+3</code></td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!profile</td>
+                <td class="px-6 py-4">Muestra tu perfil o el de otro usuario</td>
+                <td class="px-6 py-4"><code>!profile</code>, <code>!profile @usuario</code></td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!character</td>
+                <td class="px-6 py-4">Gestiona tus personajes de rol</td>
+                <td class="px-6 py-4"><code>!character list</code>, <code>!character create</code></td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!server</td>
+                <td class="px-6 py-4">Muestra información sobre el servidor</td>
+                <td class="px-6 py-4"><code>!server info</code>, <code>!server stats</code></td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-medium text-indigo-600">!setprefix</td>
+                <td class="px-6 py-4">Cambia el prefijo de comandos del bot</td>
+                <td class="px-6 py-4"><code>!setprefix $</code>, <code>!setprefix ></code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-6">
+          <a href="/commands" class="text-indigo-600 hover:text-indigo-500 font-medium">Ver lista completa de comandos <i class="fas fa-arrow-right ml-1"></i></a>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Sistema de rol -->
+    <section id="sistema-rol" class="guide-section border-b border-gray-200 hidden">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold mb-6">Sistema de rol</h2>
+        
+        <p class="text-gray-600 mb-6">OmenRol incluye un sistema de rol completo para tus partidas de rol, con soporte para varios sistemas y configuraciones personalizables.</p>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Características principales</h3>
+            <ul class="space-y-3 text-gray-600">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                <span>Soporte para múltiples razas y clases configurables</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                <span>Lanzamiento de dados avanzado con modificadores y funciones especiales</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                <span>Gestión de personajes, inventarios y estadísticas</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                <span>Sistema de experiencia y progresión de nivel</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                <span>Misiones y aventuras para partidas de rol</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                <span>Sistema de economía con monedas, objetos y tiendas</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h3 class="text-xl font-semibold mb-4">Comandos del sistema de rol</h3>
+            <ul class="space-y-3">
+              <li><code>!roll 1d20+5</code> - Lanza un dado d20 con modificador +5</li>
+              <li><code>!check strength</code> - Realiza una tirada de característica</li>
+              <li><code>!save dexterity</code> - Realiza una tirada de salvación</li>
+              <li><code>!attack sword</code> - Realiza un ataque con el arma equipada</li>
+              <li><code>!spell fireball</code> - Lanza un hechizo desde tu repertorio</li>
+              <li><code>!initiative</code> - Inicia un nuevo contador de iniciativa</li>
+              <li><code>!shop</code> - Muestra los objetos disponibles para comprar</li>
+              <li><code>!inventory</code> - Muestra tu inventario actual</li>
+            </ul>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+              <h4 class="font-medium text-gray-900 mb-2">Ejemplo de uso</h4>
+              <div class="bg-gray-800 text-gray-200 p-3 rounded">
+                <p><span class="text-blue-400">Usuario:</span> !roll 2d20kh1+6</p>
+                <p><span class="text-green-400">OmenRol:</span> @Usuario lanzó 2d20kh1+6: [<span class="text-red-400">4</span>, <span class="text-yellow-400">18</span>]kh1 + 6 = <span class="font-bold">24</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-8 p-4 bg-amber-50 rounded-lg">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-lightbulb text-amber-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h4 class="text-lg font-medium text-amber-800">Personalización del sistema</h4>
+              <p class="text-amber-700 mt-1">Los administradores del servidor pueden personalizar completamente el sistema de rol: razas, clases, restricciones, habilidades, objetos y más desde el panel web.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Creación de personajes -->
+    <section id="personajes" class="guide-section border-b border-gray-200 hidden">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold mb-6">Creación de personajes</h2>
+        
+        <p class="text-gray-600 mb-6">Crea y gestiona tus personajes de rol con nuestro sistema intuitivo y completo:</p>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          <div class="space-y-6">
+            <h3 class="text-xl font-semibold">Pasos para crear un personaje</h3>
+            
+            <ol class="space-y-6">
+              <li class="flex">
+                <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold">1</span>
+                <div class="ml-4">
+                  <h4 class="font-semibold">Iniciar el asistente de creación</h4>
+                  <p class="text-gray-600 mt-1">Utiliza el comando <code>!character create</code> para comenzar a crear un nuevo personaje, o accede a la web del servidor.</p>
+                </div>
+              </li>
+              
+              <li class="flex">
+                <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold">2</span>
+                <div class="ml-4">
+                  <h4 class="font-semibold">Elegir raza y clase</h4>
+                  <p class="text-gray-600 mt-1">Selecciona la raza y clase para tu personaje entre las disponibles en el servidor.</p>
+                </div>
+              </li>
+              
+              <li class="flex">
+                <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold">3</span>
+                <div class="ml-4">
+                  <h4 class="font-semibold">Detalles básicos</h4>
+                  <p class="text-gray-600 mt-1">Proporciona el nombre, edad, avatar y otros detalles básicos de tu personaje.</p>
+                </div>
+              </li>
+              
+              <li class="flex">
+                <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold">4</span>
+                <div class="ml-4">
+                  <h4 class="font-semibold">Asignar características</h4>
+                  <p class="text-gray-600 mt-1">Las características base se asignan automáticamente según la raza y clase elegidas, aunque puedes personalizarlas.</p>
+                </div>
+              </li>
+              
+              <li class="flex">
+                <span class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold">5</span>
+                <div class="ml-4">
+                  <h4 class="font-semibold">Personalizar y finalizar</h4>
+                  <p class="text-gray-600 mt-1">Añade una biografía y finaliza la creación de tu personaje para empezar a jugar.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+          
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Gestión de personajes</h3>
+            
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+              <h4 class="font-semibold text-lg mb-3">Comandos útiles</h4>
+              <ul class="space-y-2">
+                <li><code>!character list</code> - Ver todos tus personajes</li>
+                <li><code>!character info [nombre]</code> - Ver detalles de un personaje</li>
+                <li><code>!character select [nombre]</code> - Seleccionar personaje activo</li>
+                <li><code>!character edit [nombre]</code> - Editar un personaje existente</li>
+                <li><code>!character delete [nombre]</code> - Eliminar un personaje</li>
+                <li><code>!character skills</code> - Ver las habilidades de tu personaje</li>
+                <li><code>!character inventory</code> - Ver el inventario de tu personaje</li>
+                <li><code>!character stats</code> - Ver estadísticas detalladas</li>
+              </ul>
+            </div>
+            
+            <div class="bg-gray-50 p-6 rounded-lg">
+              <h4 class="font-semibold text-lg mb-3">Características y estadísticas</h4>
+              <p class="text-gray-600 mb-4">Cada personaje tiene las siguientes estadísticas principales:</p>
+              <ul class="space-y-2 text-gray-600">
+                <li><strong>Fuerza:</strong> Capacidad física y daño en combate cuerpo a cuerpo</li>
+                <li><strong>Inteligencia:</strong> Conocimientos, magia y habilidades mentales</li>
+                <li><strong>Destreza:</strong> Agilidad, precisión y velocidad</li>
+                <li><strong>Defensa:</strong> Resistencia al daño físico y mágico</li>
+                <li><strong>Puntos de vida:</strong> Salud total del personaje</li>
+                <li><strong>Puntos de maná:</strong> Energía para lanzar hechizos</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Misiones y aventuras -->
+    <section id="misiones" class="guide-section border-b border-gray-200 hidden">
+      <div class="p-8">
+        <h2 class="text-2xl font-bold mb-6">Misiones y aventuras</h2>
+        
+        <p class="text-gray-600 mb-6">OmenRol ofrece un sistema completo de misiones y aventuras para tus partidas de rol:</p>
+        
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Sistema de misiones</h3>
+            <p class="text-gray-600 mb-4">Las misiones son tareas individuales que tus personajes pueden completar para obtener recompensas:</p>
+            
+            <ul class="space-y-3 text-gray-600">
+              <li class="flex items-start">
+                <i class="fas fa-tasks text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Misiones por etapas:</strong> Cada misión puede tener múltiples etapas con desafíos únicos</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-gamepad text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Tipos de desafíos:</strong> Combates, puzzles, minijuegos, diálogos y recolección</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-coins text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Recompensas:</strong> Experiencia, monedas, objetos y habilidades exclusivas</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-user-shield text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Restricciones:</strong> Misiones específicas para ciertas razas, clases o niveles</span>
+              </li>
+            </ul>
+            
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 class="font-medium text-gray-900 mb-2">Comandos de misiones</h4>
+              <ul class="space-y-2 text-gray-600">
+                <li><code>!missions list</code> - Ver misiones disponibles</li>
+                <li><code>!mission start [id]</code> - Iniciar una misión</li>
+                <li><code>!mission progress</code> - Ver progreso de misión actual</li>
+                <li><code>!mission complete</code> - Finalizar misión actual</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div>
+            <h3 class="text-xl font-semibold mb-4">Sistema de aventuras</h3>
+            <p class="text-gray-600 mb-4">Las aventuras son colecciones de misiones relacionadas que forman una historia más compleja:</p>
+            
+            <ul class="space-y-3 text-gray-600">
+              <li class="flex items-start">
+                <i class="fas fa-book-open text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Historias complejas:</strong> Múltiples misiones conectadas por una narrativa principal</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-users text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Aventuras colaborativas:</strong> Posibilidad de completarlas en grupo</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-gem text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Recompensas exclusivas:</strong> Objetos y habilidades especiales al completar toda la aventura</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-calendar-alt text-indigo-500 mt-1 mr-3"></i>
+                <span><strong>Eventos temporales:</strong> Algunas aventuras están disponibles por tiempo limitado</span>
+              </li>
+            </ul>
+            
+            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h4 class="font-medium text-gray-900 mb-2">Comandos de aventuras</h4>
+              <ul class="space-y-2 text-gray-600">
+                <li><code>!adventures list</code> - Ver aventuras disponibles</li>
+                <li><code>!adventure start [id]</code> - Iniciar una aventura</li>
+                <li><code>!adventure progress</code> - Ver progreso de aventura</li>
+                <li><code>!adventure complete</code> - Reclamar recompensas finales</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h4 class="text-lg font-medium text-blue-800">Para Administradores</h4>
+              <p class="text-blue-700 mt-1">Los administradores del servidor pueden crear misiones y aventuras personalizadas desde el panel web. Esto incluye la configuración de desafíos, recompensas, restricciones y narrativas completas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Trivia y minijuegos -->
+<section id="minijuegos" class="guide-section border-b border-gray-200 hidden">
+    <div class="p-8">
+      <h2 class="text-2xl font-bold mb-6">Trivia y minijuegos</h2>
+      
+      <p class="text-gray-600 mb-6">Además del sistema de rol, OmenRol incluye varios minijuegos para mantener activa y entretenida tu comunidad:</p>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-3">Trivia</h3>
+          <p class="text-gray-600 mb-4">Pon a prueba los conocimientos de tus miembros con preguntas personalizables de diferentes categorías.</p>
+          <p class="text-sm font-medium">Comando: <code>!trivia start</code></p>
+          <p class="text-xs text-gray-500 mt-2">Los administradores pueden crear, importar y exportar preguntas desde el panel web.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-3">Economía</h3>
+          <p class="text-gray-600 mb-4">Sistema de monedas virtuales, tiendas, trabajos y apuestas para tu servidor.</p>
+          <p class="text-sm font-medium">Comandos: <code>!balance</code>, <code>!shop</code>, <code>!work</code></p>
+          <p class="text-xs text-gray-500 mt-2">Personalizable con objetos, precios y trabajos específicos para tu servidor.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-3">Batalla naval</h3>
+          <p class="text-gray-600 mb-4">El clásico juego de hundir barcos contra la IA o contra otros miembros.</p>
+          <p class="text-sm font-medium">Comando: <code>!battleship</code></p>
+          <p class="text-xs text-gray-500 mt-2">También disponible en desafíos de misiones con recompensas.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-3">Duelos</h3>
+          <p class="text-gray-600 mb-4">Desafía a otros usuarios a duelos con tus personajes y determina quién es el más poderoso.</p>
+          <p class="text-sm font-medium">Comando: <code>!duel @usuario</code></p>
+          <p class="text-xs text-gray-500 mt-2">Los duelos utilizan las estadísticas de tus personajes seleccionados.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-3">Acertijos</h3>
+          <p class="text-gray-600 mb-4">Acertijos y enigmas de distintas dificultades para resolver en comunidad.</p>
+          <p class="text-sm font-medium">Comando: <code>!riddle</code></p>
+          <p class="text-xs text-gray-500 mt-2">Gana experiencia adicional para tus personajes al resolver acertijos.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-3">Torneos</h3>
+          <p class="text-gray-600 mb-4">Organiza torneos y competiciones entre miembros del servidor.</p>
+          <p class="text-sm font-medium">Comando: <code>!tournament create</code></p>
+          <p class="text-xs text-gray-500 mt-2">Configura torneos de duelos, trivia o minijuegos con múltiples rondas.</p>
+        </div>
+      </div>
+      
+      <div class="mt-8 p-4 bg-green-50 rounded-lg">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-trophy text-green-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h4 class="text-lg font-medium text-green-800">Tablas de clasificación</h4>
+            <p class="text-green-700 mt-1">Cada minijuego tiene su propia tabla de clasificación. Utiliza el comando <code>!leaderboard [minijuego]</code> para ver quiénes son los mejores jugadores del servidor.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Panel web -->
+  <section id="panel" class="guide-section border-b border-gray-200 hidden">
+    <div class="p-8">
+      <h2 class="text-2xl font-bold mb-6">Panel web</h2>
+      
+      <p class="text-gray-600 mb-6">OmenRol ofrece un completo panel web para gestionar tu servidor y personajes de forma más visual e intuitiva:</p>
+      
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-semibold mb-4">Funcionalidades para usuarios</h3>
+          
+          <ul class="space-y-3 text-gray-600">
+            <li class="flex items-start">
+              <i class="fas fa-user text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Gestión de personajes:</strong> Crea, edita y visualiza tus personajes de forma detallada</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-chart-line text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Estadísticas personales:</strong> Consulta tus estadísticas en los diferentes minijuegos y actividades</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-clipboard-list text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Seguimiento de misiones:</strong> Visualiza tus misiones activas y completadas</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-shopping-bag text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Tienda de objetos:</strong> Compra objetos para tus personajes desde la web</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-history text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Historial de actividades:</strong> Revisa tu historial de batallas, compras y tiradas</span>
+            </li>
+          </ul>
+          
+          <div class="mt-6">
+            <a href="/dashboard" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors">Acceder al panel de usuario</a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="text-xl font-semibold mb-4">Herramientas para administradores</h3>
+          
+          <ul class="space-y-3 text-gray-600">
+            <li class="flex items-start">
+              <i class="fas fa-cogs text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Configuración general:</strong> Personaliza todos los aspectos del bot para tu servidor</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-dice-d20 text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Editor del sistema de rol:</strong> Crea y modifica razas, clases, habilidades y objetos</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-book text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Creador de misiones:</strong> Diseña misiones y aventuras personalizadas</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-question-circle text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Editor de trivia:</strong> Añade y gestiona preguntas para el juego de trivia</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-chart-bar text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Estadísticas del servidor:</strong> Analiza la actividad y uso del bot en tu servidor</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-user-shield text-indigo-500 mt-1 mr-3"></i>
+              <span><strong>Gestión de permisos:</strong> Configura qué roles pueden usar cada comando</span>
+            </li>
+          </ul>
+          
+          <div class="mt-6">
+            <a href="/admin" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors">Acceder al panel de administración</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-8">
+        <img src="/img/panel-preview.png" alt="Vista previa del panel de OmenRol" class="rounded-lg shadow-lg w-full object-cover" />
+      </div>
+    </div>
+  </section>
+  
+  <!-- FAQ -->
+  <section id="faq" class="guide-section border-b border-gray-200 hidden">
+    <div class="p-8">
+      <h2 class="text-2xl font-bold mb-6">Preguntas frecuentes</h2>
+      
+      <div class="space-y-6">
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Cómo puedo añadir OmenRol a mi servidor?</h3>
+          <p class="text-gray-600">Para añadir OmenRol a tu servidor, simplemente haz clic en el botón "Invitar" en nuestra página principal y selecciona el servidor donde quieres añadirlo. Necesitarás tener permisos de administrador en el servidor.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Qué sistemas de rol soporta OmenRol?</h3>
+          <p class="text-gray-600">OmenRol incluye un sistema de rol propio que es altamente personalizable. Puedes adaptar las razas, clases, estadísticas y mecánicas para que se asemejen a diferentes sistemas como D&D, Pathfinder, o crear uno completamente original. Los administradores pueden configurar todos estos aspectos desde el panel web.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Cuántos personajes puede tener cada usuario?</h3>
+          <p class="text-gray-600">Por defecto, cada usuario puede tener hasta 3 personajes por servidor. Los administradores pueden aumentar este límite desde el panel de configuración hasta un máximo de 10 personajes por usuario.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Cómo puedo crear misiones personalizadas?</h3>
+          <p class="text-gray-600">Los administradores pueden crear misiones personalizadas desde el panel web, en la sección "Creador de misiones". Allí podrás configurar las etapas, desafíos, diálogos y recompensas de cada misión. También puedes agrupar misiones para crear aventuras completas.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Es posible importar personajes de otros sistemas?</h3>
+          <p class="text-gray-600">Actualmente no existe una funcionalidad de importación directa, pero estamos trabajando en implementar esta característica para sistemas populares como D&D 5e. Mientras tanto, puedes recrear manualmente tus personajes siguiendo las equivalencias de atributos y habilidades.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿El bot funciona en canales privados?</h3>
+          <p class="text-gray-600">Sí, OmenRol puede funcionar en cualquier canal donde tenga permisos para leer y enviar mensajes. Puedes configurar canales específicos para diferentes funcionalidades desde el panel de administración, como un canal para combates, otro para tiendas, etc.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Puedo personalizar el idioma del bot?</h3>
+          <p class="text-gray-600">Sí, OmenRol está disponible en varios idiomas, incluyendo español, inglés, francés, alemán y portugués. Los administradores pueden cambiar el idioma del bot para todo el servidor desde el panel de configuración.</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">¿Hay algún límite en la cantidad de miembros o actividad?</h3>
+          <p class="text-gray-600">La versión gratuita de OmenRol funciona sin problemas para servidores de hasta 5,000 miembros. Para servidores más grandes, ofrecemos planes premium con recursos dedicados. Todos los planes incluyen todas las funcionalidades, pero los planes premium ofrecen mayor capacidad y tiempo de respuesta.</p>
+        </div>
+      </div>
+      
+      <div class="mt-8 p-4 bg-purple-50 rounded-lg">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-question-circle text-purple-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h4 class="text-lg font-medium text-purple-800">¿Necesitas más ayuda?</h4>
+            <p class="text-purple-700 mt-1">Si tienes más preguntas o necesitas soporte técnico, únete a nuestro <a href="https://discord.gg/omenrol" class="underline">servidor oficial de Discord</a> o contacta con nosotros a través del <a href="/contact" class="underline">formulario de contacto</a>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Pie de página -->
+  <section class="bg-gray-50">
+    <div class="p-8 text-center">
+      <h2 class="text-2xl font-bold mb-6">¡Comienza la aventura con OmenRol!</h2>
+      
+      <p class="text-gray-600 mb-8 max-w-3xl mx-auto">Transforma tu servidor de Discord en un auténtico mundo de rol y aventuras con todas las herramientas que necesitas para crear experiencias inolvidables.</p>
+      
+      <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <a href="/invite" class="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-500 transition-colors font-medium">
+          <i class="fas fa-plus-circle mr-2"></i> Añadir a Discord
+        </a>
+        
+        <a href="/servers" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium">
+          <i class="fas fa-cog mr-2"></i> Panel de control
+        </a>
+        
+        <a href="https://discord.gg/omenrol" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium">
+          <i class="fa-brands fa-discord mr-2"></i> Comunidad
+        </a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Script para la navegación -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Inicialización: mostrar solo la primera sección
+      document.querySelector('.guide-section').classList.remove('hidden');
+      
+      // Función para cambiar de sección
+      function changeSection(sectionId) {
+        // Ocultar todas las secciones
+        document.querySelectorAll('.guide-section').forEach(section => {
+          section.classList.add('hidden');
+        });
+        
+        // Mostrar la sección seleccionada
+        document.getElementById(sectionId).classList.remove('hidden');
+        
+        // Actualizar clases de navegación
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active', 'text-indigo-600');
+          link.classList.add('text-gray-600');
+        });
+        
+        // Marcar como activo el enlace seleccionado
+        document.querySelector(`a[href="#${sectionId}"]`).classList.add('active', 'text-indigo-600');
+        document.querySelector(`a[href="#${sectionId}"]`).classList.remove('text-gray-600');
+        
+        // Desplazarse al inicio de la sección
+        window.scrollTo({
+          top: document.querySelector('.bg-white.shadow').offsetTop - 80,
+          behavior: 'smooth'
+        });
+      }
+      
+      // Añadir eventos de clic a los enlaces de navegación
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const sectionId = this.getAttribute('href').substring(1);
+          changeSection(sectionId);
+          
+          // Actualizar URL con hash
+          history.pushState(null, null, `#${sectionId}`);
+        });
+      });
+      
+      // Gestionar navegación por hash en la URL
+      if (window.location.hash) {
+        const sectionId = window.location.hash.substring(1);
+        if (document.getElementById(sectionId)) {
+          changeSection(sectionId);
+        }
+      }
+      
+      // Gestionar navegación mediante botones de adelante/atrás
+      window.addEventListener('popstate', function() {
+        if (window.location.hash) {
+          const sectionId = window.location.hash.substring(1);
+          if (document.getElementById(sectionId)) {
+            changeSection(sectionId);
+          }
+        } else {
+          // Si no hay hash, mostrar la primera sección
+          changeSection('inicio');
+        }
+      });
+    });
+  </script>
+
+<%- include('partials/footer') %>

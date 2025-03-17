@@ -4,18 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %> | OmenRol</title>
-  
-  <!-- Estilos base - Tailwind CSS -->
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="/css/styles.css">
-  
-  <!-- Carga dinámica del tema del usuario -->
-  <link rel="stylesheet" href="/css/themes/light.css" id="theme-css">
-  
-  <!-- Favicon -->
   <link rel="icon" href="/img/logo.svg">
-  
+  <link rel="stylesheet" href="/css/themes/light.css" id="theme-css">
+
   <!-- Script para inicializar tema -->
   <script>
     // Cargar tema desde localStorage
@@ -33,194 +26,181 @@
     })();
   </script>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class=" min-h-screen flex flex-col">
   
-  <!-- Navbar -->
-  <nav class="bg-gray-800 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <a href="/" class="flex items-center">
-              <img class="h-8 w-8" src="/img/logo.svg" alt="Logo">
-              <span class="ml-2 text-lg font-bold">OmenRol</span>
-            </a>
-          </div>
-          <div class="hidden md:block">
-            <div class="ml-10 flex items-baseline space-x-4">
-              <a href="/" class="<%= currentPath === '/' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
-              <a href="/commands" class="<%= currentPath === '/commands' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> px-3 py-2 rounded-md text-sm font-medium">Comandos</a>
-              <% if (req.user) { %>
-                <a href="/servers" class="<%= currentPath.startsWith('/servers') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> px-3 py-2 rounded-md text-sm font-medium">Servidores</a>
-              <% } else { %>
-                <a href="/invite" class="<%= currentPath === '/invite' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> px-3 py-2 rounded-md text-sm font-medium">Invitar</a>
-              <% } %>
-              <a href="/support" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Soporte</a>
-            </div>
-          </div>
-        </div>
-        <div class="hidden md:block">
-          <div class="ml-4 flex items-center md:ml-6">
-            <!-- Selector de tema -->
-            <div class="relative z-10">
-              <button id="themeMenuButton" class="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none flex items-center" aria-expanded="false" aria-haspopup="true">
-                <i class="fas fa-palette"></i>
-                <span class="ml-2 text-sm">Tema</span>
-                <svg class="ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
-              </button>
-              <div id="themeMenu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" style="z-index: 999" role="menu" aria-orientation="vertical" aria-labelledby="themeMenuButton" tabindex="-1">
-                <button onclick="changeTheme('light')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="light">
-                  <i class="fas fa-sun mr-2 text-yellow-500"></i>Claro
-                </button>
-                <button onclick="changeTheme('dark')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="dark">
-                  <i class="fas fa-moon mr-2 text-blue-800"></i>Oscuro
-                </button>
-                <button onclick="changeTheme('cyberpunk')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="cyberpunk">
-                  <i class="fas fa-microchip mr-2 text-pink-600"></i>Cyberpunk
-                </button>
-                <button onclick="changeTheme('fantasy')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="fantasy">
-                  <i class="fas fa-hat-wizard mr-2 text-purple-600"></i>Fantasy
-                </button>
-                <button onclick="changeTheme('hell')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="hell">
-                  <i class="fas fa-fire mr-2 text-red-600"></i>Hell
-                </button>
-                <button onclick="changeTheme('god')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="god">
-                  <i class="fas fa-dove mr-2 text-blue-500"></i>God
-                </button>
-                <button onclick="changeTheme('nature')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="nature">
-                  <i class="fas fa-tree mr-2 text-green-600"></i>Nature
-                </button>
-                <button onclick="changeTheme('ocean')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="ocean">
-                  <i class="fas fa-water mr-2 text-blue-400"></i>Ocean
-                </button>
-                <button onclick="changeTheme('cosmos')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-theme="cosmos">
-                  <i class="fas fa-globe mr-2 text-pink-600"></i>Cosmos
-                </button>
-              </div>
-            </div>
-            
-            <% if (req.user) { %>
-              <div class="relative ml-4">
-                <div>
-                  <button id="userMenuButton" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white" aria-expanded="false" aria-haspopup="true">
-                    <span class="sr-only">Abrir menú de usuario</span>
-                    <img class="h-8 w-8 rounded-full" src="<%= req.user.avatar ? `https://cdn.discordapp.com/avatars/${req.user.id}/${req.user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="Avatar">
-                    <span class="ml-2 text-white"><%= req.user.username %></span>
-                    <svg class="ml-1 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-                <div id="userMenu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10" role="menu" aria-orientation="vertical" aria-labelledby="userMenuButton" tabindex="-1">
-                  <a href="/me" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Mi Perfil</a>
-                  <a href="/me/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Configuración</a>
-                  <div class="border-t border-gray-100"></div>
-                  <a href="/auth/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Cerrar Sesión</a>
-                </div>
-              </div>
-            <% } else { %>
-              <a href="/auth/discord" class="ml-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-sm font-medium flex items-center">
-                <i class="fa-brandsfa-discord mr-2"></i>
-                Iniciar Sesión
-              </a>
-            <% } %>
-          </div>
-        </div>
-        <div class="-mr-2 flex md:hidden">
-          <!-- Mobile menu button -->
-          <button id="mobileMenuButton" class="bg-gray-800 inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-            <span class="sr-only">Abrir menú principal</span>
-            <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <div class="sidebar bg-gray-900 text-white w-64 flex-shrink-0 transition-all duration-300 flex flex-col h-screen fixed z-20" id="sidebar">
+      <!-- Logo y título con botón de toggle -->
+      <div class="p-5 flex items-center justify-between border-b border-gray-800">
+        <a href="/" class="flex items-center">
+          <img class="h-10 w-10" src="/img/logo.svg" alt="Logo">
+          <span class="ml-3 text-xl font-bold">OmenRol</span>
+        </a>
+        <button id="sidebarToggle" class="text-gray-400 hover:text-white lg:hidden">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
-    </div>
-
-    <!-- Mobile menu -->
-    <div id="mobileMenu" class="hidden md:hidden">
-      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-        <a href="/" class="<%= currentPath === '/' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Inicio</a>
-        <a href="/commands" class="<%= currentPath === '/commands' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Comandos</a>
-        <% if (req.user) { %>
-          <a href="/servers" class="<%= currentPath.startsWith('/servers') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Servidores</a>
-        <% } else { %>
-          <a href="/invite" class="<%= currentPath === '/invite' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Invitar</a>
-        <% } %>
-        <a href="/support" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Soporte</a>
-        
-        <!-- Opciones de tema (móvil) -->
-        <div class="px-3 py-2">
-          <div class="text-gray-400 text-sm mb-2">Tema</div>
-          <div class="grid grid-cols-3 gap-2">
-            <button onclick="changeTheme('light')" class="bg-gray-700 hover:bg-gray-600 text-xs p-2 rounded text-center">
-              <i class="fas fa-sun text-yellow-500 block mb-1"></i>Claro
-            </button>
-            <button onclick="changeTheme('dark')" class="bg-gray-700 hover:bg-gray-600 text-xs p-2 rounded text-center">
-              <i class="fas fa-moon text-blue-800 block mb-1"></i>Oscuro
-            </button>
-            <button onclick="changeTheme('cyberpunk')" class="bg-gray-700 hover:bg-gray-600 text-xs p-2 rounded text-center">
-              <i class="fas fa-microchip text-pink-600 block mb-1"></i>Cyber
-            </button>
-            <button onclick="changeTheme('fantasy')" class="bg-gray-700 hover:bg-gray-600 text-xs p-2 rounded text-center">
-              <i class="fas fa-hat-wizard text-purple-600 block mb-1"></i>Fantasy
-            </button>
-            <button onclick="changeTheme('hell')" class="bg-gray-700 hover:bg-gray-600 text-xs p-2 rounded text-center">
-              <i class="fas fa-fire text-red-600 block mb-1"></i>Hell
-            </button>
-            <button onclick="changeTheme('god')" class="bg-gray-700 hover:bg-gray-600 text-xs p-2 rounded text-center">
-              <i class="fas fa-dove text-blue-500 block mb-1"></i>God
-            </button>
+      
+      <!-- Menú principal -->
+      <div class="flex-grow overflow-y-auto py-4">
+        <nav>
+          <div class="px-4 mb-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Navegación
           </div>
+          <a href="/" class="<%= currentPath === '/' ? 'bg-gray-800 border-l-4 border-indigo-500 pl-3' : 'border-l-4 border-transparent pl-4' %> flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+            <i class="fas fa-home w-6"></i>
+            <span class="text-sm">Inicio</span>
+          </a>
+          <a href="/commands" class="<%= currentPath === '/commands' ? 'bg-gray-800 border-l-4 border-indigo-500 pl-3' : 'border-l-4 border-transparent pl-4' %> flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+            <i class="fas fa-terminal w-6"></i>
+            <span class="text-sm">Comandos</span>
+          </a>
+          <% if (req.user) { %>
+            <a href="/servers" class="<%= currentPath.startsWith('/servers') ? 'bg-gray-800 border-l-4 border-indigo-500 pl-3' : 'border-l-4 border-transparent pl-4' %> flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+              <i class="fas fa-server w-6"></i>
+              <span class="text-sm">Servidores</span>
+            </a>
+          <% } else { %>
+            <a href="/invite" class="<%= currentPath === '/invite' ? 'bg-gray-800 border-l-4 border-indigo-500 pl-3' : 'border-l-4 border-transparent pl-4' %> flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+              <i class="fas fa-plus-circle w-6"></i>
+              <span class="text-sm">Invitar</span>
+            </a>
+          <% } %>
+          <a href="/support" class="<%= currentPath === '/support' ? 'bg-gray-800 border-l-4 border-indigo-500 pl-3' : 'border-l-4 border-transparent pl-4' %> flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+            <i class="fas fa-headset w-6"></i>
+            <span class="text-sm">Soporte</span>
+          </a>
           
-          <!-- Toggle modo minimalista (móvil) -->
-          <button id="modeToggleMobile" class="mt-2 w-full bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm flex items-center justify-center">
-            <i id="modeIconMobile" class="fas fa-compress mr-2"></i>
-            <span>Modo minimalista</span>
-          </button>
-        </div>
-      </div>
-      <div class="pt-4 pb-3 border-t border-gray-700">
-        <% if (req.user) { %>
-          <div class="flex items-center px-5">
-            <div class="flex-shrink-0">
-              <img class="h-10 w-10 rounded-full" src="<%= req.user.avatar ? `https://cdn.discordapp.com/avatars/${req.user.id}/${req.user.avatar}.png` : '/img/default-avatar.png' %>" alt="Avatar">
-            </div>
-            <div class="ml-3">
-              <div class="text-base font-medium leading-none text-white"><%= req.user.username %></div>
-              <div class="text-sm font-medium leading-none text-gray-400"><%= req.user.email || '' %></div>
+          <div class="px-4 mb-3 mt-8 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Atajos
+          </div>
+          <a href="/guide" class="border-l-4 border-transparent pl-4 flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+            <i class="fas fa-book w-6"></i>
+            <span class="text-sm">Guía de Uso</span>
+          </a>
+          <a href="/me/settings" class="<%= currentPath === '/me/settings' ? 'bg-gray-800 border-l-4 border-indigo-500 pl-3' : 'border-l-4 border-transparent pl-4' %> flex items-center py-3 text-gray-300  hover:text-white transition-colors">
+            <i class="fas fa-cog w-6"></i>
+            <span class="text-sm">Configuración</span>
+          </a>
+          
+          <!-- Selector de tema -->
+          <div class="px-4 mb-3 mt-8 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Personalización
+          </div>
+          <div class="px-4 mb-4">
+            <button id="themeDropdownButton" class="w-full flex items-center justify-between py-2 px-3 bg-gray-800 text-gray-300 rounded hover:text-white transition-colors">
+              <div class="flex items-center">
+                <i class="fas fa-palette w-6"></i>
+                <span class="text-sm">Cambiar Tema</span>
+              </div>
+              <i class="fas fa-chevron-down text-xs transition-transform" id="themeChevron"></i>
+            </button>
+            
+            <div id="themeDropdown" class="hidden mt-2 bg-gray-800 rounded shadow-lg overflow-hidden p-2">
+              <div class="grid grid-cols-2 gap-2 w-full">
+                <button onclick="changeTheme('light')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-sun text-yellow-400 mb-1"></i>
+                  <span class="text-xs">Claro</span>
+                </button>
+                <button onclick="changeTheme('dark')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-moon text-blue-300 mb-1"></i>
+                  <span class="text-xs">Oscuro</span>
+                </button>
+                <button onclick="changeTheme('cyberpunk')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-microchip text-pink-400 mb-1"></i>
+                  <span class="text-xs">Cyber</span>
+                </button>
+                <button onclick="changeTheme('fantasy')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-hat-wizard text-purple-400 mb-1"></i>
+                  <span class="text-xs">Fantasy</span>
+                </button>
+                <button onclick="changeTheme('hell')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-fire text-red-400 mb-1"></i>
+                  <span class="text-xs">Hell</span>
+                </button>
+                <button onclick="changeTheme('god')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-dove text-blue-300 mb-1"></i>
+                  <span class="text-xs">God</span>
+                </button>
+                <button onclick="changeTheme('nature')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-tree text-green-400 mb-1"></i>
+                  <span class="text-xs">Nature</span>
+                </button>
+                <button onclick="changeTheme('ocean')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-water text-blue-400 mb-1"></i>
+                  <span class="text-xs">Ocean</span>
+                </button>
+                <button onclick="changeTheme('pacman')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-ghost text-yellow-400 mb-1"></i>
+                  <span class="text-xs">Pac-Man</span>
+                </button>
+                <button onclick="changeTheme('pokemon')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-paw text-yellow-400 mb-1"></i>
+                  <span class="text-xs">Pokémon</span>
+                </button>
+                <button onclick="changeTheme('valorant')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-battle-net text-red-400 mb-1"></i>
+                  <span class="text-xs">Valorant</span>
+                </button>
+                <button onclick="changeTheme('supermario')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-mars text-red-400 mb-1"></i>
+                  <span class="text-xs">Mario</span>
+                </button>
+                <button onclick="changeTheme('space')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-moon text-purple-400 mb-1"></i>
+                  <span class="text-xs">Space</span>
+                </button>
+                <button onclick="changeTheme('cosmos')" class="flex flex-col items-center p-2 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 hover:text-white transition-colors">
+                  <i class="fas fa-globe text-purple-400 mb-1"></i>
+                  <span class="text-xs">Cosmos</span>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="mt-3 px-2 space-y-1">
-            <a href="/me" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Mi Perfil</a>
-            <a href="/me/settings" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Configuración</a>
-            <a href="/auth/logout" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Cerrar Sesión</a>
+        </nav>
+      </div>
+      
+      <!-- Perfil de usuario en la parte inferior -->
+      <div class="mt-auto border-t border-gray-800">
+        <% if (req.user) { %>
+          <div class="p-4">
+            <div class="flex items-center mb-3">
+              <img class="h-12 w-12 rounded-full border-2 border-gray-700" src="<%= req.user.avatar ? `https://cdn.discordapp.com/avatars/${req.user.id}/${req.user.avatar}.png` : 'https://cdn.discordapp.com/embed/avatars/0.png' %>" alt="Avatar">
+              <div class="ml-3">
+                <p class="text-sm font-medium text-white truncate"><%= req.user.username %></p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="/me" class="text-xs text-center py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors">
+                <i class="fas fa-user-circle mr-1"></i> Perfil
+              </a>
+              <a href="/auth/logout" class="text-xs text-center py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded transition-colors">
+                <i class="fas fa-sign-out-alt mr-1"></i> Salir
+              </a>
+            </div>
           </div>
         <% } else { %>
-          <div class="mt-3 px-2 space-y-1">
-            <a href="/auth/discord" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">
-              <i class="fa-brands fa-discord mr-2"></i>
-              Iniciar Sesión
+          <div class="p-4">
+            <a href="/auth/discord" class="flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors">
+              <i class="fab fa-discord mr-2"></i>
+              <span>Iniciar con Discord</span>
             </a>
           </div>
         <% } %>
       </div>
     </div>
-  </nav>
-
-  <!-- Breadcrumbs and content -->
-  <div class="flex-grow">
-    <% if (currentPath !== '/') { %>
-      <nav class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center py-3">
-            <div class="flex flex-wrap">
+  
+    <!-- Contenido principal -->
+    <div class="flex-1 ml-0 lg:ml-64 transition-all duration-300" id="main-container">
+      <!-- Contenedor de contenido con breadcrumbs integrados -->
+      <div class="min-h-screen flex flex-col">
+        <% if (currentPath !== '/') { %>
+          <div class="bg-white p-4 shadow-sm">
+            <div class="flex items-center text-sm">
+              <button id="mobileSidebarToggle" class="lg:hidden mr-3 text-gray-500 focus:outline-none">
+                <i class="fas fa-bars"></i>
+              </button>
               <a href="/" class="text-gray-500 hover:text-gray-700">Inicio</a>
               <% 
                 const pathParts = currentPath.split('/').filter(Boolean);
@@ -247,14 +227,19 @@
               <% }); %>
             </div>
           </div>
+        <% } else { %>
+          <div class="p-4 lg:hidden">
+            <button id="mobileSidebarToggle" class="text-gray-500 focus:outline-none">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        <% } %>
+  
+        <!-- Loader / Animación de carga -->
+        <div class="loader-container" id="loader">
+          <div class="loader"></div>
         </div>
-      </nav>
-    <% } %>
-
-    <!-- Loader / Animación de carga -->
-    <div class="loader-container" id="loader">
-      <div class="loader"></div>
-    </div>
-
-    <!-- Main content -->
-    <main>
+  
+        <!-- Contenido principal -->
+        <main class="flex-1">
+          <!-- El contenido de la página va aquí -->

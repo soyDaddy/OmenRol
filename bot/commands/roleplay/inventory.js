@@ -2,6 +2,10 @@ const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, Butt
 const Profile = require('../../../models/Profile');
 const Item = require('../../../models/Items');
 const Server = require('../../../models/Server');
+const activityLogger = require('../../../utils/activityLogger');
+
+// Crear un logger específico para este comando
+const logger = activityLogger.createCommandLogger('inventario');
 
 module.exports = {
   name: 'inventario',
@@ -27,6 +31,8 @@ module.exports = {
       const serverConfig = await Server.findOne({ serverId: message.guild.id });
       
       if (!serverConfig || !serverConfig.roleplay.enabled) {
+        // Registrar comando fallido
+        await logger.execute(message, args, null, false);
         return message.reply('El sistema de roleplay no está habilitado en este servidor.');
       }
       
@@ -47,6 +53,8 @@ module.exports = {
       });
       
       if (!profile) {
+        // Registrar comando fallido
+        await logger.execute(message, args, null, false);
         return message.reply(targetUser.id === message.author.id ? 
           'No tienes un perfil de roleplay. Crea uno con el comando `!perfil`.' : 
           'Este usuario no tiene un perfil de roleplay.');
@@ -54,6 +62,8 @@ module.exports = {
       
       // Si el inventario está vacío
       if (!profile.character.inventory || profile.character.inventory.length === 0) {
+        // Registrar comando exitoso pero sin inventario
+        await logger.execute(message, args, profile, true);
         return message.reply(targetUser.id === message.author.id ? 
           'Tu inventario está vacío.' : 
           'El inventario de este usuario está vacío.');
@@ -128,10 +138,17 @@ module.exports = {
         });
       }
       
+      // Registrar comando exitoso
+      await logger.execute(message, args, profile, true);
+      
       message.reply({ embeds: [embed] });
       
     } catch (error) {
       console.error('Error al mostrar inventario:', error);
+      
+      // Registrar comando fallido
+      await logger.execute(message, args, null, false);
+      
       message.reply('Ha ocurrido un error al mostrar el inventario.');
     }
   },
@@ -144,6 +161,8 @@ module.exports = {
       const serverConfig = await Server.findOne({ serverId: interaction.guild.id });
       
       if (!serverConfig || !serverConfig.roleplay.enabled) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, null, false);
         return interaction.reply({ content: 'El sistema de roleplay no está habilitado en este servidor.', ephemeral: true });
       }
       
@@ -157,6 +176,8 @@ module.exports = {
       });
       
       if (!profile) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, null, false);
         return interaction.reply({ 
           content: targetUser.id === interaction.user.id ? 
             'No tienes un perfil de roleplay. Crea uno con el comando `/perfil`.' : 
@@ -167,6 +188,8 @@ module.exports = {
       
       // Si el inventario está vacío
       if (!profile.character.inventory || profile.character.inventory.length === 0) {
+        // Registrar comando exitoso pero sin inventario
+        await logger.executeSlash(interaction, profile, true);
         return interaction.reply({
           content: targetUser.id === interaction.user.id ? 
             'Tu inventario está vacío.' : 
@@ -244,10 +267,17 @@ module.exports = {
         });
       }
       
+      // Registrar comando exitoso
+      await logger.executeSlash(interaction, profile, true);
+      
       interaction.reply({ embeds: [embed] });
       
     } catch (error) {
       console.error('Error al mostrar inventario:', error);
+      
+      // Registrar comando fallido
+      await logger.executeSlash(interaction, null, false);
+      
       interaction.reply({ content: 'Ha ocurrido un error al mostrar el inventario.', ephemeral: true });
     }
   }

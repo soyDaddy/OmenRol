@@ -1,8 +1,8 @@
+<!-- El contenido de la página va aquí -->
 </main>
-</div>
 
 <!-- Footer -->
-<footer class="bg-white shadow-inner mt-10">
+<footer class="bg-white shadow-inner mt-auto">
   <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
     <div class="flex flex-col md:flex-row justify-between items-center">
       <div class="flex items-center mb-4 md:mb-0">
@@ -18,195 +18,132 @@
     </div>
   </div>
 </footer>
+</div>
+</div>
+</div>
 
+<!-- Overlay para cerrar sidebar en móvil -->
+<div id="sidebarOverlay" class="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden z-10"></div>
+
+<!-- Scripts para el funcionamiento del sidebar -->
 <script>
-  // Toggle user menu
-  const userMenuButton = document.getElementById('userMenuButton');
-  const userMenu = document.getElementById('userMenu');
-  
-  if (userMenuButton && userMenu) {
-    userMenuButton.addEventListener('click', function() {
-      userMenu.classList.toggle('hidden');
-    });
-    
-    document.addEventListener('click', function(event) {
-      if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-        userMenu.classList.add('hidden');
-      }
-    });
-  }
-  
-  // Toggle theme menu
-  const themeMenuButton = document.getElementById('themeMenuButton');
-  const themeMenu = document.getElementById('themeMenu');
-  
-  if (themeMenuButton && themeMenu) {
-    themeMenuButton.addEventListener('click', function() {
-      themeMenu.classList.toggle('hidden');
-    });
-    
-    document.addEventListener('click', function(event) {
-      if (!themeMenuButton.contains(event.target) && !themeMenu.contains(event.target)) {
-        themeMenu.classList.add('hidden');
-      }
-    });
-  }
-  
-  // Toggle mobile menu
-  const mobileMenuButton = document.getElementById('mobileMenuButton');
-  const mobileMenu = document.getElementById('mobileMenu');
-  
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function() {
-      mobileMenu.classList.toggle('hidden');
-      
-      // Toggle the hamburger/close icon
-      const hamburgerIcon = mobileMenuButton.querySelector('.block');
-      const closeIcon = mobileMenuButton.querySelector('.hidden');
-      
-      hamburgerIcon.classList.toggle('hidden');
-      hamburgerIcon.classList.toggle('block');
-      
-      closeIcon.classList.toggle('hidden');
-      closeIcon.classList.toggle('block');
-    });
-  }
+document.addEventListener('DOMContentLoaded', function() {
+// Variables
+const sidebar = document.getElementById('sidebar');
+const mainContainer = document.getElementById('main-container');
+const sidebarToggle = document.getElementById('sidebarToggle');
+const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-  // Función para cambiar tema
-  function changeTheme(themeName) {
-    // Actualizar el link de CSS
-    const themeLink = document.getElementById('theme-css');
-    if (themeLink) {
-      themeLink.href = `/css/themes/${themeName}.css`;
-    }
-    
-    // Guardar preferencia
-    localStorage.setItem('theme', themeName);
-    
-    // Actualizar atributo data-theme
-    document.documentElement.setAttribute('data-theme', themeName);
-    
-    // Cerrar menú de temas si está abierto
-    if (themeMenu) {
-      themeMenu.classList.add('hidden');
-    }
-    
-    // Evento personalizado para notificar el cambio de tema
-    document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeName } }));
-  }
+// Función para abrir/cerrar sidebar en móvil
+function toggleMobileSidebar() {
+sidebar.classList.toggle('-translate-x-full');
+sidebarOverlay.classList.toggle('opacity-0');
+sidebarOverlay.classList.toggle('opacity-50');
+sidebarOverlay.classList.toggle('pointer-events-none');
+}
 
-  // Función para cambiar el modo (minimalista/detallado)
-  function toggleMinimalMode() {
-    const body = document.body;
-    const isMinimal = body.classList.contains('minimal-mode');
-    
-    // Obtener referencias a los iconos de modo
-    const modeIcon = document.getElementById('modeIcon');
-    const modeIconMobile = document.getElementById('modeIconMobile');
-    
-    if (isMinimal) {
-      // Cambiar a modo detallado
-      body.classList.remove('minimal-mode');
-      localStorage.setItem('mode', 'detailed');
-      
-      // Actualizar iconos
-      if (modeIcon) {
-        modeIcon.classList.remove('fa-expand');
-        modeIcon.classList.add('fa-compress');
-      }
-      
-      if (modeIconMobile) {
-        modeIconMobile.classList.remove('fa-expand');
-        modeIconMobile.classList.add('fa-compress');
-      }
-    } else {
-      // Cambiar a modo minimalista
-      body.classList.add('minimal-mode');
-      localStorage.setItem('mode', 'minimal');
-      
-      // Actualizar iconos
-      if (modeIcon) {
-        modeIcon.classList.remove('fa-compress');
-        modeIcon.classList.add('fa-expand');
-      }
-      
-      if (modeIconMobile) {
-        modeIconMobile.classList.remove('fa-compress');
-        modeIconMobile.classList.add('fa-expand');
-      }
-    }
-    
-    // Evento personalizado para notificar el cambio de modo
-    document.dispatchEvent(new CustomEvent('modeChanged', { detail: { minimal: !isMinimal } }));
-  }
+// Event listeners para toggle de sidebar
+if (sidebarToggle) {
+sidebarToggle.addEventListener('click', toggleMobileSidebar);
+}
 
-  // Detectar rendimiento del dispositivo
-  function detectPerformance() {
-    // Intentar detectar dispositivos de bajo rendimiento
-    const isLowEnd = 
-      // Dispositivos móviles (no todos, pero aumenta la probabilidad)
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-      // O navegadores antiguos
-      /MSIE|Trident|Edge\/(1[0-5])/i.test(navigator.userAgent) ||
-      // O dispositivos con poca memoria (si está disponible)
-      (navigator.deviceMemory && navigator.deviceMemory < 4);
-    
-    return isLowEnd;
-  }
+if (mobileSidebarToggle) {
+mobileSidebarToggle.addEventListener('click', toggleMobileSidebar);
+}
 
-  // Inicializar al cargar la página
-  document.addEventListener('DOMContentLoaded', function() {
-    // Cargar tema guardado (ya se hizo en el <head> pero para mantenerlo consistente)
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    // Cargar modo (minimalista/detallado)
-    const savedMode = localStorage.getItem('mode');
-    if (savedMode === 'minimal') {
-      document.body.classList.add('minimal-mode');
-      
-      // Actualizar iconos
-      const modeIcon = document.getElementById('modeIcon');
-      const modeIconMobile = document.getElementById('modeIconMobile');
-      
-      if (modeIcon) modeIcon.classList.replace('fa-compress', 'fa-expand');
-      if (modeIconMobile) modeIconMobile.classList.replace('fa-compress', 'fa-expand');
-    } else if (savedMode === 'detailed') {
-      document.body.classList.remove('minimal-mode');
-    } else {
-      // Si no hay preferencia guardada, detectar automáticamente
-      const isLowEndDevice = detectPerformance();
-      if (isLowEndDevice) {
-        document.body.classList.add('minimal-mode');
-        localStorage.setItem('mode', 'minimal');
-        
-        // Actualizar iconos
-        const modeIcon = document.getElementById('modeIcon');
-        const modeIconMobile = document.getElementById('modeIconMobile');
-        
-        if (modeIcon) modeIcon.classList.replace('fa-compress', 'fa-expand');
-        if (modeIconMobile) modeIconMobile.classList.replace('fa-compress', 'fa-expand');
-      }
-    }
-    
-    // Agregar eventos a botones de modo
-    const modeToggle = document.getElementById('modeToggle');
-    const modeToggleMobile = document.getElementById('modeToggleMobile');
-    
-    if (modeToggle) {
-      modeToggle.addEventListener('click', toggleMinimalMode);
-    }
-    
-    if (modeToggleMobile) {
-      modeToggleMobile.addEventListener('click', toggleMinimalMode);
-    }
-    
-    // Ocultar el loader
-    const loader = document.getElementById('loader');
-    if (loader) {
-      loader.style.display = 'none';
-    }
-  });
+// Cerrar sidebar al hacer clic en overlay
+if (sidebarOverlay) {
+sidebarOverlay.addEventListener('click', toggleMobileSidebar);
+}
+
+// Gestión del dropdown de temas
+const themeDropdownButton = document.getElementById('themeDropdownButton');
+const themeDropdown = document.getElementById('themeDropdown');
+const themeChevron = document.getElementById('themeChevron');
+
+if (themeDropdownButton && themeDropdown && themeChevron) {
+themeDropdownButton.addEventListener('click', function(e) {
+e.stopPropagation();
+themeDropdown.classList.toggle('hidden');
+themeChevron.classList.toggle('transform');
+themeChevron.classList.toggle('rotate-180');
+});
+
+// Cerrar dropdown al hacer clic fuera
+document.addEventListener('click', function(e) {
+if (!themeDropdownButton.contains(e.target) && !themeDropdown.contains(e.target)) {
+  themeDropdown.classList.add('hidden');
+  themeChevron.classList.remove('rotate-180');
+}
+});
+}
+
+// Comportamiento responsive: ocultar sidebar en móvil por defecto
+function setupResponsiveLayout() {
+if (window.innerWidth < 1024) { // lg breakpoint
+sidebar.classList.add('-translate-x-full');
+mainContainer.classList.remove('ml-64');
+mainContainer.classList.add('ml-0');
+} else {
+sidebar.classList.remove('-translate-x-full');
+mainContainer.classList.add('ml-64');
+mainContainer.classList.remove('ml-0');
+}
+}
+
+// Configurar layout al cargar
+setupResponsiveLayout();
+
+// Actualizar en resize
+window.addEventListener('resize', setupResponsiveLayout);
+});
+
+// Función para cambiar de tema
+function changeTheme(theme) {
+const themeLink = document.getElementById('theme-css');
+if (themeLink) {
+themeLink.href = `/css/themes/${theme}.css`;
+}
+
+document.documentElement.setAttribute('data-theme', theme);
+localStorage.setItem('theme', theme);
+
+// Evento personalizado para notificar el cambio de tema
+document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: theme } }));
+}
+
+// Inicializar al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+// Cargar tema guardado (ya se hizo en el <head> pero para mantenerlo consistente)
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+
+// Ocultar el loader
+const loader = document.getElementById('loader');
+if (loader) {
+loader.style.display = 'none';
+}
+});
 </script>
+
+<!-- Estilos adicionales para el sidebar -->
+<style>
+@media (max-width: 1023px) {
+.sidebar {
+transform: translateX(-100%);
+transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.-translate-x-full {
+transform: translateX(-100%);
+}
+
+.sidebar:not(.-translate-x-full) {
+transform: translateX(0);
+}
+}
+</style>
+
 </body>
 </html>

@@ -1,100 +1,120 @@
-<!-- missionProgress.ejs - Vista para progreso de misiones -->
-
 <div class="p-6 bg-white rounded-lg shadow-md">
-    <h3 class="text-xl font-semibold mb-4">
-      Misión: <%= mission.title %>
-      <span class="ml-2 text-sm px-2 py-1 rounded 
-        <%= mission.difficulty === 'easy' ? 'bg-green-100 text-green-800' : 
-           mission.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
-           mission.difficulty === 'hard' ? 'bg-orange-100 text-orange-800' : 
-           'bg-red-100 text-red-800' %>">
-        <%= mission.difficulty.charAt(0).toUpperCase() + mission.difficulty.slice(1) %>
-      </span>
-    </h3>
+  <h3 class="text-xl font-semibold mb-4">
+    Misión: <%= mission.title %>
+    <span class="ml-2 text-sm px-2 py-1 rounded 
+      <%= mission.difficulty === 'easy' ? 'bg-green-100 text-green-800' : 
+         mission.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+         mission.difficulty === 'hard' ? 'bg-orange-100 text-orange-800' : 
+         'bg-red-100 text-red-800' %>">
+      <%= mission.difficulty.charAt(0).toUpperCase() + mission.difficulty.slice(1) %>
+    </span>
+  </h3>
+  
+  <div class="mb-6">
+    <p class="text-gray-700"><%= mission.description %></p>
+  </div>
+  
+  <!-- Barra de progreso general -->
+  <div class="w-full h-2 bg-gray-200 rounded overflow-hidden">
+    <div class="h-full bg-indigo-500" style="width: <%= activeMission.generalProgress %>%"></div>
+  </div>
+  
+  <p class="text-sm text-gray-500 mt-1">Progreso total: <%= Math.floor(activeMission.generalProgress) %>%</p>
+  
+  <!-- Etapas -->
+  <div class="mt-6 space-y-4">
+    <h4 class="font-medium text-gray-900">Etapas de la misión:</h4>
     
-    <div class="mb-6">
-      <p class="text-gray-700"><%= mission.description %></p>
-    </div>
-    
-    <!-- Barra de progreso general -->
-    <div class="w-full h-2 bg-gray-200 rounded overflow-hidden">
-      <div class="h-full bg-indigo-500" style="width: <%= activeMission.progress %>%"></div>
-    </div>
-    
-    <p class="text-sm text-gray-500 mt-1">Progreso total: <%= Math.floor(activeMission.progress) %>%</p>
-    
-    <!-- Etapas -->
-    <div class="mt-6 space-y-4">
-      <h4 class="font-medium text-gray-900">Etapas de la misión:</h4>
-      
-      <% mission.stages.forEach((stage, index) => { %>
-        <div class="p-4 border rounded-lg <%= index === activeMission.currentStage ? 'border-indigo-500 bg-indigo-50' : (index < activeMission.currentStage ? 'border-green-500 bg-green-50' : 'border-gray-200') %>">
-          <div class="flex justify-between items-center">
-            <h5 class="font-medium">
-              <%= index + 1 %>. <%= stage.name %>
-              <% if (index < activeMission.currentStage) { %>
-                <span class="ml-2 text-green-500"><i class="fas fa-check-circle"></i></span>
-              <% } %>
-            </h5>
-            
-            <% if (index === activeMission.currentStage) { %>
-              <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-sm rounded">Actual</span>
-            <% } else if (index > activeMission.currentStage) { %>
-              <span class="px-2 py-1 bg-gray-100 text-gray-800 text-sm rounded">Pendiente</span>
+    <% mission.stages.forEach((stage, index) => { %>
+      <div class="p-4 border rounded-lg <%= index === activeMission.currentStage ? 'border-indigo-500 bg-indigo-50' : (index < activeMission.currentStage ? 'border-green-500 bg-green-50' : 'border-gray-200') %>">
+        <div class="flex justify-between items-center">
+          <h5 class="font-medium">
+            <%= index + 1 %>. <%= stage.name %>
+            <% if (index < activeMission.currentStage) { %>
+              <span class="ml-2 text-green-500"><i class="fas fa-check-circle"></i></span>
             <% } %>
-          </div>
-          
-          <p class="text-gray-700 mt-2"><%= stage.description %></p>
+          </h5>
           
           <% if (index === activeMission.currentStage) { %>
-            <div class="mt-4">
-              <% if (stage.taskType === 'combat') { %>
-                <div class="bg-red-50 border border-red-200 rounded-md p-3">
-                  <h6 class="text-red-800 font-medium"><i class="fas fa-sword mr-1"></i> Desafío de Combate</h6>
-                  <p class="text-red-700 mt-1">Enemigo: <%= stage.challengeData.enemyType %> (Nivel <%= stage.challengeData.enemyLevel %>)</p>
-                  <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/combat" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none">
-                    <i class="fas fa-swords mr-2"></i>
-                    Iniciar Combate
-                  </a>
-                </div>
-              <% } else if (stage.taskType === 'puzzle') { %>
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
-                  <h6 class="text-blue-800 font-medium"><i class="fas fa-puzzle-piece mr-1"></i> Desafío de Puzzle</h6>
-                  <p class="text-blue-700 mt-1">Tipo: <%= stage.challengeData.puzzleType.charAt(0).toUpperCase() + stage.challengeData.puzzleType.slice(1) %></p>
-                  <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/puzzle" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
-                    <i class="fas fa-brain mr-2"></i>
-                    Resolver Puzzle
-                  </a>
-                </div>
-              <% } else if (stage.taskType === 'minigame') { %>
-                <div class="bg-purple-50 border border-purple-200 rounded-md p-3">
-                  <h6 class="text-purple-800 font-medium"><i class="fas fa-gamepad mr-1"></i> Minijuego</h6>
-                  <p class="text-purple-700 mt-1">Tipo: <%= stage.challengeData.gameType.charAt(0).toUpperCase() + stage.challengeData.gameType.slice(1) %></p>
-                  <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/minigame" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none">
-                    <i class="fas fa-dice mr-2"></i>
-                    Jugar Minijuego
-                  </a>
-                </div>
-              <% } else { %>
-                <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/advance" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
-                  <i class="fas fa-check mr-2"></i>
-                  Marcar como Completado
-                </a>
-              <% } %>
-            </div>
+            <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-sm rounded">Actual</span>
+          <% } else if (index > activeMission.currentStage) { %>
+            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-sm rounded">Pendiente</span>
           <% } %>
         </div>
-      <% }); %>
-    </div>
-    
-    <% if (activeMission.completed) { %>
-      <div class="mt-6 bg-green-50 border border-green-200 rounded-md p-4">
-        <h5 class="text-green-800 font-medium">¡Misión Completada!</h5>
-        <p class="text-green-700 mt-1">Has completado todas las etapas de esta misión. Reclama tus recompensas:</p>
-        <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/complete" class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none">
-          <i class="fas fa-trophy mr-2"></i>
-          Reclamar Recompensas
-        </a>
+        
+        <p class="text-gray-700 mt-2"><%= stage.description %></p>
+        
+        <% if (index === activeMission.currentStage) { %>
+          <div class="mt-4">
+            <% if (stage.taskType === 'combat') { %>
+              <div class="bg-red-50 border border-red-200 rounded-md p-3">
+                <h6 class="text-red-800 font-medium"><i class="fas fa-sword mr-1"></i> Desafío de Combate</h6>
+                <p class="text-red-700 mt-1">Enemigo: <%= stage.challengeData.enemyType %> (Nivel <%= stage.challengeData.enemyLevel %>)</p>
+                <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/combat" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none">
+                  <i class="fas fa-swords mr-2"></i>
+                  Iniciar Combate
+                </a>
+              </div>
+            <% } else if (stage.taskType === 'puzzle') { %>
+              <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
+                <h6 class="text-blue-800 font-medium"><i class="fas fa-puzzle-piece mr-1"></i> Desafío de Puzzle</h6>
+                <p class="text-blue-700 mt-1">Tipo: <%= stage.challengeData.puzzleType.charAt(0).toUpperCase() + stage.challengeData.puzzleType.slice(1) %></p>
+                <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/puzzle" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
+                  <i class="fas fa-brain mr-2"></i>
+                  Resolver Puzzle
+                </a>
+              </div>
+            <% } else if (stage.taskType === 'minigame') { %>
+              <div class="bg-purple-50 border border-purple-200 rounded-md p-3">
+                <h6 class="text-purple-800 font-medium"><i class="fas fa-gamepad mr-1"></i> Minijuego</h6>
+                <p class="text-purple-700 mt-1">Tipo: <%= stage.challengeData.gameType.charAt(0).toUpperCase() + stage.challengeData.gameType.slice(1) %></p>
+                <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/minigame" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none">
+                  <i class="fas fa-dice mr-2"></i>
+                  Jugar Minijuego
+                </a>
+              </div>
+            <% } else if (stage.taskType === 'dialogue') { %>
+              <div class="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                <h6 class="text-yellow-800 font-medium"><i class="fas fa-comments mr-1"></i> Diálogo</h6>
+                <p class="text-yellow-700 mt-1">Habla con <%= stage.challengeData?.npcName || 'el personaje' %></p>
+                <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/dialogue" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none">
+                  <i class="fas fa-comment mr-2"></i>
+                  Iniciar Conversación
+                </a>
+              </div>
+            <% } else if (stage.taskType === 'collection') { %>
+              <div class="bg-green-50 border border-green-200 rounded-md p-3">
+                <h6 class="text-green-800 font-medium"><i class="fas fa-box mr-1"></i> Colección</h6>
+                <p class="text-green-700 mt-1">Recolecta: <%= stage.challengeData.itemName %> (x<%= stage.challengeData.quantity %>)</p>
+                <form method="POST" action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/collection/verify">
+                  <button type="submit" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none">
+                    <i class="fas fa-check mr-2"></i>
+                    Verificar Objetos
+                  </button>
+                </form>
+              </div>
+            <% } else { %>
+              <form method="POST" action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/custom/complete">
+                <button type="submit" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                  <i class="fas fa-check mr-2"></i>
+                  Marcar como Completado
+                </button>
+              </form>
+            <% } %>
+          </div>
+        <% } %>
       </div>
-    <% } %>
+    <% }); %>
   </div>
+  
+  <% if (activeMission.completed) { %>
+    <div class="mt-6 bg-green-50 border border-green-200 rounded-md p-4">
+      <h5 class="text-green-800 font-medium">¡Misión Completada!</h5>
+      <p class="text-green-700 mt-1">Has completado todas las etapas de esta misión. Reclama tus recompensas:</p>
+      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/complete" class="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none">
+        <i class="fas fa-trophy mr-2"></i>
+        Reclamar Recompensas
+      </a>
+    </div>
+  <% } %>
+</div>

@@ -2,6 +2,10 @@ const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, Butt
 const Profile = require('../../../models/Profile');
 const Item = require('../../../models/Items');
 const Server = require('../../../models/Server');
+const activityLogger = require('../../../utils/activityLogger');
+
+// Crear un logger específico para este comando
+const logger = activityLogger.createCommandLogger('usar');
 
 module.exports = {
   name: 'usar',
@@ -24,6 +28,8 @@ module.exports = {
     
     try {
       if (!args[0]) {
+        // Registrar comando fallido
+        await logger.execute(message, args, null, false);
         return message.reply('Debes especificar el nombre o ID del item que quieres usar.');
       }
       
@@ -31,6 +37,8 @@ module.exports = {
       const serverConfig = await Server.findOne({ serverId: message.guild.id });
       
       if (!serverConfig || !serverConfig.roleplay.enabled) {
+        // Registrar comando fallido
+        await logger.execute(message, args, null, false);
         return message.reply('El sistema de roleplay no está habilitado en este servidor.');
       }
       
@@ -41,6 +49,8 @@ module.exports = {
       });
       
       if (!profile) {
+        // Registrar comando fallido
+        await logger.execute(message, args, null, false);
         return message.reply('No tienes un perfil de roleplay. Crea uno con el comando `!perfil`.');
       }
       
@@ -77,6 +87,8 @@ module.exports = {
       
       // Si no se encuentra el item
       if (inventoryItemIndex === -1) {
+        // Registrar comando fallido
+        await logger.execute(message, [...args, 'item_not_found'], profile, false);
         return message.reply('No tienes ese item en tu inventario.');
       }
       
@@ -87,16 +99,22 @@ module.exports = {
       const itemInfo = await Item.findById(inventoryItem.itemId);
       
       if (!itemInfo) {
+        // Registrar comando fallido
+        await logger.execute(message, [...args, 'item_info_not_found'], profile, false);
         return message.reply('Error al obtener información del item.');
       }
       
       // Verificar si el item es usable
       if (itemInfo.type !== 'usable' && !itemInfo.consumable) {
+        // Registrar comando fallido
+        await logger.execute(message, [...args, 'item_not_usable'], profile, false);
         return message.reply('Este item no se puede usar. Solo los items consumibles o usables pueden ser utilizados.');
       }
       
       // Verificar si el item tiene usos restantes
       if (inventoryItem.uses !== null && inventoryItem.uses <= 0) {
+        // Registrar comando fallido
+        await logger.execute(message, [...args, 'item_no_uses_left'], profile, false);
         return message.reply('Este item ya no tiene usos restantes.');
       }
       
@@ -191,6 +209,15 @@ module.exports = {
       // Guardar cambios en el perfil
       await profile.save();
       
+      // Registrar el uso del item
+      await logger.useItem(message.author, message.guild, itemInfo, profile, {
+        quantity: 1,
+        effect: effectsDescription.replace(/•\s*/g, '').replace(/\n/g, ', ')
+      });
+      
+      // Registrar comando exitoso
+      await logger.execute(message, [...args, 'success'], profile, true);
+      
       // Crear mensaje de respuesta
       const embed = new EmbedBuilder()
         .setColor(0x2ecc71)
@@ -207,6 +234,10 @@ module.exports = {
       
     } catch (error) {
       console.error('Error al usar item:', error);
+      
+      // Registrar comando fallido
+      await logger.execute(message, [...args, 'error'], null, false);
+      
       message.reply('Ha ocurrido un error al usar el item.');
     }
   },
@@ -225,6 +256,8 @@ module.exports = {
       const serverConfig = await Server.findOne({ serverId: interaction.guild.id });
       
       if (!serverConfig || !serverConfig.roleplay.enabled) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, null, false);
         return interaction.reply({ content: 'El sistema de roleplay no está habilitado en este servidor.', ephemeral: true });
       }
       
@@ -235,6 +268,8 @@ module.exports = {
       });
       
       if (!profile) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, null, false);
         return interaction.reply({ 
           content: 'No tienes un perfil de roleplay. Crea uno con el comando `/perfil`.',
           ephemeral: true
@@ -271,6 +306,8 @@ module.exports = {
       
       // Si no se encuentra el item
       if (inventoryItemIndex === -1) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, profile, false);
         return interaction.reply({ content: 'No tienes ese item en tu inventario.', ephemeral: true });
       }
       
@@ -281,11 +318,15 @@ module.exports = {
       const itemInfo = await Item.findById(inventoryItem.itemId);
       
       if (!itemInfo) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, profile, false);
         return interaction.reply({ content: 'Error al obtener información del item.', ephemeral: true });
       }
       
       // Verificar si el item es usable
       if (itemInfo.type !== 'usable' && !itemInfo.consumable) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, profile, false);
         return interaction.reply({ 
           content: 'Este item no se puede usar. Solo los items consumibles o usables pueden ser utilizados.',
           ephemeral: true
@@ -294,6 +335,8 @@ module.exports = {
       
       // Verificar si el item tiene usos restantes
       if (inventoryItem.uses !== null && inventoryItem.uses <= 0) {
+        // Registrar comando fallido
+        await logger.executeSlash(interaction, profile, false);
         return interaction.reply({ content: 'Este item ya no tiene usos restantes.', ephemeral: true });
       }
       
@@ -388,6 +431,15 @@ module.exports = {
       // Guardar cambios en el perfil
       await profile.save();
       
+      // Registrar el uso del item
+      await logger.useItem(interaction.user, interaction.guild, itemInfo, profile, {
+        quantity: 1,
+        effect: effectsDescription.replace(/•\s*/g, '').replace(/\n/g, ', ')
+      });
+      
+      // Registrar comando exitoso
+      await logger.executeSlash(interaction, profile, true);
+      
       // Crear mensaje de respuesta
       const embed = new EmbedBuilder()
         .setColor(0x2ecc71)
@@ -404,6 +456,10 @@ module.exports = {
       
     } catch (error) {
       console.error('Error al usar item:', error);
+      
+      // Registrar comando fallido
+      await logger.executeSlash(interaction, null, false);
+      
       interaction.reply({ content: 'Ha ocurrido un error al usar el item.', ephemeral: true });
     }
   }

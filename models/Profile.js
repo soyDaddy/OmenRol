@@ -75,7 +75,7 @@ const ProfileSchema = new mongoose.Schema({
     
     // Inventario (actualizado)
     inventory: [{
-      itemId: { type: String, required: true },
+      itemId: { type: String },
       quantity: { type: Number, default: 1, min: 1 },
       equipped: { type: Boolean, default: false },
       uses: { type: Number, default: null }, // Para ítems con usos limitados
@@ -110,6 +110,7 @@ const ProfileSchema = new mongoose.Schema({
       expiresAt: { type: Date, default: null },
       currentStage: { type: Number, default: 0 },
       progress: { type: Number, default: 0 }, // Progreso en la etapa actual (0-100%)
+      generalProgress : { type: Number, default: 0 }, // Progreso general de la mision (0-100%)
       completed: { type: Boolean, default: false }
     }],
     

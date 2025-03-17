@@ -8,7 +8,7 @@
       <p class="mt-2 text-sm text-gray-500"><%= mission.title %></p>
     </div>
     <div class="mt-4 md:mt-0 flex gap-2">
-      <a href="/servers/<%= guild.id %>/missions/active" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <a href="/servers/<%= guild.id %>/my-missions" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         <i class="fas fa-arrow-left mr-2"></i>Volver a misiones
       </a>
     </div>
@@ -182,7 +182,7 @@
       </div>
       
       <div class="flex justify-center">
-        <a href="/servers/<%= guild.id %>/missions/active" class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href="/servers/<%= guild.id %>/my-missions" class="inline-flex justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           Volver a Misiones
         </a>
       </div>
@@ -280,7 +280,7 @@
           rewardsClaimedModal.classList.remove('hidden');
         } else {
           // Mostrar error
-          alert('Error al reclamar recompensas: ' + data.error);
+          alert('Error al reclamar recompensas: ' + (data.error || 'Error desconocido'));
           claimRewardsBtn.disabled = false;
           claimRewardsBtn.innerHTML = '<i class="fas fa-trophy mr-2"></i>Reclamar Recompensas';
         }

@@ -1,0 +1,509 @@
+/**
+ * TEMA POKÉMON - OMENROL
+ * Estética inspirada en el universo Pokémon con colores y elementos característicos
+ */
+
+/* Colores base */
+body {
+    background-color: #F2F2F2 !important;
+    color: #333333 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' stroke='%23EAEAEA' stroke-width='2' fill='none' /%3E%3Ccircle cx='50' cy='50' r='10' stroke='%23EAEAEA' stroke-width='2' fill='none' /%3E%3Cline x1='50' y1='10' x2='50' y2='90' stroke='%23EAEAEA' stroke-width='2' /%3E%3Cline x1='10' y1='50' x2='90' y2='50' stroke='%23EAEAEA' stroke-width='2' /%3E%3C/svg%3E") !important;
+    background-attachment: fixed !important;
+  }
+  
+  /* Navbar */
+  .bg-gray-800 {
+    background-color: #EE1515 !important; /* Rojo Pokéball */
+    border-bottom: 3px solid #222224 !important;
+    box-shadow: 0 4px 12px rgba(238, 21, 21, 0.3) !important;
+    background-image: linear-gradient(to right, #EE1515, #CC0000, #EE1515) !important;
+  }
+  
+  .bg-gray-900 {
+    background-color: #222224 !important; /* Negro Pokéball */
+  }
+  
+  nav a.text-gray-300 {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+  }
+  
+  nav a.hover\:bg-gray-700:hover {
+    background-color: #3B4CCA !important; /* Azul Pokémon */
+    color: #FFFFFF !important;
+  }
+  
+  .text-gray-400 {
+    color: #FFDE00 !important; /* Amarillo Pokémon */
+  }
+  
+  .hover\:text-white:hover {
+    color: #FFDE00 !important;
+    text-shadow: 0 0 5px #B3A125, 0 0 10px rgba(179, 161, 37, 0.5) !important;
+  }
+  
+  /* Breadcrumb */
+  .bg-white.shadow-sm {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 1px solid #DEDEDE !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .text-gray-500 {
+    color: #3B4CCA !important; /* Azul Pokémon */
+  }
+  
+  .text-gray-700, .hover\:text-gray-700:hover {
+    color: #222224 !important;
+  }
+  
+  .text-gray-900 {
+    color: #222224 !important;
+  }
+  
+  /* Tarjetas y contenedores */
+  .bg-white {
+    background-color: #FFFFFF !important;
+    border: 2px solid #DEDEDE !important;
+    border-radius: 15px !important; /* Más redondeado, como Pokédex */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .bg-white::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF0000 0%, #FF0000 49%, #FFFFFF 49%, #FFFFFF 60%, #222224 60%, #222224 100%);
+    transform: scale(0.4);
+    opacity: 0.2;
+    margin: 10px;
+  }
+  
+  .bg-white:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .bg-white:hover::after {
+    opacity: 0.5;
+  }
+  
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #DEDEDE !important;
+  }
+  
+  .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Botones */
+  .bg-indigo-600 {
+    background-color: #3B4CCA !important; /* Azul Pokémon */
+    border: none !important;
+    border-radius: 50px !important; /* Más redondeado */
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  
+  .bg-indigo-600::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s;
+    z-index: -1;
+  }
+  
+  .bg-indigo-600:hover::before {
+    left: 100%;
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: #2A3AA9 !important;
+  }
+  
+  .from-indigo-600 {
+    background-image: linear-gradient(to right, #3B4CCA, #2A3AA9) !important;
+  }
+  
+  .to-indigo-800 {
+    background-image: linear-gradient(to left, #3B4CCA, #2A3AA9) !important;
+  }
+  
+  .bg-gray-700 {
+    background-color: #3B4CCA !important;
+  }
+  
+  .hover\:bg-gray-600:hover {
+    background-color: #2A3AA9 !important;
+  }
+  
+  /* Menús desplegables */
+  #themeMenu, #userMenu {
+    background-color: #FFFFFF !important;
+    border: 2px solid #DEDEDE !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 15px !important;
+    overflow: hidden;
+  }
+  
+  #themeMenu button, #userMenu a {
+    color: #333333 !important;
+    transition: all 0.2s ease !important;
+  }
+  
+  #themeMenu button:hover, #userMenu a:hover {
+    background-color: #F0F0F0 !important;
+    color: #EE1515 !important;
+    padding-left: 1.5rem !important;
+  }
+  
+  /* Corregir visualización de menús desplegables */
+  #themeMenu.hidden, #userMenu.hidden {
+    display: none !important;
+  }
+  
+  /* Tablas */
+  .bg-gray-50 {
+    background-color: #F8F8F8 !important;
+  }
+  
+  .divide-gray-200 > * + * {
+    border-color: #DEDEDE !important;
+  }
+  
+  tbody.bg-white {
+    background-color: #FFFFFF !important;
+  }
+  
+  tbody tr:hover {
+    background-color: rgba(59, 76, 202, 0.05) !important;
+  }
+  
+  /* Formularios */
+  input, select, textarea {
+    background-color: #FFFFFF !important;
+    border: 2px solid #DEDEDE !important;
+    color: #333333 !important;
+    border-radius: 50px !important; /* Más redondeado, estilo Pokémon */
+    padding-left: 1.25rem !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: #3B4CCA !important;
+    box-shadow: 0 0 0 3px rgba(59, 76, 202, 0.2) !important;
+  }
+  
+  /* Loader */
+  .loader-container {
+    background-color: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(8px) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .loader-container::after {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FF0000 0%, #FF0000 49%, #FFFFFF 49%, #FFFFFF 60%, #222224 60%, #222224 100%);
+    animation: rotate 2s linear infinite;
+  }
+  
+  @keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Asegurar que el loader se oculte correctamente */
+  .loader-container.hidden {
+    display: none !important;
+  }
+
+  .loader-container[style*="display: none"] {
+    display: none !important;
+}
+  
+  .loader {
+    border-top-color: #EE1515 !important;
+    box-shadow: 0 0 15px rgba(238, 21, 21, 0.5) !important;
+  }
+  
+  /* Footer */
+  footer.bg-white {
+    background-color: #FFDE00 !important; /* Amarillo Pokémon */
+    border-top: 3px solid #B3A125 !important;
+    color: #222224 !important;
+  }
+  
+  footer .text-gray-900 {
+    color: #222224 !important;
+  }
+  
+  footer a {
+    color: #EE1515 !important;
+    font-weight: 600 !important;
+  }
+  
+  footer a:hover {
+    color: #3B4CCA !important;
+  }
+  
+  /* Tabs y navegación */
+  .border-indigo-500 {
+    border-color: #3B4CCA !important;
+  }
+  
+  .bg-indigo-50 {
+    background-color: rgba(59, 76, 202, 0.1) !important;
+  }
+  
+  .text-indigo-700 {
+    color: #3B4CCA !important;
+  }
+  
+  /* Alerts y notificaciones */
+  .bg-green-50 {
+    background-color: rgba(47, 167, 68, 0.1) !important;
+  }
+  
+  .bg-red-50 {
+    background-color: rgba(238, 21, 21, 0.1) !important;
+  }
+  
+  .text-green-700 {
+    color: #2FA744 !important;
+  }
+  
+  .text-red-700 {
+    color: #EE1515 !important;
+  }
+  
+  /* Badges y elementos decorativos */
+  .bg-indigo-100 {
+    background-color: rgba(59, 76, 202, 0.2) !important;
+  }
+  
+  .text-indigo-800 {
+    color: #2A3AA9 !important;
+  }
+  
+  .bg-red-100 {
+    background-color: rgba(238, 21, 21, 0.2) !important;
+  }
+  
+  .text-red-800 {
+    color: #CC0000 !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: rgba(255, 222, 0, 0.2) !important;
+  }
+  
+  .text-yellow-800 {
+    color: #B3A125 !important;
+  }
+  
+  .bg-green-100 {
+    background-color: rgba(47, 167, 68, 0.2) !important;
+  }
+  
+  .text-green-800 {
+    color: #2FA744 !important;
+  }
+  
+  .bg-blue-100 {
+    background-color: rgba(59, 76, 202, 0.2) !important;
+  }
+  
+  .text-blue-800 {
+    color: #2A3AA9 !important;
+  }
+  
+  /* Enlaces y botones */
+  .text-indigo-600 {
+    color: #3B4CCA !important;
+    font-weight: 600 !important;
+    position: relative;
+  }
+  
+  .text-indigo-600::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #3B4CCA;
+    transition: width 0.3s ease;
+  }
+  
+  .text-indigo-600:hover::after {
+    width: 100%;
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: #2A3AA9 !important;
+  }
+  
+  /* Efectos adicionales */
+  a, button {
+    transition: all 0.3s ease !important;
+  }
+  
+  .ring-black {
+    --tw-ring-opacity: 0 !important;
+  }
+  
+  .focus\:ring-indigo-500:focus {
+    --tw-ring-color: rgba(59, 76, 202, var(--tw-ring-opacity)) !important;
+  }
+  
+  .focus\:border-indigo-500:focus {
+    border-color: #3B4CCA !important;
+  }
+  
+  /* Personalización de scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #F2F2F2;
+    border-radius: 50px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #DEDEDE;
+    border-radius: 50px;
+    border: 2px solid #F2F2F2;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3B4CCA;
+  }
+  
+  /* Estilos para la página de comandos */
+  .bg-indigo-600.text-white {
+    background-color: #3B4CCA !important;
+  }
+  
+  /* Botones de categoría */
+  .rounded-full {
+    transition: all 0.3s ease !important;
+  }
+  
+  .rounded-full:hover {
+    transform: scale(1.05) !important;
+  }
+  
+  .bg-indigo-500.text-white.hover\:bg-indigo-600 {
+    background-color: #3B4CCA !important;
+  }
+  
+  .bg-indigo-500.text-white.hover\:bg-indigo-600:hover {
+    background-color: #2A3AA9 !important;
+  }
+  
+  /* Íconos de categoría */
+  .text-indigo-500 {
+    color: #3B4CCA !important;
+  }
+  
+  /* Estilos para las tablas de comandos */
+  th {
+    background-color: #F8F8F8 !important;
+    border-bottom: 2px solid #DEDEDE !important;
+  }
+  
+  /* Estilos para el avatar del usuario */
+  .user-menu-btn img {
+    border: 2px solid #FFFFFF !important;
+    box-shadow: 0 0 0 2px #EE1515 !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .user-menu-btn:hover img {
+    transform: scale(1.1) !important;
+  }
+  
+  /* Animación para el logotipo */
+  .logo, img[src*="logo"] {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+  }
+  
+  /* Estilos para las estadísticas en la página de inicio */
+  .stats-container .bg-white {
+    border: none !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(248,248,248,0.9) 100%) !important;
+    backdrop-filter: blur(10px) !important;
+  }
+  
+  /* Efectos para los elementos de tipo badge */
+  .px-2.inline-flex.text-xs {
+    transform: scale(1);
+    transition: transform 0.2s ease;
+  }
+  
+  .px-2.inline-flex.text-xs:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Botones especiales con estilo Pokémon */
+  .pokemon-button {
+    position: relative;
+    background: linear-gradient(135deg, #FF0000 0%, #FF0000 49%, #FFFFFF 49%, #FFFFFF 60%, #222224 60%, #222224 100%);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  
+  /* Efectos para tipos de Pokémon */
+  .type-normal { background-color: #A8A878 !important; }
+  .type-fire { background-color: #F08030 !important; }
+  .type-water { background-color: #6890F0 !important; }
+  .type-electric { background-color: #F8D030 !important; }
+  .type-grass { background-color: #78C850 !important; }
+  .type-ice { background-color: #98D8D8 !important; }
+  .type-fighting { background-color: #C03028 !important; }
+  .type-poison { background-color: #A040A0 !important; }
+  .type-ground { background-color: #E0C068 !important; }
+  .type-flying { background-color: #A890F0 !important; }
+  .type-psychic { background-color: #F85888 !important; }
+  .type-bug { background-color: #A8B820 !important; }
+  .type-rock { background-color: #B8A038 !important; }
+  .type-ghost { background-color: #705898 !important; }
+  .type-dragon { background-color: #7038F8 !important; }
+  .type-dark { background-color: #705848 !important; }
+  .type-steel { background-color: #B8B8D0 !important; }
+  .type-fairy { background-color: #EE99AC !important; }

@@ -26,7 +26,7 @@
     <div class="border-t border-gray-200 p-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Jugador -->
-        <div class="border rounded-lg p-4 bg-blue-50">
+        <div class="border rounded-lg p-4 bg-indigo-50">
           <div class="flex items-center mb-4">
             <% if (profile.character.avatar) { %>
               <img src="<%= profile.character.avatar %>" alt="<%= profile.character.name %>" class="h-12 w-12 rounded-full">
@@ -48,7 +48,7 @@
               <span class="text-sm text-blue-700" id="player-health-text"><%= profile.character.health.current %>/<%= profile.character.health.max %></span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2.5">
-              <div class="bg-blue-600 h-2.5 rounded-full" id="player-health-bar" style="width: <%= (profile.character.health.current / profile.character.health.max * 100) %>%"></div>
+              <div class="bg-indigo-600 h-2.5 rounded-full" id="player-health-bar" style="width: <%= (profile.character.health.current / profile.character.health.max * 100) %>%"></div>
             </div>
           </div>
           
@@ -76,7 +76,11 @@
         <div class="border rounded-lg p-4 bg-red-50">
           <div class="flex items-center mb-4">
             <div class="h-12 w-12 rounded-full bg-red-200 flex items-center justify-center">
-              <span class="text-red-600 font-bold">E</span>
+              <% if (currentStage.challengeData?.enemyAvatar) { %>
+                <img src="<%= currentStage.challengeData?.enemyAvatar %>" alt="<%= currentStage.challengeData?.enemyType || 'Enemigo' %>" class="h-12 w-12 rounded-full">
+              <% } else { %>
+                <span class="text-red-600 font-bold"><%= currentStage.challengeData?.enemyType ? currentStage.challengeData?.enemyType.charAt(0) : 'E' %></span>
+              <% } %>
             </div>
             <div class="ml-4">
               <h4 class="text-lg font-medium text-red-800"><%= currentStage.challengeData?.enemyType || 'Enemigo' %></h4>
@@ -112,7 +116,7 @@
         
         <!-- Habilidades -->
         <% if (profile.character.skills && profile.character.skills.length > 0) { %>
-          <button id="skills-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button id="skills-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <i class="fas fa-sparkles mr-2"></i>
             Usar habilidad
           </button>
@@ -230,295 +234,442 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Datos del jugador y enemigo
-    const player = {
-      health: {
-        current: <%= profile.character.health.current %>,
-        max: <%= profile.character.health.max %>
-      },
-      stats: {
-        strength: <%= profile.character.stats.strength || 10 %>,
-        defense: <%= profile.character.stats.defense || 5 %>,
-        intelligence: <%= profile.character.stats.intelligence || 10 %>,
-        dexterity: <%= profile.character.stats.dexterity || 10 %>
-      }
-    };
+  // Referencias a elementos clave
+  const resultModal = document.getElementById('result-modal');
+  const successView = document.getElementById('success-view');
+  const failureView = document.getElementById('failure-view');
+  
+  // Datos del jugador y enemigo
+  const player = {
+    health: {
+      current: <%= profile.character.health.current %>,
+      max: <%= profile.character.health.max %>
+    },
+    stats: {
+      strength: <%= profile.character.stats.strength || 10 %>,
+      defense: <%= profile.character.stats.defense || 5 %>,
+      intelligence: <%= profile.character.stats.intelligence || 10 %>,
+      dexterity: <%= profile.character.stats.dexterity || 10 %>
+    }
+  };
+  
+  const enemy = {
+    health: {
+      current: <%= currentStage?.challengeData?.enemyHealth || 100 %>,
+      max: <%= currentStage?.challengeData?.enemyHealth || 100 %>
+    },
+    level: <%= currentStage?.challengeData?.enemyLevel || profile.character.level %>,
+    type: '<%= currentStage?.challengeData?.enemyType || "Enemigo" %>'
+  };
+  
+  // Variables para seguimiento del combate
+  let combatStats = {
+    damageDone: 0,
+    damageReceived: 0,
+    criticalHits: 0,
+    roundsCompleted: 0,
+    result: null,
+    enemyType: enemy.type
+  };
+  
+  // Elementos DOM
+  const combatLog = document.getElementById('combat-log');
+  const playerHealthBar = document.getElementById('player-health-bar');
+  const playerHealthText = document.getElementById('player-health-text');
+  const enemyHealthBar = document.getElementById('enemy-health-bar');
+  const enemyHealthText = document.getElementById('enemy-health-text');
+  
+  // Botones
+  const attackBtn = document.getElementById('attack-btn');
+  const skillsBtn = document.getElementById('skills-btn');
+  const itemsBtn = document.getElementById('items-btn');
+  const fleeBtn = document.getElementById('flee-btn');
+  
+  // Modales
+  const skillsModal = document.getElementById('skills-modal');
+  const itemsModal = document.getElementById('items-modal');
+  const victoryModal = document.getElementById('victory-modal');
+  const defeatModal = document.getElementById('defeat-modal');
+  
+  // Botones de cierre de modales
+  const closeSkillsModal = document.getElementById('close-skills-modal');
+  const closeItemsModal = document.getElementById('close-items-modal');
+  
+  // Función para agregar mensaje al log de combate
+  function addLogMessage(message, type = 'normal') {
+    const p = document.createElement('p');
+    p.textContent = message;
     
-    const enemy = {
-      health: {
-        current: <%= currentStage?.challengeData?.enemyHealth || 100 %>,
-        max: <%= currentStage?.challengeData?.enemyHealth || 100 %>
-      },
-      level: <%= currentStage?.challengeData?.enemyLevel || profile.character.level %>,
-      type: '<%= currentStage?.challengeData?.enemyType || "Enemigo" %>'
-    };
-    
-    // Elementos DOM
-    const combatLog = document.getElementById('combat-log');
-    const playerHealthBar = document.getElementById('player-health-bar');
-    const playerHealthText = document.getElementById('player-health-text');
-    const enemyHealthBar = document.getElementById('enemy-health-bar');
-    const enemyHealthText = document.getElementById('enemy-health-text');
-    
-    // Botones
-    const attackBtn = document.getElementById('attack-btn');
-    const skillsBtn = document.getElementById('skills-btn');
-    const itemsBtn = document.getElementById('items-btn');
-    const fleeBtn = document.getElementById('flee-btn');
-    
-    // Modales
-    const skillsModal = document.getElementById('skills-modal');
-    const itemsModal = document.getElementById('items-modal');
-    const victoryModal = document.getElementById('victory-modal');
-    const defeatModal = document.getElementById('defeat-modal');
-    
-    // Botones de cierre de modales
-    const closeSkillsModal = document.getElementById('close-skills-modal');
-    const closeItemsModal = document.getElementById('close-items-modal');
-    
-    // Función para agregar mensaje al log de combate
-    function addLogMessage(message, type = 'normal') {
-      const p = document.createElement('p');
-      p.textContent = message;
-      
-      switch (type) {
-        case 'player-attack':
-          p.className = 'text-blue-700';
-          break;
-        case 'enemy-attack':
-          p.className = 'text-red-700';
-          break;
-        case 'critical':
-          p.className = 'text-purple-700 font-medium';
-          break;
-        case 'heal':
-          p.className = 'text-green-700';
-          break;
-        case 'system':
-          p.className = 'text-gray-500 italic';
-          break;
-        default:
-          p.className = 'text-gray-600';
-      }
-      
-      combatLog.appendChild(p);
-      combatLog.scrollTop = combatLog.scrollHeight;
+    switch (type) {
+      case 'player-attack':
+        p.className = 'text-blue-700';
+        break;
+      case 'enemy-attack':
+        p.className = 'text-red-700';
+        break;
+      case 'critical':
+        p.className = 'text-purple-700 font-medium';
+        break;
+      case 'heal':
+        p.className = 'text-green-700';
+        break;
+      case 'system':
+        p.className = 'text-gray-500 italic';
+        break;
+      default:
+        p.className = 'text-gray-600';
     }
     
-    // Función para actualizar barras de salud
-    function updateHealthBars() {
-      const playerHealthPercent = (player.health.current / player.health.max) * 100;
-      const enemyHealthPercent = (enemy.health.current / enemy.health.max) * 100;
+    combatLog.appendChild(p);
+    combatLog.scrollTop = combatLog.scrollHeight;
+  }
+  
+  // Función para actualizar barras de salud
+  function updateHealthBars() {
+    const playerHealthPercent = (player.health.current / player.health.max) * 100;
+    const enemyHealthPercent = (enemy.health.current / enemy.health.max) * 100;
+    
+    playerHealthBar.style.width = `${Math.max(0, playerHealthPercent)}%`;
+    playerHealthText.textContent = `${Math.max(0, player.health.current)}/${player.health.max}`;
+    
+    enemyHealthBar.style.width = `${Math.max(0, enemyHealthPercent)}%`;
+    enemyHealthText.textContent = `${Math.max(0, enemy.health.current)}/${enemy.health.max}`;
+  }
+  
+  // Función para calcular daño
+  function calculateDamage(attackStat, defenseStat) {
+    const baseDamage = attackStat * 2;
+    const damageReduction = defenseStat * 0.5;
+    const finalDamage = Math.max(1, Math.floor(baseDamage - damageReduction));
+    
+    // Añadir variación aleatoria (±20%)
+    const variation = (Math.random() * 0.4) - 0.2; // Entre -0.2 y 0.2
+    return Math.max(1, Math.floor(finalDamage * (1 + variation)));
+  }
+  
+  // Función para ataque del enemigo
+  function enemyAttack() {
+    // Calcular daño del enemigo
+    const enemyAttackPower = enemy.level * 2;
+    const damage = calculateDamage(enemyAttackPower, player.stats.defense);
+    
+    // Aplicar daño al jugador
+    player.health.current = Math.max(0, player.health.current - damage);
+    combatStats.damageReceived += damage;
+    
+    // Actualizar UI
+    updateHealthBars();
+    
+    // Mostrar mensaje
+    addLogMessage(`${enemy.type} te ataca y causa ${damage} puntos de daño.`, 'enemy-attack');
+    
+    // Verificar si el jugador ha sido derrotado
+    if (player.health.current <= 0) {
+      // Mostrar mensaje de derrota
+      addLogMessage(`¡Has sido derrotado por ${enemy.type}!`, 'system');
       
-      playerHealthBar.style.width = `${Math.max(0, playerHealthPercent)}%`;
-      playerHealthText.textContent = `${Math.max(0, player.health.current)}/${player.health.max}`;
+      // Actualizar resultado del combate
+      combatStats.result = 'loss';
       
-      enemyHealthBar.style.width = `${Math.max(0, enemyHealthPercent)}%`;
-      enemyHealthText.textContent = `${Math.max(0, enemy.health.current)}/${enemy.health.max}`;
+      // Deshabilitar botones
+      attackBtn.disabled = true;
+      if (skillsBtn) skillsBtn.disabled = true;
+      if (itemsBtn) itemsBtn.disabled = true;
+      fleeBtn.disabled = true;
+      
+      // Mostrar modal de derrota después de un breve retraso
+      setTimeout(() => {
+        defeatModal.classList.remove('hidden');
+      }, 1000);
+      
+      // Enviar estadísticas de combate al servidor
+      sendCombatStats();
+    }
+  }
+  
+  // Función para ataque del jugador
+  function playerAttack() {
+    // Calcular daño del jugador
+    const damage = calculateDamage(player.stats.strength, enemy.level);
+    
+    // Verificar crítico (10% de probabilidad)
+    const isCritical = Math.random() < 0.1;
+    const finalDamage = isCritical ? Math.floor(damage * 1.5) : damage;
+    
+    // Registrar crítico si ocurrió
+    if (isCritical) {
+      combatStats.criticalHits++;
     }
     
-    // Función para calcular daño
-    function calculateDamage(attackStat, defenseStat) {
-      const baseDamage = attackStat * 2;
-      const damageReduction = defenseStat * 0.5;
-      const finalDamage = Math.max(1, Math.floor(baseDamage - damageReduction));
-      
-      // Añadir variación aleatoria (±20%)
-      const variation = (Math.random() * 0.4) - 0.2; // Entre -0.2 y 0.2
-      return Math.max(1, Math.floor(finalDamage * (1 + variation)));
+    // Aplicar daño al enemigo
+    enemy.health.current = Math.max(0, enemy.health.current - finalDamage);
+    combatStats.damageDone += finalDamage;
+    
+    // Actualizar UI
+    updateHealthBars();
+    
+    // Mostrar mensaje
+    if (isCritical) {
+      addLogMessage(`¡Golpe crítico! Atacas y causas ${finalDamage} puntos de daño.`, 'critical');
+    } else {
+      addLogMessage(`Atacas y causas ${finalDamage} puntos de daño.`, 'player-attack');
     }
     
-    // Función para ataque del enemigo
-    function enemyAttack() {
-      // Calcular daño del enemigo
-      const enemyAttackPower = enemy.level * 2;
-      const damage = calculateDamage(enemyAttackPower, player.stats.defense);
+    // Verificar si el enemigo ha sido derrotado
+    if (enemy.health.current <= 0) {
+      // Mostrar mensaje de victoria
+      addLogMessage(`¡Has derrotado a ${enemy.type}!`, 'system');
       
-      // Aplicar daño al jugador
-      player.health.current = Math.max(0, player.health.current - damage);
+      // Actualizar resultado del combate
+      combatStats.result = 'win';
+      combatStats.roundsCompleted++;
       
-      // Actualizar UI
-      updateHealthBars();
+      // Deshabilitar botones
+      attackBtn.disabled = true;
+      if (skillsBtn) skillsBtn.disabled = true;
+      if (itemsBtn) itemsBtn.disabled = true;
+      fleeBtn.disabled = true;
       
-      // Mostrar mensaje
-      addLogMessage(`${enemy.type} te ataca y causa ${damage} puntos de daño.`, 'enemy-attack');
+      // Enviar estadísticas de combate al servidor
+      sendCombatStats();
       
-      // Verificar si el jugador ha sido derrotado
-      if (player.health.current <= 0) {
-        // Mostrar mensaje de derrota
-        addLogMessage(`¡Has sido derrotado por ${enemy.type}!`, 'system');
-        
-        // Deshabilitar botones
-        attackBtn.disabled = true;
-        if (skillsBtn) skillsBtn.disabled = true;
-        if (itemsBtn) itemsBtn.disabled = true;
-        fleeBtn.disabled = true;
-        
-        // Mostrar modal de derrota después de un breve retraso
-        setTimeout(() => {
-          defeatModal.classList.remove('hidden');
-        }, 1000);
-      }
+      // Mostrar modal de victoria después de un breve retraso
+      setTimeout(() => {
+        victoryModal.classList.remove('hidden');
+      }, 1000);
+      
+      return true;
     }
     
-    // Función para ataque del jugador
-    function playerAttack() {
-      // Calcular daño del jugador
-      const damage = calculateDamage(player.stats.strength, enemy.level);
-      
-      // Verificar crítico (10% de probabilidad)
-      const isCritical = Math.random() < 0.1;
-      const finalDamage = isCritical ? Math.floor(damage * 1.5) : damage;
-      
-      // Aplicar daño al enemigo
-      enemy.health.current = Math.max(0, enemy.health.current - finalDamage);
-      
-      // Actualizar UI
-      updateHealthBars();
-      
-      // Mostrar mensaje
-      if (isCritical) {
-        addLogMessage(`¡Golpe crítico! Atacas y causas ${finalDamage} puntos de daño.`, 'critical');
-      } else {
-        addLogMessage(`Atacas y causas ${finalDamage} puntos de daño.`, 'player-attack');
-      }
-      
-      // Verificar si el enemigo ha sido derrotado
-      if (enemy.health.current <= 0) {
-        // Mostrar mensaje de victoria
-        addLogMessage(`¡Has derrotado a ${enemy.type}!`, 'system');
-        
-        // Deshabilitar botones
-        attackBtn.disabled = true;
-        if (skillsBtn) skillsBtn.disabled = true;
-        if (itemsBtn) itemsBtn.disabled = true;
-        fleeBtn.disabled = true;
-        
-        // Mostrar modal de victoria después de un breve retraso
-        setTimeout(() => {
-          victoryModal.classList.remove('hidden');
-        }, 1000);
-        
-        return true;
-      }
-      
-      // Si el enemigo sigue vivo, contraataca
-      setTimeout(enemyAttack, 1000);
-      
-      return false;
-    }
+    // Si el enemigo sigue vivo, contraataca
+    combatStats.roundsCompleted++;
+    setTimeout(enemyAttack, 1000);
     
-    // Event Listeners
-    attackBtn.addEventListener('click', function() {
-      playerAttack();
-    });
-    
-    fleeBtn.addEventListener('click', function() {
-      // 50% de probabilidad de escapar con éxito
-      const escapeSuccess = Math.random() < 0.5;
+    return false;
+  }
+  
+  // Función para enviar estadísticas de combate al servidor
+  async function sendCombatStats() {
+    try {
+      // Preparar datos para enviar
+      const combatData = {
+        result: combatStats.result,
+        damageDone: combatStats.damageDone,
+        damageReceived: combatStats.damageReceived,
+        criticalHits: combatStats.criticalHits,
+        rounds: combatStats.roundsCompleted,
+        enemyType: combatStats.enemyType,
+        rewards: {
+          experience: <%= currentStage?.challengeData?.rewards?.experience || 0 %>,
+          currency: <%= currentStage?.challengeData?.rewards?.currency || 0 %>
+        }
+      };
       
-      if (escapeSuccess) {
-        addLogMessage('¡Has escapado con éxito!', 'system');
-        
-        // Deshabilitar botones
-        attackBtn.disabled = true;
-        if (skillsBtn) skillsBtn.disabled = true;
-        if (itemsBtn) itemsBtn.disabled = true;
-        fleeBtn.disabled = true;
-        
-        // Redireccionar después de un breve retraso
-        setTimeout(() => {
-          window.location.href = `/servers/<%= guild.id %>/missions/<%= mission._id %>/progress`;
-        }, 1500);
-      } else {
-        addLogMessage('¡Intento de escape fallido!', 'system');
-        // El enemigo ataca como penalización
-        enemyAttack();
-      }
-    });
-    
-    // Modales de habilidades e items
-    if (skillsBtn) {
-      skillsBtn.addEventListener('click', function() {
-        skillsModal.classList.remove('hidden');
-      });
-      
-      closeSkillsModal.addEventListener('click', function() {
-        skillsModal.classList.add('hidden');
-      });
-      
-      // Event listeners para botones de habilidades
-      document.querySelectorAll('.skill-btn').forEach(button => {
-        button.addEventListener('click', function() {
-          const skillId = this.dataset.skillId;
-          // Aquí implementarías la lógica de usar la habilidad
-          // Por ahora, simplemente cerramos el modal y aplicamos un efecto genérico
-          skillsModal.classList.add('hidden');
-          
-          // Ejemplo de efecto de habilidad (aumentar daño)
-          const damage = calculateDamage(player.stats.intelligence * 1.5, enemy.level);
-          enemy.health.current = Math.max(0, enemy.health.current - damage);
-          updateHealthBars();
-          
-          addLogMessage(`¡Usas una habilidad mágica y causas ${damage} puntos de daño!`, 'critical');
-          
-          // Verificar si el enemigo ha sido derrotado
-          if (enemy.health.current <= 0) {
-            addLogMessage(`¡Has derrotado a ${enemy.type}!`, 'system');
-            setTimeout(() => {
-              victoryModal.classList.remove('hidden');
-            }, 1000);
-          } else {
-            // Si el enemigo sigue vivo, contraataca
-            setTimeout(enemyAttack, 1000);
-          }
+      // Solo enviar si hay un resultado (victoria o derrota)
+      if (combatStats.result) {
+        const response = await fetch('/servers/<%= guild.id %>/character/combat-stats', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(combatData)
         });
-      });
-    }
-    
-    if (itemsBtn) {
-      itemsBtn.addEventListener('click', function() {
-        itemsModal.classList.remove('hidden');
-      });
-      
-      closeItemsModal.addEventListener('click', function() {
-        itemsModal.classList.add('hidden');
-      });
-      
-      // Event listeners para botones de items
-      document.querySelectorAll('.item-btn').forEach(button => {
-        button.addEventListener('click', function() {
-          const itemId = this.dataset.itemId;
-          // Aquí implementarías la lógica de usar el item
-          // Por ahora, simplemente cerramos el modal y aplicamos un efecto genérico
-          itemsModal.classList.add('hidden');
-          
-          // Ejemplo de efecto de item (poción de salud)
-          const healAmount = Math.floor(player.health.max * 0.3);
-          player.health.current = Math.min(player.health.max, player.health.current + healAmount);
-          updateHealthBars();
-          
-          addLogMessage(`¡Usas una poción y recuperas ${healAmount} puntos de salud!`, 'heal');
-          
-          // El enemigo ataca después de usar un item
-          setTimeout(enemyAttack, 1000);
-        });
-      });
-    }
-    
-    // Al hacer clic fuera de los modales, cerrarlos
-    window.addEventListener('click', function(event) {
-      if (event.target === skillsModal) {
-        skillsModal.classList.add('hidden');
+        
+        const data = await response.json();
+        console.log('Estadísticas de combate enviadas:', data);
       }
-      if (event.target === itemsModal) {
-        itemsModal.classList.add('hidden');
-      }
-    });
-    
-    // Mensaje inicial
-    addLogMessage(`¡Te enfrentas a ${enemy.type} nivel ${enemy.level}!`, 'system');
+    } catch (error) {
+      console.error('Error al enviar estadísticas de combate:', error);
+    }
+  }
+  
+  // Event Listeners
+  attackBtn.addEventListener('click', function() {
+    playerAttack();
   });
+  
+  fleeBtn.addEventListener('click', function() {
+    // 50% de probabilidad de escapar con éxito
+    const escapeSuccess = Math.random() < 0.5;
+    
+    if (escapeSuccess) {
+      addLogMessage('¡Has escapado con éxito!', 'system');
+      combatStats.result = 'flee';
+      
+      // Deshabilitar botones
+      attackBtn.disabled = true;
+      if (skillsBtn) skillsBtn.disabled = true;
+      if (itemsBtn) itemsBtn.disabled = true;
+      fleeBtn.disabled = true;
+      
+      // Enviar estadísticas de combate al servidor
+      sendCombatStats();
+      
+      // Redireccionar después de un breve retraso
+      setTimeout(() => {
+        window.location.href = `/servers/<%= guild.id %>/missions/<%= mission._id %>/progress`;
+      }, 1500);
+    } else {
+      addLogMessage('¡Intento de escape fallido!', 'system');
+      // El enemigo ataca como penalización
+      enemyAttack();
+    }
+  });
+  
+  // Modales de habilidades e items
+  if (skillsBtn) {
+    skillsBtn.addEventListener('click', function() {
+      skillsModal.classList.remove('hidden');
+    });
+    
+    closeSkillsModal.addEventListener('click', function() {
+      skillsModal.classList.add('hidden');
+    });
+    
+    // Event listeners para botones de habilidades
+    document.querySelectorAll('.skill-btn').forEach(button => {
+      button.addEventListener('click', async function() {
+        const skillId = this.dataset.skillId;
+        skillsModal.classList.add('hidden');
+        
+        try {
+          // Llamar al servidor para usar la habilidad
+          const response = await fetch(`/servers/<%= guild.id %>/skills/use/${skillId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ targetId: 'enemy' })
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Aplicar efectos de la habilidad
+            if (result.effects.damage > 0) {
+              // Aplicar daño al enemigo
+              enemy.health.current = Math.max(0, enemy.health.current - result.effects.damage);
+              combatStats.damageDone += result.effects.damage;
+              updateHealthBars();
+              
+              addLogMessage(`¡Usas ${result.skill.name} y causas ${result.effects.damage} puntos de daño!`, 'critical');
+              
+              // Verificar si el enemigo ha sido derrotado
+              if (enemy.health.current <= 0) {
+                addLogMessage(`¡Has derrotado a ${enemy.type}!`, 'system');
+                combatStats.result = 'win';
+                
+                // Enviar estadísticas de combate al servidor
+                sendCombatStats();
+                
+                setTimeout(() => {
+                  victoryModal.classList.remove('hidden');
+                }, 1000);
+              } else {
+                // Si el enemigo sigue vivo, contraataca
+                setTimeout(enemyAttack, 1000);
+              }
+            }
+            
+            // Aplicar curación si la habilidad lo tiene
+            if (result.effects.healing > 0) {
+              player.health.current = Math.min(player.health.max, player.health.current + result.effects.healing);
+              updateHealthBars();
+              
+              addLogMessage(`¡Te curas ${result.effects.healing} puntos de salud!`, 'heal');
+              
+              // El enemigo ataca después
+              setTimeout(enemyAttack, 1000);
+            }
+            
+            // Actualizar las estadísticas del jugador si cambiaron
+            if (result.character) {
+              player.health.current = result.character.health.current;
+              player.health.max = result.character.health.max;
+              updateHealthBars();
+            }
+          } else {
+            // Mostrar error
+            addLogMessage(`Error al usar habilidad: ${result.error}`, 'system');
+          }
+        } catch (error) {
+          console.error('Error al usar habilidad:', error);
+          addLogMessage('Error al usar habilidad', 'system');
+        }
+      });
+    });
+  }
+  
+  if (itemsBtn) {
+    itemsBtn.addEventListener('click', function() {
+      itemsModal.classList.remove('hidden');
+    });
+    
+    closeItemsModal.addEventListener('click', function() {
+      itemsModal.classList.add('hidden');
+    });
+    
+    // Event listeners para botones de items
+    document.querySelectorAll('.item-btn').forEach(button => {
+      button.addEventListener('click', async function() {
+        const itemId = this.dataset.itemId;
+        itemsModal.classList.add('hidden');
+        
+        try {
+          // Llamar al servidor para usar el item
+          const response = await fetch(`/servers/<%= guild.id %>/inventory/use/${itemId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Aplicar efectos del item
+            if (result.effects.healthRestored > 0) {
+              // Aplicar curación
+              player.health.current = Math.min(player.health.max, player.health.current + result.effects.healthRestored);
+              updateHealthBars();
+              
+              addLogMessage(`¡Usas ${result.item.name} y recuperas ${result.effects.healthRestored} puntos de salud!`, 'heal');
+            }
+            
+            // Actualizar las estadísticas del jugador si cambiaron
+            if (result.character) {
+              player.health.current = result.character.health.current;
+              player.health.max = result.character.health.max;
+              updateHealthBars();
+            }
+            
+            // El enemigo ataca después de usar un item
+            setTimeout(enemyAttack, 1000);
+          } else {
+            // Mostrar error
+            addLogMessage(`Error al usar item: ${result.error}`, 'system');
+          }
+        } catch (error) {
+          console.error('Error al usar item:', error);
+          addLogMessage('Error al usar item', 'system');
+        }
+      });
+    });
+  }
+  
+  // Al hacer clic fuera de los modales, cerrarlos
+  window.addEventListener('click', function(event) {
+    if (event.target === skillsModal) {
+      skillsModal.classList.add('hidden');
+    }
+    if (event.target === itemsModal) {
+      itemsModal.classList.add('hidden');
+    }
+  });
+  
+  // Mensaje inicial
+  addLogMessage(`¡Te enfrentas a ${enemy.type} nivel ${enemy.level}!`, 'system');
+});
 </script>
 
 <%- include('../partials/footer') %>

@@ -78,6 +78,13 @@ router.get('/commands', (req, res) => {
   });
 });
 
+router.get('/guide', (req,res) => {
+  res.render('guide', {
+    title: 'Guia de Uso',
+    req
+  })
+})
+
 // Página de invitación
 router.get('/invite', (req, res) => {
   res.render('invite', {

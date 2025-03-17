@@ -28,7 +28,7 @@
       <% if (puzzleData && puzzleData.puzzleType) { %>
         <% if (puzzleData.puzzleType === 'riddle') { %>
           <!-- Acertijo simple -->
-          <div class="bg-blue-50 p-6 rounded-lg mb-6">
+          <div class="bg-indigo-50 p-6 rounded-lg mb-6">
             <h4 class="text-lg font-medium text-blue-900 mb-2">El acertijo:</h4>
             <p class="text-blue-800"><%= puzzleData.puzzleContent.question %></p>
             
@@ -37,7 +37,7 @@
                 <span class="text-sm text-blue-700">Tiempo restante:</span>
                 <span id="timer" class="text-lg font-medium text-blue-700"><%= puzzleData.timeLimit %>s</span>
               </div>
-              <div class="w-full bg-blue-200 rounded-full h-2 mt-1">
+              <div class="w-full bg-indigo-200 rounded-full h-2 mt-1">
                 <div id="timer-bar" class="bg-blue-600 h-2 rounded-full" style="width: 100%"></div>
               </div>
             <% } %>
@@ -272,21 +272,21 @@
           if (side === 'left') {
             // Deseleccionar el anterior si existe
             if (selectedLeft) {
-              selectedLeft.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+              selectedLeft.classList.remove('bg-indigo-100', 'border-blue-500', 'border-2');
             }
             
             // Seleccionar el nuevo
             selectedLeft = this;
-            this.classList.add('bg-blue-100', 'border-blue-500', 'border-2');
+            this.classList.add('bg-indigo-100', 'border-blue-500', 'border-2');
           } else if (side === 'right') {
             // Deseleccionar el anterior si existe
             if (selectedRight) {
-              selectedRight.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+              selectedRight.classList.remove('bg-indigo-100', 'border-blue-500', 'border-2');
             }
             
             // Seleccionar el nuevo
             selectedRight = this;
-            this.classList.add('bg-blue-100', 'border-blue-500', 'border-2');
+            this.classList.add('bg-indigo-100', 'border-blue-500', 'border-2');
           }
           
           // Si hay ambos seleccionados, hacer el match
@@ -300,9 +300,9 @@
             });
             
             // Marcar como emparejados
-            selectedLeft.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+            selectedLeft.classList.remove('bg-indigo-100', 'border-blue-500', 'border-2');
             selectedLeft.classList.add('bg-green-100', 'border-green-500', 'border-2');
-            selectedRight.classList.remove('bg-blue-100', 'border-blue-500', 'border-2');
+            selectedRight.classList.remove('bg-indigo-100', 'border-blue-500', 'border-2');
             selectedRight.classList.add('bg-green-100', 'border-green-500', 'border-2');
             
             // Desactivar los elementos emparejados

@@ -1,0 +1,848 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Diálogo: <%= currentStage.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Misión: <%= mission.title %></p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/progress" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver a la misión
+      </a>
+    </div>
+  </div>
+  
+  <!-- Área de diálogo - Estilo narrativo -->
+  <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="px-4 py-5 sm:px-6 bg-gray-800 text-white">
+      <h3 class="text-lg leading-6 font-medium" id="dialogue-location"><%= currentStage.challengeData?.locationName || 'Ubicación desconocida' %></h3>
+      <p class="mt-1 text-sm text-gray-300" id="dialogue-description">
+        <%= currentStage.challengeData?.locationDescription || 'Una conversación está a punto de comenzar...' %>
+      </p>
+    </div>
+    
+    <div class="border-t border-gray-200 p-6">
+      <% const dialogueData = currentStage.challengeData;
+      if (dialogueData) { %>
+        <!-- Estado de carga inicial -->
+        <div id="loading-indicator" class="text-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto"></div>
+          <p class="mt-2 text-gray-600">Cargando diálogo...</p>
+        </div>
+        
+        <!-- Visualización estilo historia/narrativa -->
+        <div class="prose prose-lg max-w-none hidden" id="dialogue-container">
+          <!-- Contenedor de la historia -->
+          <div id="narrative-container" class="space-y-6 pb-8">
+            <!-- La narrativa se generará dinámicamente con JavaScript -->
+          </div>
+          
+          <!-- Opciones de respuesta del jugador -->
+          <div id="player-options" class="mt-8 space-y-3">
+            <!-- Las opciones se generarán dinámicamente -->
+          </div>
+          
+          <!-- Controles de diálogo -->
+          <div id="dialogue-controls" class="mt-6 pt-4 border-t border-gray-200 hidden">
+            <button id="restart-dialogue" class="text-sm text-gray-500 hover:text-indigo-600 transition">
+              <i class="fas fa-redo-alt mr-1"></i> Reiniciar conversación
+            </button>
+          </div>
+        </div>
+
+      <% } else { %>
+        <div class="bg-yellow-50 p-4 rounded-lg">
+          <p class="text-yellow-700">Este diálogo no tiene datos configurados correctamente.</p>
+          <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/progress" class="inline-flex items-center mt-3 px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a la misión
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  
+  <!-- Panel de ayuda colapsable -->
+  <div class="mt-6">
+    <button id="toggle-help" class="flex items-center text-sm text-gray-600 hover:text-indigo-600 transition focus:outline-none">
+      <i class="fas fa-question-circle mr-2"></i>
+      <span>Mostrar ayuda para el diálogo</span>
+      <i class="fas fa-chevron-down ml-2 transition-transform"></i>
+    </button>
+    <div id="help-panel" class="hidden mt-3 p-4 bg-blue-50 rounded-lg border border-blue-200 text-sm">
+      <h4 class="font-medium text-blue-800 mb-2">Cómo funciona el diálogo interactivo</h4>
+      <ul class="list-disc pl-5 space-y-2">
+        <li>Lee la narrativa y los diálogos de los personajes.</li>
+        <li>Selecciona una de las opciones de respuesta disponibles para tu personaje.</li>
+        <li>Tus elecciones pueden influir en el desarrollo de la conversación y sus resultados.</li>
+        <li>Al finalizar el diálogo, recibirás indicaciones sobre cómo proceder en la misión.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de resultado -->
+<div id="result-modal" class="fixed inset-0 bg-gray-500 bg-opacity-75 hidden flex items-center justify-center z-10">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-xl">
+    <div class="flex items-center mb-4">
+      <div class="bg-green-100 p-2 rounded-full">
+        <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 ml-3">Conversación completada</h3>
+    </div>
+    
+    <p class="mb-4 text-gray-700" id="dialogue-outcome-message">Has completado esta conversación.</p>
+    
+    <div id="dialogue-rewards" class="mb-6 bg-gray-50 rounded-lg p-4 hidden border border-gray-200">
+      <h4 class="font-medium text-gray-900 mb-2">Resultados:</h4>
+      <ul class="list-disc pl-5 space-y-1" id="rewards-list">
+        <!-- Resultados de la conversación -->
+      </ul>
+    </div>
+    
+    <div class="flex justify-end">
+      <form action="/servers/<%= guild.id %>/missions/<%= mission._id %>/challenge/dialogue/complete" method="POST">
+        <input type="hidden" name="success" value="true">
+        <input type="hidden" id="dialogue-outcome" name="outcome" value="">
+        <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+          Continuar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Elementos DOM
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const dialogueContainer = document.getElementById('dialogue-container');
+    const narrativeContainer = document.getElementById('narrative-container');
+    const playerOptions = document.getElementById('player-options');
+    const dialogueControls = document.getElementById('dialogue-controls');
+    const restartDialogueBtn = document.getElementById('restart-dialogue');
+    const resultModal = document.getElementById('result-modal');
+    const dialogueOutcomeEl = document.getElementById('dialogue-outcome');
+    const dialogueOutcomeMessageEl = document.getElementById('dialogue-outcome-message');
+    const dialogueRewardsEl = document.getElementById('dialogue-rewards');
+    const rewardsListEl = document.getElementById('rewards-list');
+    const toggleHelpBtn = document.getElementById('toggle-help');
+    const helpPanel = document.getElementById('help-panel');
+    
+    // Función para extraer información de ubicación del diálogo si existe
+    function extractLocation(scriptText) {
+      if (!scriptText) return null;
+      
+      // Buscar la primera sección que comienza con 🔹 (marcador de ubicación)
+      const locationMatch = scriptText.match(/🔹([^\n]+)/);
+      if (locationMatch && locationMatch[1]) {
+        return locationMatch[1].trim();
+      }
+      
+      // Alternativamente, buscar la primera sección que comienza con 📜 (narrador)
+      const narratorMatch = scriptText.match(/📜([^\n]+)/);
+      if (narratorMatch && narratorMatch[1]) {
+        return narratorMatch[1].trim();
+      }
+      
+      return null;
+    }
+    
+    // Datos del diálogo
+    const dialogueData = {
+      npcName: "<%= dialogueData?.npcName %>",
+      script: `<%= dialogueData?.script?.replace(/\n/g, "\\n").replace(/"/g, '\\"') %>`,
+      result: "<%= dialogueData?.result %>"
+    };
+    
+    // Actualizar título de ubicación si está disponible
+    const locationTitle = extractLocation(dialogueData.script);
+    if (locationTitle) {
+      const locationElement = document.getElementById('dialogue-location');
+      if (locationElement) {
+        locationElement.textContent = locationTitle;
+      }
+    }
+    
+    // Toggle para panel de ayuda
+    toggleHelpBtn.addEventListener('click', function() {
+      helpPanel.classList.toggle('hidden');
+      const chevron = this.querySelector('.fa-chevron-down');
+      if (chevron) {
+        chevron.classList.toggle('transform');
+        chevron.classList.toggle('rotate-180');
+      }
+      
+      // Actualizar texto del botón
+      const spanText = this.querySelector('span');
+      if (spanText) {
+        spanText.textContent = helpPanel.classList.contains('hidden') 
+          ? 'Mostrar ayuda para el diálogo' 
+          : 'Ocultar ayuda para el diálogo';
+      }
+    });
+    
+    // Preprocesar y analizar el script narrativo
+    // Función para procesar dinámicamente los scripts narrativos
+    function processNarrativeScript(scriptText) {
+      // Verificar que tenemos un script para procesar
+      if (!scriptText || typeof scriptText !== 'string') {
+        console.error("El script es vacío o no es una cadena de texto");
+        return createDefaultDialogueTree();
+      }
+
+      // Normalizar saltos de línea
+      scriptText = scriptText.replace(/\r\n/g, '\n');
+      
+      // Resultado final: árbol de diálogo
+      const dialogueTree = {};
+      
+      // Iniciar siempre con un nodo start
+      let currentNodeId = 'start';
+      let currentSpeaker = 'Narrador';
+      let currentText = '';
+      let nodeCounter = 0;
+      
+      // Identificar secciones usando los emojis como delimitadores
+      const sections = scriptText.split(/(?=🔹|📜|🧙‍♂️|👤|🗣|❌)/);
+      
+      // Nodo inicial para introducción (usualmente narración)
+      let introFound = false;
+      
+      // Analizar cada sección
+      for (let i = 0; i < sections.length; i++) {
+        const section = sections[i].trim();
+        if (!section) continue;
+        
+        // Determinar tipo de sección basado en el emoji
+        if (section.startsWith('🔹')) {
+          // Escena/Título: puede ser un marcador de escena que se usa como narración
+          const sceneContent = section.replace('🔹', '').substring(1).trim();
+          const sceneTitle = sceneContent.split('\n')[0].trim();
+          const sceneDescription = sceneContent.substring(sceneTitle.length).trim();
+          
+          // Extraer texto real (sin las instrucciones entre paréntesis)
+          const sceneText = sceneDescription.replace(/\(.*?\)/g, '').trim();
+          
+          if (!introFound) {
+            // Primera escena es la introducción
+            dialogueTree['start'] = {
+              text: sceneText || sceneTitle,
+              narrator: true,
+              options: [{
+                text: "Continuar...",
+                next: "node_" + (++nodeCounter)
+              }]
+            };
+            currentNodeId = "node_" + nodeCounter;
+            introFound = true;
+          } else {
+            // Escena subsiguiente
+            dialogueTree[currentNodeId] = {
+              text: sceneText || sceneTitle,
+              narrator: true,
+              options: [{
+                text: "Continuar...",
+                next: "node_" + (++nodeCounter)
+              }]
+            };
+            currentNodeId = "node_" + nodeCounter;
+          }
+        } 
+        else if (section.startsWith('📜')) {
+          // Narrador: texto del narrador/master
+          const narratorContent = section.replace('📜 ', '').substring(1).trim();
+          const narratorTitle = narratorContent.split('\n')[0].trim();
+          let narratorText = narratorContent.substring(narratorTitle.length).trim();
+          
+          // Extraer el texto entre comillas si existe
+          const quoteMatch = narratorText.match(/"([^"]*)"/);
+          if (quoteMatch) {
+            narratorText = quoteMatch[1].trim();
+          }
+          
+          if (!introFound) {
+            // Primera narración es la introducción
+            dialogueTree['start'] = {
+              text: narratorText || narratorTitle,
+              narrator: true,
+              options: [{
+                text: "Continuar...",
+                next: "node_" + (++nodeCounter)
+              }]
+            };
+            currentNodeId = "node_" + nodeCounter;
+            introFound = true;
+          } else {
+            dialogueTree[currentNodeId] = {
+              text: narratorText || narratorTitle,
+              narrator: true,
+              options: [{
+                text: "Continuar...",
+                next: "node_" + (++nodeCounter)
+              }]
+            };
+            currentNodeId = "node_" + nodeCounter;
+          }
+        } 
+        else if (section.startsWith('🧙‍♂️') || section.startsWith('👤')) {
+          // Personaje hablando
+          let fullSection = section;
+          const colonIndex = fullSection.indexOf(':');
+          if (colonIndex === -1) continue; // Saltear si no tiene formato correcto
+          
+          // Obtener el nombre del personaje
+          let characterName = fullSection.substring(0, colonIndex).replace(/🧙‍♂️|👤/g, '').trim();
+          let characterContent = fullSection.substring(colonIndex + 1).trim();
+          
+          // Extraer el texto entre comillas si existe
+          let characterText = characterContent;
+          const quoteMatch = characterContent.match(/"([^"]*)"/);
+          if (quoteMatch) {
+            characterText = quoteMatch[1].trim();
+          }
+          
+          // Buscar una posible descripción entre paréntesis
+          let characterDescription = '';
+          const descMatch = characterContent.match(/\((.*?)\)/);
+          if (descMatch) {
+            characterDescription = descMatch[1].trim();
+          }
+          
+          dialogueTree[currentNodeId] = {
+            text: characterText,
+            speaker: characterName,
+            description: characterDescription,
+            options: [] // Se llenarán después con las preguntas de los jugadores
+          };
+          currentSpeaker = characterName;
+        } 
+        else if (section.startsWith('🗣')) {
+          // Posibles preguntas de los jugadores
+          const questionsSection = section.replace(/🗣/g, '').substring(1).trim();
+          const lines = questionsSection.split('\n').filter(line => line.trim());
+          const questions = [];
+          
+          // Construir opciones basadas en las posibles preguntas
+          const options = [];
+          let nextQuestionNodeId = null;
+          
+          for (let j = 0; j < lines.length; j++) {
+            const line = lines[j].trim();
+            
+            // Si es una pregunta (no una respuesta)
+            if (!line.startsWith('"') && !line.startsWith('(') && line !== '') {
+              // Crear un nodo para la respuesta a esta pregunta
+              const questionNodeId = "node_" + (++nodeCounter);
+              
+              // Si hay una respuesta siguiente, obtenerla
+              let responseText = '';
+              let responseSpeaker = currentSpeaker;
+              
+              // Buscar la siguiente línea que contiene la respuesta
+              if (j + 1 < lines.length && (lines[j+1].includes(':') || lines[j+1].startsWith('"'))) {
+                // La siguiente línea podría ser la respuesta
+                const responseLine = lines[j+1].trim();
+                
+                if (responseLine.includes(':')) {
+                  // Formato: Personaje: "Respuesta"
+                  const responseColonIndex = responseLine.indexOf(':');
+                  responseSpeaker = responseLine.substring(0, responseColonIndex).trim();
+                  responseText = responseLine.substring(responseColonIndex + 1).trim();
+                  
+                  // Limpiar comillas si las hay
+                  if (responseText.startsWith('"') && responseText.endsWith('"')) {
+                    responseText = responseText.substring(1, responseText.length - 1);
+                  }
+                } else if (responseLine.startsWith('"')) {
+                  // Formato: "Respuesta" (mismo personaje que antes)
+                  responseText = responseLine.replace(/"/g, '').trim();
+                }
+                
+                j++; // Saltar la línea de respuesta
+              }
+              
+              // Crear nodo para la respuesta
+              const nextNodeId = "node_" + (++nodeCounter);
+              dialogueTree[questionNodeId] = {
+                text: responseText,
+                speaker: responseSpeaker,
+                options: [{
+                  text: "Continuar...",
+                  next: nextNodeId
+                }]
+              };
+              
+              // Registrar esta pregunta como una opción
+              options.push({
+                text: line,
+                next: questionNodeId
+              });
+              
+              // El último nodo de pregunta se convierte en el próximo nodo
+              nextQuestionNodeId = nextNodeId;
+            }
+          }
+          
+          // Si encontramos preguntas, agregamos como opciones al nodo actual
+          if (options.length > 0) {
+            dialogueTree[currentNodeId].options = options;
+            currentNodeId = nextQuestionNodeId;
+          }
+        }
+        else if (section.startsWith('❌')) {
+          // Final de escena - crear un nodo terminal
+          const endText = section.replace(/❌/, '').trim();
+          
+          // Detectar si hay información de recompensa
+          let rewards = [];
+          if (endText.includes('[') && endText.includes(']')) {
+            // Extraer contenido entre corchetes como recompensas
+            const rewardsMatch = endText.match(/\[(.*?)\]/g);
+            if (rewardsMatch) {
+              rewards = rewardsMatch.map(r => r.replace(/[\[\]]/g, '').trim());
+            }
+          }
+          
+          // Texto sin corchetes para el mensaje final
+          const cleanEndText = endText.replace(/\[.*?\]/g, '').trim();
+          
+          dialogueTree[currentNodeId] = {
+            text: cleanEndText,
+            narrator: true,
+            end: true,
+            outcomeMessage: cleanEndText,
+            rewards: rewards
+          };
+        }
+      }
+      
+      // Si no encontramos introducción, crear una por defecto
+      if (!introFound) {
+        dialogueTree['start'] = {
+          text: "Comienza una nueva conversación...",
+          narrator: true,
+          options: [{
+            text: "Continuar...",
+            next: "node_1"
+          }]
+        };
+      }
+      
+      // Asegurarnos de que todos los nodos tengan opciones o terminen
+      for (const nodeId in dialogueTree) {
+        if (!dialogueTree[nodeId].options && !dialogueTree[nodeId].end) {
+          // Nodo sin opciones ni final - hacerlo terminal
+          dialogueTree[nodeId].end = true;
+          dialogueTree[nodeId].outcomeMessage = "Conversación completada.";
+        }
+      }
+      
+      return dialogueTree;
+    }
+
+    // Función para crear un árbol de diálogo predeterminado en caso de error
+    function createDefaultDialogueTree() {
+      return {
+        "start": {
+          "text": "Parece que ha habido un problema al cargar el diálogo.",
+          "narrator": true,
+          "options": [{
+            "text": "Continuar",
+            "next": "error_node"
+          }]
+        },
+        "error_node": {
+          "text": "Lo sentimos, pero el script de diálogo no se pudo procesar correctamente. Por favor, contacta con un administrador.",
+          "end": true,
+          "outcomeMessage": "Diálogo no disponible"
+        }
+      };
+    }
+    
+    // Historia del diálogo para poder reiniciar
+    const dialogueHistory = [];
+    
+    // Obtener el árbol de diálogo procesado
+    let dialogueTree;
+    let currentNodeId = 'start';
+    
+    // Inicialización con manejo de errores mejorado
+    try {
+      dialogueTree = processNarrativeScript(dialogueData.script);
+      
+      // Ocultar indicador de carga y mostrar contenido
+      setTimeout(() => {
+        loadingIndicator.classList.add('hidden');
+        dialogueContainer.classList.remove('hidden');
+        
+        // Iniciar el diálogo
+        showNarrativeNode('start');
+      }, 500); // Pequeño retraso para mostrar la animación de carga
+    } catch (error) {
+      console.error("Error al procesar el diálogo:", error);
+      
+      // Mostrar mensaje de error amigable
+      loadingIndicator.classList.add('hidden');
+      dialogueContainer.classList.remove('hidden');
+      
+      narrativeContainer.innerHTML = `
+        <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-500">
+          <div class="flex">
+            <div class="flex-shrink-0">
+              <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="ml-3">
+              <h3 class="text-sm font-medium text-red-800">Error al cargar el diálogo</h3>
+              <div class="mt-2 text-sm text-red-700">
+                <p>No se pudo procesar correctamente el guión de diálogo. Por favor, vuelve a la misión e inténtalo de nuevo más tarde.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Mostrar botón de regreso
+      playerOptions.innerHTML = `
+        <a href="/servers/<%= guild.id %>/missions/<%= mission._id %>/progress" class="block w-full text-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+          Volver a la misión
+        </a>
+      `;
+    }
+    
+    // Función para mostrar un nodo de diálogo en el estilo narrativo con animaciones
+    function showNarrativeNode(nodeId) {
+      const node = dialogueTree[nodeId];
+      
+      if (!node) {
+        console.error(`Nodo de diálogo "${nodeId}" no encontrado.`);
+        return;
+      }
+      
+      // Crear el elemento narrativo
+      const narrativeElement = document.createElement('div');
+      narrativeElement.className = 'narrative-element opacity-0 transition-opacity duration-500';
+      
+      if (node.narrator) {
+        // Es una narración
+        narrativeElement.innerHTML = `
+          <div class="text-gray-700 italic">
+            <p>${node.text}</p>
+          </div>
+        `;
+      } else if (node.speaker) {
+        // Es diálogo de un personaje
+        narrativeElement.innerHTML = `
+          <div class="mb-2">
+            <span class="font-bold text-indigo-800">${node.speaker}:</span>
+          </div>
+          <div class="bg-indigo-50 rounded-lg p-4 border-l-4 border-indigo-500">
+            <p>${node.text}</p>
+            ${node.description ? `<p class="text-gray-600 italic mt-2">(${node.description})</p>` : ''}
+          </div>
+        `;
+      } else {
+        // Otro tipo de contenido
+        narrativeElement.innerHTML = `
+          <div>
+            <p>${node.text}</p>
+          </div>
+        `;
+      }
+      
+      // Agregar al contenedor
+      narrativeContainer.appendChild(narrativeElement);
+      
+      // Animar entrada con pequeño retraso
+      setTimeout(() => {
+        narrativeElement.classList.remove('opacity-0');
+      }, 50);
+      
+      // Guardar en el historial si no es el nodo inicial
+      if (nodeId !== 'start' && !dialogueHistory.includes(nodeId)) {
+        dialogueHistory.push(nodeId);
+      }
+      
+      // Scroll hasta el final con animación suave
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+      
+      // Actualizar opciones del jugador con pequeño retraso
+      setTimeout(() => {
+        updatePlayerOptions(node);
+      }, 300);
+      
+      // Si el nodo finaliza el diálogo, mostrar controles
+      if (node.end) {
+        dialogueControls.classList.remove('hidden');
+        handleDialogueEnd(node);
+      }
+    }
+    
+    // Función para actualizar las opciones del jugador con animación
+    function updatePlayerOptions(node) {
+      // Primero ocultar las opciones actuales
+      playerOptions.style.opacity = '0';
+      
+      // Después de una breve transición, actualizar y mostrar las nuevas opciones
+      setTimeout(() => {
+        // Limpiar opciones anteriores
+        playerOptions.innerHTML = '';
+        
+        // Mostrar opciones si existen
+        if (node.options && node.options.length > 0) {
+          node.options.forEach((option, index) => {
+            const optionButton = document.createElement('button');
+            optionButton.className = 'block w-full text-left px-4 py-3 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition mb-2 transform hover:scale-105';
+            optionButton.textContent = option.text;
+            
+            // Añadir pequeño retraso en la aparición de cada opción
+            setTimeout(() => {
+              optionButton.style.opacity = '1';
+            }, 100 * index);
+            
+            optionButton.addEventListener('click', function() {
+              // Deshabilitar todos los botones de opciones
+              const allButtons = playerOptions.querySelectorAll('button');
+              allButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+              });
+              
+              // Mostrar la respuesta del jugador con animación
+              const playerResponseElement = document.createElement('div');
+              playerResponseElement.className = 'narrative-element opacity-0 transition-opacity duration-300';
+              playerResponseElement.innerHTML = `
+                <div class="mb-2 text-right">
+                  <span class="font-bold text-blue-800"><%= profile.character.name %>:</span>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4 border-r-4 border-blue-500 ml-16">
+                  <p>${option.text}</p>
+                </div>
+              `;
+              narrativeContainer.appendChild(playerResponseElement);
+              
+              // Animar entrada
+              setTimeout(() => {
+                playerResponseElement.classList.remove('opacity-0');
+              }, 50);
+              
+              // Scroll hasta el elemento
+              playerResponseElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              
+              // Ocultar opciones temporalmente y mostrar un pequeño retraso para simular conversación
+              playerOptions.style.opacity = '0';
+              
+              setTimeout(() => {
+                showNarrativeNode(option.next);
+              }, 800);
+            });
+            
+            playerOptions.appendChild(optionButton);
+          });
+        }
+        
+        // Mostrar opciones con animación
+        playerOptions.style.opacity = '1';
+      }, 200);
+    }
+    
+    // Función para manejar el final del diálogo
+    function handleDialogueEnd(node) {
+      // Prepare the outcome
+      let outcomeMessage = node.outcomeMessage || "Has completado esta conversación.";
+      let outcomeValue = dialogueData.result || 'information';
+      
+      // Clear any existing content first
+      playerOptions.innerHTML = '';
+      
+      // Hide immediately to reset any previous animations
+      playerOptions.style.opacity = '0';
+      
+      // Create the continue button
+      const continueButton = document.createElement('button');
+      continueButton.className = 'w-full text-center px-4 py-3 border border-transparent rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition transform hover:scale-105';
+      continueButton.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Finalizar conversación';
+      
+      continueButton.addEventListener('click', function() {
+        // Update the result modal
+        dialogueOutcomeEl.value = outcomeValue;
+        dialogueOutcomeMessageEl.textContent = outcomeMessage;
+        
+        // Show rewards if there are any
+        if (node.rewards && node.rewards.length > 0) {
+          showRewards(node.rewards);
+        }
+        
+        // Show the modal with animation
+        resultModal.classList.remove('hidden');
+        
+        // Animate the appearance of the modal
+        const modalContent = resultModal.querySelector('div');
+        if (modalContent) {
+          modalContent.style.opacity = '0';
+          modalContent.style.transform = 'scale(0.95)';
+          
+          // Apply transition
+          modalContent.classList.add('transition', 'duration-300');
+          
+          // Force a reflow to ensure transitions work
+          void modalContent.offsetWidth;
+          
+          // Apply final values
+          modalContent.style.opacity = '1';
+          modalContent.style.transform = 'scale(1)';
+        }
+      });
+      
+      // Add the button to the container
+      dialogueControls.appendChild(continueButton);
+      
+      // Force a reflow before showing the button to ensure it renders properly
+      void playerOptions.offsetWidth;
+      
+      // Make sure the container is visible
+      playerOptions.style.display = 'block';
+      playerOptions.style.visibility = 'visible';
+      
+      // Add a slight delay before showing to ensure DOM is ready
+      setTimeout(() => {
+        playerOptions.style.opacity = '1';
+      }, 50);
+    }
+    
+    // Función para mostrar recompensas
+    function showRewards(rewards) {
+      if (!rewards || rewards.length === 0) return;
+      
+      rewardsListEl.innerHTML = '';
+      rewards.forEach((reward, index) => {
+        const li = document.createElement('li');
+        li.className = 'text-gray-700 opacity-0 transition-opacity duration-300';
+        
+        // Añadir iconos según el tipo de recompensa
+        if (reward.toLowerCase().includes('moneda') || reward.toLowerCase().includes('oro')) {
+          li.innerHTML = `<i class="fas fa-coins text-yellow-500 mr-2"></i>${reward}`;
+        } else if (reward.toLowerCase().includes('experiencia') || reward.toLowerCase().includes('exp')) {
+          li.innerHTML = `<i class="fas fa-star text-purple-500 mr-2"></i>${reward}`;
+        } else if (reward.toLowerCase().includes('misión') || reward.toLowerCase().includes('quest')) {
+          li.innerHTML = `<i class="fas fa-scroll text-indigo-500 mr-2"></i>${reward}`;
+        } else if (reward.toLowerCase().includes('objeto') || reward.toLowerCase().includes('item')) {
+          li.innerHTML = `<i class="fas fa-box text-brown-500 mr-2"></i>${reward}`;
+        } else {
+          li.innerHTML = `<i class="fas fa-check-circle text-green-500 mr-2"></i>${reward}`;
+        }
+        
+        rewardsListEl.appendChild(li);
+        
+        // Animar entrada con retraso escalonado
+        setTimeout(() => {
+          li.classList.remove('opacity-0');
+        }, 100 * (index + 1));
+      });
+      
+      dialogueRewardsEl.classList.remove('hidden');
+    }
+    
+    // Función para reiniciar el diálogo
+    function restartDialogue() {
+      // Limpiar contenedores
+      narrativeContainer.innerHTML = '';
+      playerOptions.innerHTML = '';
+      
+      // Ocultar controles
+      dialogueControls.classList.add('hidden');
+      
+      // Reiniciar estado
+      dialogueHistory.length = 0;
+      currentNodeId = 'start';
+      
+      // Iniciar de nuevo
+      showNarrativeNode('start');
+    }
+    
+    // Evento para reiniciar diálogo
+    if (restartDialogueBtn) {
+      restartDialogueBtn.addEventListener('click', restartDialogue);
+    }
+    
+    // Al hacer clic fuera del modal de resultado, cerrarlo
+    window.addEventListener('click', function(event) {
+      if (event.target === resultModal) {
+        resultModal.classList.add('hidden');
+      }
+    });
+    
+    // Funciones de accesibilidad
+    function setupAccessibility() {
+      // Asegurar que los botones sean navegables por teclado
+      document.addEventListener('keydown', function(event) {
+        // Escape cierra el modal de resultado
+        if (event.key === 'Escape' && !resultModal.classList.contains('hidden')) {
+          resultModal.classList.add('hidden');
+        }
+        
+        // Enter en una opción de diálogo la selecciona
+        if (event.key === 'Enter' && document.activeElement.closest('#player-options')) {
+          document.activeElement.click();
+        }
+      });
+    }
+    
+    // Configurar accesibilidad
+    setupAccessibility();
+  });
+</script>
+
+<style>
+  /* Animaciones para elementos del diálogo */
+  .fade-in { animation: fadeIn 0.3s ease-in-out; }
+  .fade-out { animation: fadeOut 0.3s ease-in-out; }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  
+  /* Estilo mejorado para opciones de diálogo */
+  #player-options button {
+    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.3s ease;
+  }
+
+  #player-options button {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+  }
+  
+  /* Transiciones para contenedores */
+  #narrative-container, #player-options {
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Mejoras responsivas para dispositivos móviles */
+  @media (max-width: 640px) {
+    .narrative-element {
+      margin-bottom: 1rem;
+    }
+    
+    #player-options button {
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+    }
+  }
+</style>
+
+<%- include('../partials/footer') %>

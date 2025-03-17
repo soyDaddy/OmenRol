@@ -134,51 +134,293 @@
             </div>
             
             <!-- Inventario y habilidades -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Inventario -->
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Inventario</h3>
-                <div class="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+              <div class="bg-white shadow-md rounded-lg">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                  <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Inventario
+                  </h3>
+                  <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Items que posee tu personaje. Se gestionan con comandos del bot.
+                  </p>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
                   <% if (profile.character.inventory && profile.character.inventory.length > 0) { %>
                     <ul class="divide-y divide-gray-200">
-                      <% profile.character.inventory.forEach(item => { %>
-                        <li class="py-2">
+                      <% profile.character.inventory.forEach(inventoryItem => { %>
+                        <% console.log(inventoryItem); %>
+                        <li class="py-3">
                           <div class="flex justify-between">
-                            <span class="text-sm font-medium text-gray-900"><%= item.item %></span>
-                            <span class="text-sm text-gray-500">x<%= item.quantity %></span>
+                            <span class="text-sm font-medium text-gray-900">
+                              <!-- Usar el nombre del item enriquecido si está disponible -->
+                              <%= inventoryItem.item ? inventoryItem.item.name : 'Item desconocido' %>
+                            </span>
+                            <span class="text-sm text-gray-500">x<%= inventoryItem.quantity %></span>
                           </div>
-                          <% if (item.description) { %>
-                            <p class="text-xs text-gray-500 mt-1"><%= item.description %></p>
+                          <!-- Mostrar descripción si está disponible -->
+                          <% if (inventoryItem.item && inventoryItem.item.description) { %>
+                            <p class="text-xs text-gray-500 mt-1"><%= inventoryItem.item.description.substring(0, 120) %><%= inventoryItem.item.description.length > 120 ? '...' : '' %></p>
+                          <% } %>
+                          
+                          <!-- Mostrar información adicional en etiquetas -->
+                          <div class="mt-2 flex flex-wrap gap-1">
+                            <% if (inventoryItem.item && inventoryItem.item.type) { %>
+                              <% let typeColor = 'blue'; %>
+                              <% if (inventoryItem.item.type === 'equipment') typeColor = 'indigo'; %>
+                              <% if (inventoryItem.item.type === 'consumable') typeColor = 'purple'; %>
+                              <% if (inventoryItem.item.type === 'quest') typeColor = 'yellow'; %>
+                              <% if (inventoryItem.item.type === 'resource') typeColor = 'green'; %>
+                              
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-<%= typeColor %>-100 text-<%= typeColor %>-800">
+                                <%= inventoryItem.item.type %>
+                              </span>
+                            <% } %>
+                            
+                            <% if (inventoryItem.item && inventoryItem.item.equipmentSlot) { %>
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-violet-100 text-violet-800">
+                                <%= inventoryItem.item.equipmentSlot %>
+                              </span>
+                            <% } %>
+                            
+                            <% if (inventoryItem.equipped) { %>
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                Equipado
+                              </span>
+                            <% } %>
+                            
+                            <% if (inventoryItem.uses) { %>
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                Usos: <%= inventoryItem.uses %>
+                              </span>
+                            <% } %>
+                            
+                            <% if (inventoryItem.item && inventoryItem.item.levelRequired > 1) { %>
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                Nivel <%= inventoryItem.item.levelRequired %>+
+                              </span>
+                            <% } %>
+                          </div>
+                          
+                          <!-- Mostrar efectos del item si los tiene -->
+                          <% if (inventoryItem.item && inventoryItem.item.effects && (inventoryItem.item.effects.health || inventoryItem.item.effects.mana || inventoryItem.item.effects.strength || inventoryItem.item.effects.intelligence || inventoryItem.item.effects.dexterity || inventoryItem.item.effects.defense)) { %>
+                            <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                              <% if (inventoryItem.item.effects.health) { %>
+                                <span class="<%= inventoryItem.item.effects.health > 0 ? 'text-green-600' : 'text-red-600' %>">
+                                  Salud: <%= inventoryItem.item.effects.health > 0 ? '+' : '' %><%= inventoryItem.item.effects.health %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (inventoryItem.item.effects.mana) { %>
+                                <span class="<%= inventoryItem.item.effects.mana > 0 ? 'text-blue-600' : 'text-red-600' %>">
+                                  Maná: <%= inventoryItem.item.effects.mana > 0 ? '+' : '' %><%= inventoryItem.item.effects.mana %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (inventoryItem.item.effects.strength) { %>
+                                <span class="<%= inventoryItem.item.effects.strength > 0 ? 'text-red-600' : 'text-gray-600' %>">
+                                  Fuerza: <%= inventoryItem.item.effects.strength > 0 ? '+' : '' %><%= inventoryItem.item.effects.strength %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (inventoryItem.item.effects.intelligence) { %>
+                                <span class="<%= inventoryItem.item.effects.intelligence > 0 ? 'text-purple-600' : 'text-gray-600' %>">
+                                  Inteligencia: <%= inventoryItem.item.effects.intelligence > 0 ? '+' : '' %><%= inventoryItem.item.effects.intelligence %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (inventoryItem.item.effects.dexterity) { %>
+                                <span class="<%= inventoryItem.item.effects.dexterity > 0 ? 'text-yellow-600' : 'text-gray-600' %>">
+                                  Destreza: <%= inventoryItem.item.effects.dexterity > 0 ? '+' : '' %><%= inventoryItem.item.effects.dexterity %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (inventoryItem.item.effects.defense) { %>
+                                <span class="<%= inventoryItem.item.effects.defense > 0 ? 'text-blue-600' : 'text-gray-600' %>">
+                                  Defensa: <%= inventoryItem.item.effects.defense > 0 ? '+' : '' %><%= inventoryItem.item.effects.defense %>
+                                </span>
+                              <% } %>
+                            </div>
                           <% } %>
                         </li>
                       <% }); %>
                     </ul>
                   <% } else { %>
-                    <p class="text-sm text-gray-500 italic">No hay items en el inventario.</p>
+                    <div class="text-center py-6">
+                      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay items</h3>
+                      <p class="mt-1 text-sm text-gray-500">
+                        Tu inventario está vacío. Utiliza los comandos del bot para conseguir items.
+                      </p>
+                    </div>
                   <% } %>
                 </div>
               </div>
               
               <!-- Habilidades -->
-              <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Habilidades</h3>
-                <div class="bg-gray-50 p-4 rounded-md max-h-60 overflow-y-auto">
+              <div class="bg-white shadow-md rounded-lg">
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                  <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Habilidades
+                  </h3>
+                  <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Habilidades de tu personaje. Se mejoran con comandos del bot.
+                  </p>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
                   <% if (profile.character.skills && profile.character.skills.length > 0) { %>
                     <ul class="divide-y divide-gray-200">
-                      <% profile.character.skills.forEach(skill => { %>
-                        <li class="py-2">
+                      <% profile.character.skills.forEach(characterSkill => { %>
+                        <li class="py-3">
                           <div class="flex justify-between">
-                            <span class="text-sm font-medium text-gray-900"><%= skill.name %></span>
-                            <span class="text-sm text-gray-500">Nivel <%= skill.level %></span>
+                            <span class="text-sm font-medium text-gray-900">
+                              <!-- Usar el nombre de la habilidad enriquecida si está disponible -->
+                              <%= characterSkill.skill ? characterSkill.skill.name : 'Habilidad desconocida' %>
+                            </span>
+                            <span class="text-sm text-gray-500">Nivel <%= characterSkill.level %></span>
                           </div>
-                          <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <%= Math.min(100, skill.level * 10) %>%"></div>
+                          
+                          <!-- Mostrar descripción si está disponible -->
+                          <% if (characterSkill.skill && characterSkill.skill.description) { %>
+                            <p class="text-xs text-gray-500 mt-1"><%= characterSkill.skill.description.substring(0, 120) %><%= characterSkill.skill.description.length > 120 ? '...' : '' %></p>
+                          <% } %>
+                          
+                          <!-- Barra de nivel -->
+                          <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                            <div class="bg-indigo-600 h-1.5 rounded-full" style="width: <%= Math.min(100, characterSkill.level * 10) %>%"></div>
                           </div>
+                          
+                          <!-- Mostrar información adicional en etiquetas -->
+                          <div class="mt-2 flex flex-wrap gap-1">
+                            <% if (characterSkill.skill && characterSkill.skill.category) { %>
+                              <% let categoryColor = 'blue'; %>
+                              <% if (characterSkill.skill.category === 'attack') categoryColor = 'red'; %>
+                              <% if (characterSkill.skill.category === 'defense') categoryColor = 'blue'; %>
+                              <% if (characterSkill.skill.category === 'healing') categoryColor = 'green'; %>
+                              <% if (characterSkill.skill.category === 'utility') categoryColor = 'yellow'; %>
+                              <% if (characterSkill.skill.category === 'passive') categoryColor = 'purple'; %>
+                              
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-<%= categoryColor %>-100 text-<%= categoryColor %>-800">
+                                <%= characterSkill.skill.category %>
+                              </span>
+                            <% } %>
+                            
+                            <% if (characterSkill.skill && characterSkill.skill.targetType) { %>
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                <%= characterSkill.skill.targetType %>
+                              </span>
+                            <% } %>
+                            
+                            <% if (characterSkill.skill && characterSkill.skill.levelRequired > 1) { %>
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                Req. Nivel <%= characterSkill.skill.levelRequired %>
+                              </span>
+                            <% } %>
+                          </div>
+                          
+                          <!-- Mostrar efectos de la habilidad -->
+                          <% if (characterSkill.skill && characterSkill.skill.effects) { %>
+                            <div class="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                              <% if (characterSkill.skill.effects.damage) { %>
+                                <span class="text-red-600">
+                                  Daño: <%= characterSkill.skill.effects.damage %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.effects.healing) { %>
+                                <span class="text-green-600">
+                                  Curación: <%= characterSkill.skill.effects.healing %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.manaCost) { %>
+                                <span class="text-blue-600">
+                                  Coste de maná: <%= characterSkill.skill.manaCost %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.cooldown) { %>
+                                <span class="text-purple-600">
+                                  Cooldown: <%= characterSkill.skill.cooldown %>s
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.effects.duration) { %>
+                                <span class="text-amber-600">
+                                  Duración: <%= characterSkill.skill.effects.duration %>s
+                                </span>
+                              <% } %>
+                            </div>
+                          <% } %>
+                          
+                          <!-- Mostrar buffs y otras características especiales -->
+                          <% if (characterSkill.skill && characterSkill.skill.effects && (characterSkill.skill.effects.buffStrength || characterSkill.skill.effects.buffIntelligence || characterSkill.skill.effects.buffDexterity || characterSkill.skill.effects.buffDefense)) { %>
+                            <div class="mt-1 grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                              <% if (characterSkill.skill.effects.buffStrength) { %>
+                                <span class="text-red-600">
+                                  Fuerza: +<%= characterSkill.skill.effects.buffStrength %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.effects.buffIntelligence) { %>
+                                <span class="text-purple-600">
+                                  Inteligencia: +<%= characterSkill.skill.effects.buffIntelligence %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.effects.buffDexterity) { %>
+                                <span class="text-yellow-600">
+                                  Destreza: +<%= characterSkill.skill.effects.buffDexterity %>
+                                </span>
+                              <% } %>
+                              
+                              <% if (characterSkill.skill.effects.buffDefense) { %>
+                                <span class="text-blue-600">
+                                  Defensa: +<%= characterSkill.skill.effects.buffDefense %>
+                                </span>
+                              <% } %>
+                            </div>
+                          <% } %>
+                          
+                          <!-- Mostrar estado de cooldown si existe -->
+                          <% if (characterSkill.cooldownUntil) { %>
+                            <% 
+                              const now = new Date();
+                              const cooldownDate = new Date(characterSkill.cooldownUntil);
+                              const isOnCooldown = cooldownDate > now;
+                            %>
+                            <% if (isOnCooldown) { %>
+                              <div class="mt-2">
+                                <span class="text-xs text-red-600">
+                                  En cooldown hasta: <%= cooldownDate.toLocaleTimeString() %>
+                                </span>
+                              </div>
+                            <% } %>
+                          <% } %>
+                          
+                          <!-- Mostrar usos restantes si aplica -->
+                          <% if (characterSkill.usesLeft !== null && characterSkill.usesLeft !== undefined) { %>
+                            <div class="mt-2">
+                              <span class="text-xs <%= characterSkill.usesLeft > 0 ? 'text-blue-600' : 'text-red-600' %>">
+                                Usos restantes: <%= characterSkill.usesLeft %>
+                              </span>
+                            </div>
+                          <% } %>
                         </li>
                       <% }); %>
                     </ul>
                   <% } else { %>
-                    <p class="text-sm text-gray-500 italic">No hay habilidades registradas.</p>
+                    <div class="text-center py-6">
+                      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <h3 class="mt-2 text-sm font-medium text-gray-900">Sin habilidades</h3>
+                      <p class="mt-1 text-sm text-gray-500">
+                        Aún no ha desbloqueado habilidades.
+                      </p>
+                    </div>
                   <% } %>
                 </div>
               </div>

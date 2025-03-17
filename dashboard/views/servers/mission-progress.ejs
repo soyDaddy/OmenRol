@@ -59,10 +59,10 @@
           <dt class="text-sm font-medium text-gray-500">Progreso general</dt>
           <dd class="mt-1">
             <div class="w-full bg-gray-200 rounded-full h-2.5">
-              <div class="bg-blue-600 h-2.5 rounded-full" style="width: <%= activeMission.progress %>%"></div>
+              <div class="bg-blue-600 h-2.5 rounded-full" style="width: <%= activeMission.generalProgress %>%"></div>
             </div>
             <p class="mt-1 text-sm text-gray-600">
-              <%= Math.floor(activeMission.progress) %>% completado
+              <%= Math.floor(activeMission.generalProgress) %>% completado
               <% if (activeMission.completed) { %>
                 <span class="ml-2 text-green-600 font-medium">
                   (¡Misión completada!)

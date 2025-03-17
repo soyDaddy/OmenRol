@@ -1,0 +1,560 @@
+/**
+ * TEMA PAC-MAN - OMENROL
+ * Estética inspirada en el clásico videojuego Pac-Man con sus colores característicos
+ * amarillo, azul, rojo, rosa y naranja, con un toque retro y pixelado
+ */
+
+/* Colores base */
+body {
+    background-color: #000000 !important; /* Negro clásico del laberinto */
+    color: #FFFFFF !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M0 0 L4 0 L4 4 L0 4 Z M8 0 L12 0 L12 4 L8 4 Z M16 0 L20 0 L20 4 L16 4 Z M24 0 L28 0 L28 4 L24 4 Z M32 0 L36 0 L36 4 L32 4 Z M0 8 L4 8 L4 12 L0 12 Z M32 8 L36 8 L36 12 L32 12 Z M0 16 L4 16 L4 20 L0 20 Z M8 16 L12 16 L12 20 L8 20 Z M16 16 L20 16 L20 20 L16 20 Z M24 16 L28 16 L28 20 L24 20 Z M32 16 L36 16 L36 20 L32 20 Z M0 24 L4 24 L4 28 L0 28 Z M32 24 L36 24 L36 28 L32 28 Z M0 32 L4 32 L4 36 L0 36 Z M8 32 L12 32 L12 36 L8 36 Z M16 32 L20 32 L20 36 L16 36 Z M24 32 L28 32 L28 36 L24 36 Z M32 32 L36 32 L36 36 L32 36 Z' fill='%233333FF' opacity='0.1'/%3E%3C/svg%3E") !important;
+    background-attachment: fixed !important;
+    font-family: 'Press Start 2P', Courier, monospace !important;
+  }
+  
+  /* Navbar */
+  .bg-gray-800 {
+    background-color: #0000FF !important; /* Azul fantasmas */
+    border-bottom: 3px solid #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .bg-gray-900 {
+    background-color: #000099 !important; /* Azul más oscuro */
+  }
+  
+  nav a.text-gray-300 {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+    text-shadow: 2px 2px 0 #000000 !important;
+  }
+  
+  nav a.hover\:bg-gray-700:hover {
+    background-color: #0000CC !important;
+    color: #FFFF00 !important; /* Amarillo Pac-Man */
+  }
+  
+  .text-gray-400 {
+    color: #CCCCCC !important;
+  }
+  
+  .hover\:text-white:hover {
+    color: #FFFF00 !important;
+    text-shadow: 0 0 5px #FFFF00, 0 0 10px rgba(255, 255, 0, 0.5) !important;
+  }
+  
+  /* Breadcrumb */
+  .bg-white.shadow-sm {
+    background-color: #000000 !important;
+    border-bottom: 2px dotted #FFFFFF !important; /* Puntos estilo Pac-Man */
+    box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .text-gray-500 {
+    color: #FFFF00 !important; /* Amarillo Pac-Man */
+  }
+  
+  .text-gray-700, .hover\:text-gray-700:hover {
+    color: #FFFFFF !important;
+  }
+  
+  .text-gray-900 {
+    color: #FFFFFF !important;
+  }
+  
+  /* Tarjetas y contenedores */
+  .bg-white {
+    background-color: #000000 !important;
+    border: 2px solid #0000FF !important; /* Borde azul fantasma */
+    position: relative;
+    border-radius: 4px !important;
+    box-shadow: 0 0 10px rgba(0, 0, 255, 0.3) !important;
+    transition: all 0.3s ease !important;
+    overflow: hidden;
+  }
+  
+  .bg-white::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #FFFF00; /* Amarillo Pac-Man */
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .bg-white:hover {
+    border-color: #FFFF00 !important;
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.4) !important;
+  }
+  
+  .bg-white:hover::before {
+    opacity: 1;
+  }
+  
+  .border-gray-100, .border-gray-200, .border-gray-300 {
+    border-color: #0000FF !important;
+  }
+  
+  .shadow, .shadow-md, .shadow-lg, .shadow-sm {
+    box-shadow: 0 4px 6px rgba(0, 0, 255, 0.2) !important;
+  }
+  
+  /* Botones */
+  .bg-indigo-600 {
+    background-color: #FFFF00 !important; /* Amarillo Pac-Man */
+    border: 2px solid #FFD700 !important;
+    color: #000000 !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 0 #FFD700 !important;
+    box-shadow: 0 4px 0 #B8860B !important;
+    transform: translateY(-2px) !important;
+    transition: all 0.2s !important;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .bg-indigo-600:hover {
+    background-color: #FFFF33 !important;
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 0 #B8860B !important;
+  }
+  
+  .hover\:bg-indigo-700:hover {
+    background-color: #FFFF33 !important;
+  }
+  
+  .from-indigo-600 {
+    background-image: linear-gradient(to right, #FFFF00, #FFD700) !important;
+  }
+  
+  .to-indigo-800 {
+    background-image: linear-gradient(to left, #FFFF00, #FFD700) !important;
+  }
+  
+  .bg-gray-700 {
+    background-color: #0000FF !important;
+  }
+  
+  .hover\:bg-gray-600:hover {
+    background-color: #0000CC !important;
+  }
+  
+  /* Menús desplegables */
+  #themeMenu, #userMenu {
+    background-color: #000000 !important;
+    border: 2px solid #0000FF !important;
+    box-shadow: 0 6px 12px rgba(0, 0, 255, 0.2) !important;
+  }
+  
+  #themeMenu button, #userMenu a {
+    color: #FFFFFF !important;
+    border-bottom: 1px dotted #0000FF !important;
+  }
+  
+  #themeMenu button:hover, #userMenu a:hover {
+    background-color: #0000FF !important;
+    color: #FFFF00 !important;
+  }
+  
+  /* Tablas */
+  .bg-gray-50 {
+    background-color: #000022 !important;
+  }
+  
+  .divide-gray-200 > * + * {
+    border-color: #0000FF !important;
+  }
+  
+  tbody.bg-white {
+    background-color: #000000 !important;
+  }
+  
+  tbody tr:hover {
+    background-color: #0000FF !important;
+    color: #FFFF00 !important;
+  }
+  
+  /* Formularios */
+  input, select, textarea {
+    background-color: #000033 !important;
+    border: 2px solid #0000FF !important;
+    color: #FFFFFF !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    border-color: #FFFF00 !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 0, 0.2) !important;
+  }
+  
+  /* Loader */
+  .loader-container {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .loader-container::before {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: #FFFF00;
+    border-radius: 50%;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    animation: pacman-loader 0.5s linear infinite alternate;
+  }
+  
+  @keyframes pacman-loader {
+    0% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); }
+    25% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25% 50%); }
+    50% { clip-path: polygon(0% 0%, 100% 0%, 75% 50%, 0% 100%); }
+    75% { clip-path: polygon(0% 0%, 75% 50%, 100% 100%, 0% 100%); }
+    100% { clip-path: polygon(25% 50%, 100% 0%, 100% 100%, 0% 100%); }
+  }
+  
+  /* Asegurar que el loader se oculte correctamente */
+  .loader-container.hidden {
+    display: none !important;
+  }
+
+  .loader-container[style*="display: none"] {
+    display: none !important;
+  }
+  
+  .loader {
+    border-top-color: #FFFF00 !important;
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.5) !important;
+  }
+  
+  /* Footer */
+  footer.bg-white {
+    background-color: #000000 !important;
+    border-top: 3px solid #0000FF !important;
+  }
+  
+  footer .text-gray-900 {
+    color: #FFFFFF !important;
+  }
+  
+  footer a {
+    color: #FFFF00 !important;
+    font-weight: 600 !important;
+  }
+  
+  footer a:hover {
+    color: #FF0000 !important; /* Rojo Fantasma Blinky */
+    text-decoration: none !important;
+  }
+  
+  /* Tabs y navegación */
+  .border-indigo-500 {
+    border-color: #FFFF00 !important;
+  }
+  
+  .bg-indigo-50 {
+    background-color: rgba(255, 255, 0, 0.1) !important;
+  }
+  
+  .text-indigo-700 {
+    color: #FFFF00 !important;
+  }
+  
+  /* Alerts y notificaciones */
+  .bg-green-50 {
+    background-color: rgba(0, 255, 0, 0.1) !important;
+  }
+  
+  .bg-red-50 {
+    background-color: rgba(255, 0, 0, 0.1) !important;
+  }
+  
+  .text-green-700 {
+    color: #00FF00 !important;
+  }
+  
+  .text-red-700 {
+    color: #FF0000 !important;
+  }
+  
+  /* Badges y elementos decorativos */
+  .bg-indigo-100 {
+    background-color: rgba(255, 255, 0, 0.2) !important;
+  }
+  
+  .text-indigo-800 {
+    color: #FFFF00 !important;
+  }
+  
+  .bg-red-100 {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+  }
+  
+  .text-red-800 {
+    color: #FF0000 !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: rgba(255, 255, 0, 0.2) !important;
+  }
+  
+  .text-yellow-800 {
+    color: #FFFF00 !important;
+  }
+  
+  .bg-green-100 {
+    background-color: rgba(0, 255, 0, 0.2) !important;
+  }
+  
+  .text-green-800 {
+    color: #00FF00 !important;
+  }
+  
+  .bg-blue-100 {
+    background-color: rgba(0, 0, 255, 0.2) !important;
+  }
+  
+  .text-blue-800 {
+    color: #0000FF !important;
+  }
+  
+  /* Enlaces y botones */
+  .text-indigo-600 {
+    color: #FFFF00 !important;
+    font-weight: 600 !important;
+    text-shadow: 1px 1px 0 #000000 !important;
+  }
+  
+  .hover\:text-indigo-500:hover {
+    color: #FF0000 !important; /* Rojo Fantasma Blinky */
+    text-shadow: 1px 1px 0 #000000 !important;
+  }
+  
+  /* Efectos adicionales */
+  a, button {
+    transition: all 0.3s ease !important;
+  }
+  
+  .ring-black {
+    --tw-ring-opacity: 0 !important;
+  }
+  
+  .focus\:ring-indigo-500:focus {
+    --tw-ring-color: rgba(255, 255, 0, var(--tw-ring-opacity)) !important;
+  }
+  
+  .focus\:border-indigo-500:focus {
+    border-color: #FFFF00 !important;
+  }
+  
+  /* Personalización de scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #000000;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #0000FF;
+    border-radius: 4px;
+    border: 2px solid #000000;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #FFFF00;
+  }
+  
+  /* Estilos de Pac-Man */
+  .pacman {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #FFFF00;
+    border-radius: 50%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    animation: eat 0.5s linear infinite;
+  }
+  
+  @keyframes eat {
+    0% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+    50% { clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%); }
+    100% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+  }
+  
+  /* Fantasmas */
+  .ghost {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  .ghost-red { background-color: #FF0000; } /* Blinky */
+  .ghost-pink { background-color: #FFB8FF; } /* Pinky */
+  .ghost-blue { background-color: #00FFFF; } /* Inky */
+  .ghost-orange { background-color: #FFB852; } /* Clyde */
+  
+  /* Puntos */
+  .dot {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    margin: 0 2px;
+  }
+  
+  .power-pellet {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: pulse 1s infinite alternate;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.2); }
+  }
+  
+  /* Estilos para botones especiales */
+  .px-8.py-3 {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    border-radius: 4px !important;
+    font-weight: bold !important;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .px-8.py-3::before {
+    content: "•";
+    position: absolute;
+    left: 10px;
+    color: #FFFFFF;
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  
+  .px-8.py-3:hover::before {
+    opacity: 1;
+    animation: dot-move 1s infinite;
+  }
+  
+  @keyframes dot-move {
+    0% { left: 10px; }
+    100% { left: calc(100% - 10px); }
+  }
+  
+  /* Efecto de puntos en el fondo de las tarjetas */
+  .bg-white::after {
+    content: "• • • • • • • • •";
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #FFFFFF;
+    opacity: 0.2;
+    font-size: 10px;
+    letter-spacing: 3px;
+  }
+  
+  /* Efecto retro para botones pequeños */
+  .px-4.py-2 {
+    border: 2px solid #FFFFFF !important;
+    text-shadow: 1px 1px 0 #000000 !important;
+    box-shadow: 2px 2px 0 #000000 !important;
+  }
+  
+  /* Animación de Game Over */
+  .game-over {
+    animation: blink 1s infinite;
+    color: #FF0000 !important;
+  }
+  
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  
+  /* Estilos para el avatar del usuario */
+  .user-menu-btn img {
+    border: 2px solid #FFFF00 !important;
+    box-shadow: 0 0 0 2px #0000FF !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .user-menu-btn:hover img {
+    transform: rotate(45deg) !important;
+  }
+  
+  /* Clases para niveles de Pac-Man */
+  .level-1 { background-color: #000000; border-color: #FFFF00 !important; }
+  .level-2 { background-color: #000033; border-color: #FF0000 !important; }
+  .level-3 { background-color: #000066; border-color: #00FFFF !important; }
+  
+  /* Animación para el encabezado */
+  .text-3xl.font-extrabold {
+    animation: color-cycle 10s infinite;
+  }
+  
+  @keyframes color-cycle {
+    0% { color: #FFFF00; } /* Pac-Man */
+    25% { color: #FF0000; } /* Blinky */
+    50% { color: #FFB8FF; } /* Pinky */
+    75% { color: #00FFFF; } /* Inky */
+    100% { color: #FFFF00; } /* Pac-Man */
+  }
+  
+  /* Pac-Man Life icon */
+  .life-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: #FFFF00;
+    border-radius: 50%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    margin-right: 5px;
+  }
+  
+  /* Efecto especial para tarjetas destacadas */
+  .featured-card {
+    border: 2px solid #FFFF00 !important;
+    animation: border-pulse 2s infinite alternate;
+  }
+  
+  @keyframes border-pulse {
+    0% { border-color: #FFFF00; }
+    50% { border-color: #FF0000; }
+    100% { border-color: #00FFFF; }
+  }
+  
+  /* Texto pixelado al estilo retro */
+  .retro-text {
+    font-family: 'Press Start 2P', monospace !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    line-height: 1.5 !important;
+  }

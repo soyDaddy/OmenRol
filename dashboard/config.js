@@ -9,6 +9,9 @@ module.exports = {
   clientId: config.bot.clientId,
   clientSecret: config.bot.clientSecret,
   callbackURL: config.dashboard.callbackURL,
+
+  // Configuración de administración
+  adminUsers: config.dashboard.adminUsers,
   
   // Configuración de sesión
   session: {

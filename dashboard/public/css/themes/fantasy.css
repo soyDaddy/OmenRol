@@ -89,6 +89,14 @@ body {
     background-color: #7C3AED !important;
     box-shadow: 0 4px 8px rgba(139, 92, 246, 0.5) !important;
   }
+
+  .from-indigo-600 {
+    background-image: linear-gradient(to right, #8B5CF6, #7C3AED) !important;
+  }
+
+  .to-indigo-800 {
+    background-image: linear-gradient(to left, #8B5CF6, #7C3AED) !important;
+  }
   
   .bg-gray-700 {
     background-color: #334155 !important;

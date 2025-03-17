@@ -1,6 +1,10 @@
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
+  name: 'send-info',
+  description: 'Envía la información para que los usuarios creen su perfil',
+  category: 'info',
+
   // Definir el comando Slash
   data: new SlashCommandBuilder()
     .setName('send-info')

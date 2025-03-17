@@ -163,13 +163,717 @@
 <!-- Script específico para cada tipo de minijuego -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const resultModal = document.getElementById('result-modal');
-    const successView = document.getElementById('success-view');
-    const failureView = document.getElementById('failure-view');
-    const tryAgainBtn = document.getElementById('try-again-btn');
-    const scoreDetails = document.getElementById('score-details');
-    const scoreInput = document.getElementById('score-input');
+  const resultModal = document.getElementById('result-modal');
+  const successView = document.getElementById('success-view');
+  const failureView = document.getElementById('failure-view');
+  const tryAgainBtn = document.getElementById('try-again-btn');
+  const scoreDetails = document.getElementById('score-details');
+  const scoreInput = document.getElementById('score-input');
+  
+  // Manejo de temporizador si existe
+  const timerEl = document.getElementById('timer');
+  const timerBar = document.getElementById('timer-bar');
+  
+  // Obtener los datos del minijuego del servidor
+  const gameData = JSON.parse(document.querySelector('script[data-game]').textContent);
+  
+  // Variables para el control del juego
+  let gameState = {
+    timer: null,
+    timeLeft: gameData?.timeLimit || 0,
+    score: 0,
+    started: false,
+    completed: false
+  };
+  
+  // Inicializar el tipo de juego específico
+  if (gameData && gameData.gameType) {
+    switch (gameData.gameType) {
+      case 'quiz':
+        initQuizGame(gameData);
+        break;
+      case 'memory':
+        initMemoryGame(gameData);
+        break;
+      case 'reaction':
+        initReactionGame(gameData);
+        break;
+    }
+  }
+  
+  // Manejo del botón "Intentar de nuevo"
+  tryAgainBtn.addEventListener('click', function() {
+    resultModal.classList.add('hidden');
+    resetGame();
+  });
+  
+  /**
+   * Función para inicializar el juego de quiz/trivia
+   */
+  function initQuizGame(gameData) {
+    const questions = gameData.gameConfig.questions;
+    const questionContainer = document.getElementById('question-container');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const currentQuestionEl = document.getElementById('current-question');
+    const progressBar = document.getElementById('progress-bar');
+    const quizProgress = document.getElementById('quiz-progress');
     
-    // Manejo de temporizador si existe
-    const timerEl = document.getElementById('timer');
-    const timerBar = document.getElementByI
+    let currentQuestionIndex = 0;
+    let answers = Array(questions.length).fill(null);
+    
+    // Mostrar la primera pregunta
+    showQuestion(0);
+    updateButtons();
+    quizProgress.classList.remove('hidden');
+    
+    // Evento para el botón "Anterior"
+    prevBtn.addEventListener('click', function() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        showQuestion(currentQuestionIndex);
+        updateButtons();
+      }
+    });
+    
+    // Evento para el botón "Siguiente"
+    nextBtn.addEventListener('click', function() {
+      // Guardar la respuesta actual
+      const selectedOption = questionContainer.querySelector('input[name="answer"]:checked');
+      if (selectedOption) {
+        answers[currentQuestionIndex] = selectedOption.value;
+      }
+      
+      if (currentQuestionIndex < questions.length - 1) {
+        // Avanzar a la siguiente pregunta
+        currentQuestionIndex++;
+        showQuestion(currentQuestionIndex);
+        updateButtons();
+      } else {
+        // Evaluar el quiz si estamos en la última pregunta
+        evaluateQuiz();
+      }
+    });
+    
+    // Iniciar el temporizador si está configurado
+    if (gameData.timeLimit && timerEl && timerBar) {
+      startTimer(gameData.timeLimit, function() {
+        // Acción al agotarse el tiempo
+        evaluateQuiz();
+      });
+    }
+    
+    /**
+     * Muestra la pregunta en el índice especificado
+     */
+    function showQuestion(index) {
+      const question = questions[index];
+      currentQuestionEl.textContent = index + 1;
+      
+      let html = `
+        <div class="mb-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-2">${question.text}</h3>
+        </div>
+        <div class="space-y-3">
+      `;
+      
+      // Generar las opciones
+      question.options.forEach((option, i) => {
+        const isChecked = answers[index] === option.id ? 'checked' : '';
+        html += `
+          <div class="flex items-center">
+            <input id="option-${i}" type="radio" name="answer" value="${option.id}" class="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500" ${isChecked}>
+            <label for="option-${i}" class="ml-2 block text-sm font-medium text-gray-700">
+              ${option.text}
+            </label>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      questionContainer.innerHTML = html;
+      
+      // Actualizar la barra de progreso
+      const progress = ((index + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+    
+    /**
+     * Actualiza el estado de los botones según la posición actual
+     */
+    function updateButtons() {
+      prevBtn.disabled = currentQuestionIndex === 0;
+      
+      if (currentQuestionIndex === questions.length - 1) {
+        nextBtn.textContent = 'Finalizar';
+        nextBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+        nextBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+      } else {
+        nextBtn.textContent = 'Siguiente';
+        nextBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+        nextBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+      }
+    }
+    
+    /**
+     * Evalúa las respuestas del quiz y muestra el resultado
+     */
+    function evaluateQuiz() {
+      // Guardar la respuesta actual
+      const selectedOption = questionContainer.querySelector('input[name="answer"]:checked');
+      if (selectedOption) {
+        answers[currentQuestionIndex] = selectedOption.value;
+      }
+      
+      // Detener el temporizador
+      if (gameState.timer) {
+        clearInterval(gameState.timer);
+      }
+      
+      // Calcular puntuación
+      const correctAnswers = answers.filter((answer, index) => {
+        if (!answer) return false;
+        const question = questions[index];
+        const correct = question.options.find(option => 
+          option.id === answer && option.correct === true
+        );
+        return !!correct;
+      });
+      
+      const score = Math.round((correctAnswers.length / questions.length) * 100);
+      gameState.score = score;
+      
+      // Mostrar detalles de puntuación
+      scoreDetails.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-700">Respuestas correctas:</span>
+          <span class="font-semibold">${correctAnswers.length} de ${questions.length}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-700">Puntuación:</span>
+          <span class="font-semibold">${score}%</span>
+        </div>
+      `;
+      
+      scoreInput.value = score;
+      
+      // Determinar si el usuario ha aprobado
+      const passed = score >= (gameData.gameConfig.passingScore || 70);
+      
+      if (passed) {
+        successView.classList.remove('hidden');
+        failureView.classList.add('hidden');
+      } else {
+        successView.classList.add('hidden');
+        failureView.classList.remove('hidden');
+      }
+      
+      resultModal.classList.remove('hidden');
+    }
+    
+    /**
+     * Reinicia el juego de quiz
+     */
+    function resetGame() {
+      currentQuestionIndex = 0;
+      answers = Array(questions.length).fill(null);
+      showQuestion(0);
+      updateButtons();
+      
+      if (gameData.timeLimit && timerEl && timerBar) {
+        startTimer(gameData.timeLimit, function() {
+          evaluateQuiz();
+        });
+      }
+    }
+  }
+  
+  /**
+   * Función para inicializar el juego de memoria
+   */
+  function initMemoryGame(gameData) {
+    const memoryGrid = document.getElementById('memory-grid');
+    const matchesCountEl = document.getElementById('matches-count');
+    const attemptsCountEl = document.getElementById('attempts-count');
+    
+    let pairs = gameData.gameConfig.pairs;
+    let cards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let attempts = 0;
+    let locked = false;
+    
+    // Crear el array de cartas duplicando cada par
+    pairs.forEach(pair => {
+      cards.push({ id: pair.id, content: pair.front, backContent: pair.back });
+      cards.push({ id: pair.id, content: pair.front, backContent: pair.back });
+    });
+    
+    // Mezclar las cartas
+    shuffleArray(cards);
+    
+    // Crear el tablero
+    cards.forEach((card, index) => {
+      const cardElement = document.createElement('div');
+      cardElement.className = 'memory-card bg-white shadow rounded-lg overflow-hidden cursor-pointer transform transition-transform duration-300 h-24 md:h-32 flex items-center justify-center';
+      cardElement.dataset.index = index;
+      cardElement.dataset.id = card.id;
+      
+      // Contenido del frente (oculto inicialmente)
+      const frontContent = document.createElement('div');
+      frontContent.className = 'absolute w-full h-full flex items-center justify-center bg-white transform transition-transform duration-300 opacity-0 scale-0';
+      frontContent.innerHTML = card.content; // Puede ser texto o HTML
+      
+      // Contenido del dorso (visible inicialmente)
+      const backContent = document.createElement('div');
+      backContent.className = 'w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold';
+      backContent.textContent = card.backContent || '?';
+      
+      cardElement.appendChild(frontContent);
+      cardElement.appendChild(backContent);
+      
+      // Evento de clic en la carta
+      cardElement.addEventListener('click', () => flipCard(cardElement, index));
+      
+      memoryGrid.appendChild(cardElement);
+    });
+    
+    // Iniciar el temporizador si está configurado
+    if (gameData.timeLimit && timerEl && timerBar) {
+      startTimer(gameData.timeLimit, function() {
+        // Acción al agotarse el tiempo
+        showResult(false);
+      });
+    }
+    
+    /**
+     * Función para voltear una carta
+     */
+    function flipCard(cardElement, index) {
+      // Si el tablero está bloqueado o la carta ya está volteada o emparejada, no hacer nada
+      if (locked || flippedCards.includes(index) || cardElement.classList.contains('matched')) {
+        return;
+      }
+      
+      // Voltear la carta visualmente
+      const frontContent = cardElement.querySelector('div:first-child');
+      const backContent = cardElement.querySelector('div:last-child');
+      
+      frontContent.classList.remove('opacity-0', 'scale-0');
+      backContent.classList.add('opacity-0', 'scale-0');
+      
+      // Añadir la carta a las volteadas
+      flippedCards.push(index);
+      
+      // Si hay dos cartas volteadas, comprobar si son pareja
+      if (flippedCards.length === 2) {
+        attempts++;
+        attemptsCountEl.textContent = attempts;
+        
+        const firstCardIndex = flippedCards[0];
+        const secondCardIndex = flippedCards[1];
+        
+        const firstCard = memoryGrid.querySelector(`[data-index="${firstCardIndex}"]`);
+        const secondCard = memoryGrid.querySelector(`[data-index="${secondCardIndex}"]`);
+        
+        if (firstCard.dataset.id === secondCard.dataset.id) {
+          // Es una pareja
+          matchedPairs++;
+          matchesCountEl.textContent = matchedPairs;
+          
+          // Marcar las cartas como emparejadas
+          firstCard.classList.add('matched');
+          secondCard.classList.add('matched');
+          
+          flippedCards = [];
+          
+          // Comprobar si se han encontrado todas las parejas
+          if (matchedPairs === pairs.length) {
+            // Juego completado
+            showResult(true);
+          }
+        } else {
+          // No es pareja, voltear las cartas de nuevo
+          locked = true;
+          
+          setTimeout(() => {
+            // Voltear las cartas de nuevo
+            firstCard.querySelector('div:first-child').classList.add('opacity-0', 'scale-0');
+            firstCard.querySelector('div:last-child').classList.remove('opacity-0', 'scale-0');
+            
+            secondCard.querySelector('div:first-child').classList.add('opacity-0', 'scale-0');
+            secondCard.querySelector('div:last-child').classList.remove('opacity-0', 'scale-0');
+            
+            flippedCards = [];
+            locked = false;
+          }, 1000);
+        }
+      }
+    }
+    
+    /**
+     * Muestra el resultado del juego
+     */
+    function showResult(success) {
+      // Detener el temporizador
+      if (gameState.timer) {
+        clearInterval(gameState.timer);
+      }
+      
+      // Calcular puntuación
+      const maxAttempts = pairs.length * 2; // Un estimado de intentos máximos
+      const score = Math.round(100 * (matchedPairs / pairs.length) * (maxAttempts / Math.max(attempts, 1)));
+      gameState.score = score;
+      
+      // Mostrar detalles de puntuación
+      scoreDetails.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-700">Parejas encontradas:</span>
+          <span class="font-semibold">${matchedPairs} de ${pairs.length}</span>
+        </div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-700">Intentos:</span>
+          <span class="font-semibold">${attempts}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-700">Puntuación:</span>
+          <span class="font-semibold">${score}%</span>
+        </div>
+      `;
+      
+      scoreInput.value = score;
+      
+      if (success || score >= 50) {
+        successView.classList.remove('hidden');
+        failureView.classList.add('hidden');
+      } else {
+        successView.classList.add('hidden');
+        failureView.classList.remove('hidden');
+      }
+      
+      resultModal.classList.remove('hidden');
+    }
+    
+    /**
+     * Reinicia el juego de memoria
+     */
+    function resetGame() {
+      memoryGrid.innerHTML = '';
+      flippedCards = [];
+      matchedPairs = 0;
+      attempts = 0;
+      locked = false;
+      
+      matchesCountEl.textContent = '0';
+      attemptsCountEl.textContent = '0';
+      
+      // Mezclar las cartas
+      shuffleArray(cards);
+      
+      // Recrear el tablero
+      cards.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'memory-card bg-white shadow rounded-lg overflow-hidden cursor-pointer transform transition-transform duration-300 h-24 md:h-32 flex items-center justify-center';
+        cardElement.dataset.index = index;
+        cardElement.dataset.id = card.id;
+        
+        // Contenido del frente (oculto inicialmente)
+        const frontContent = document.createElement('div');
+        frontContent.className = 'absolute w-full h-full flex items-center justify-center bg-white transform transition-transform duration-300 opacity-0 scale-0';
+        frontContent.innerHTML = card.content;
+        
+        // Contenido del dorso (visible inicialmente)
+        const backContent = document.createElement('div');
+        backContent.className = 'w-full h-full flex items-center justify-center bg-blue-500 text-white font-bold';
+        backContent.textContent = card.backContent || '?';
+        
+        cardElement.appendChild(frontContent);
+        cardElement.appendChild(backContent);
+        
+        // Evento de clic en la carta
+        cardElement.addEventListener('click', () => flipCard(cardElement, index));
+        
+        memoryGrid.appendChild(cardElement);
+      });
+      
+      // Reiniciar el temporizador
+      if (gameData.timeLimit && timerEl && timerBar) {
+        startTimer(gameData.timeLimit, function() {
+          showResult(false);
+        });
+      }
+    }
+  }
+  
+  /**
+   * Función para inicializar el juego de reacción
+   */
+  function initReactionGame(gameData) {
+    const startGameBtn = document.getElementById('start-game');
+    const targetArea = document.getElementById('target-area');
+    const target = document.getElementById('target');
+    const startPrompt = document.getElementById('start-prompt');
+    const roundResults = document.getElementById('round-results');
+    const averageTimeEl = document.getElementById('average-time');
+    const results = document.getElementById('results');
+    
+    const rounds = gameData.gameConfig.rounds || 5;
+    let currentRound = 0;
+    let reactionTimes = [];
+    let startTime = 0;
+    let timeoutId = null;
+    
+    // Evento para iniciar el juego
+    startGameBtn.addEventListener('click', startReactionGame);
+    
+    // Evento para hacer clic en el objetivo
+    target.addEventListener('click', function(e) {
+      e.stopPropagation(); // Evitar que el clic se propague al área
+      
+      const endTime = Date.now();
+      const reactionTime = endTime - startTime;
+      
+      // Guardar el tiempo de reacción
+      reactionTimes.push(reactionTime);
+      
+      // Ocultar el objetivo y mostrar el resultado de la ronda
+      target.classList.add('hidden');
+      
+      // Crear un elemento para mostrar el resultado de esta ronda
+      const roundResult = document.createElement('div');
+      roundResult.className = 'px-2 py-1 text-center text-sm';
+      roundResult.style.backgroundColor = getColorForTime(reactionTime);
+      roundResult.textContent = `${reactionTime}ms`;
+      
+      roundResults.appendChild(roundResult);
+      
+      // Avanzar a la siguiente ronda o terminar el juego
+      currentRound++;
+      
+      if (currentRound < rounds) {
+        // Iniciar la siguiente ronda después de un breve descanso
+        setTimeout(startRound, 1000);
+      } else {
+        // Terminar el juego
+        finishGame();
+      }
+    });
+    
+    // Evento para hacer clic en el área (fallo)
+    targetArea.addEventListener('click', function() {
+      // Solo contar como fallo si el objetivo está visible
+      if (!target.classList.contains('hidden') && gameState.started) {
+        target.classList.add('hidden');
+        
+        // Añadir un tiempo de fallo (penalización)
+        reactionTimes.push(1500); // Tiempo de penalización
+        
+        // Crear un elemento para mostrar el fallo
+        const roundResult = document.createElement('div');
+        roundResult.className = 'px-2 py-1 text-center text-sm bg-red-500 text-white';
+        roundResult.textContent = 'Fallo';
+        
+        roundResults.appendChild(roundResult);
+        
+        // Avanzar a la siguiente ronda o terminar el juego
+        currentRound++;
+        
+        if (currentRound < rounds) {
+          // Iniciar la siguiente ronda después de un breve descanso
+          setTimeout(startRound, 1000);
+        } else {
+          // Terminar el juego
+          finishGame();
+        }
+      }
+    });
+    
+    /**
+     * Inicia el juego de reacción
+     */
+    function startReactionGame() {
+      gameState.started = true;
+      startPrompt.classList.add('hidden');
+      results.classList.add('hidden');
+      roundResults.innerHTML = '';
+      
+      // Reiniciar variables
+      currentRound = 0;
+      reactionTimes = [];
+      
+      // Iniciar la primera ronda
+      startRound();
+    }
+    
+    /**
+     * Inicia una ronda del juego de reacción
+     */
+    function startRound() {
+      // Posicionar aleatoriamente el objetivo
+      const maxX = targetArea.clientWidth - target.clientWidth;
+      const maxY = targetArea.clientHeight - target.clientHeight;
+      
+      const randomX = Math.floor(Math.random() * maxX);
+      const randomY = Math.floor(Math.random() * maxY);
+      
+      target.style.left = `${randomX}px`;
+      target.style.top = `${randomY}px`;
+      
+      // Esperar un tiempo aleatorio antes de mostrar el objetivo
+      const delay = 1000 + Math.floor(Math.random() * 2000); // Entre 1 y 3 segundos
+      
+      timeoutId = setTimeout(() => {
+        target.classList.remove('hidden');
+        startTime = Date.now();
+      }, delay);
+    }
+    
+    /**
+     * Finaliza el juego y muestra los resultados
+     */
+    function finishGame() {
+      gameState.started = false;
+      
+      // Mostrar resultados
+      results.classList.remove('hidden');
+      
+      // Calcular y mostrar el tiempo promedio
+      const validTimes = reactionTimes.filter(time => time < 1500); // Filtrar fallos
+      const averageTime = validTimes.length > 0
+        ? Math.round(validTimes.reduce((sum, time) => sum + time, 0) / validTimes.length)
+        : 0;
+      
+      averageTimeEl.textContent = averageTime;
+      
+      // Calcular puntuación (inversa al tiempo promedio)
+      // 200ms o menos = 100%, 1000ms o más = 0%
+      const score = Math.max(0, Math.round(100 - ((averageTime - 200) / 8)));
+      gameState.score = score;
+      
+      // Mostrar detalles de puntuación
+      scoreDetails.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-700">Tiempo promedio:</span>
+          <span class="font-semibold">${averageTime}ms</span>
+        </div>
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-gray-700">Aciertos:</span>
+          <span class="font-semibold">${validTimes.length} de ${rounds}</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-700">Puntuación:</span>
+          <span class="font-semibold">${score}%</span>
+        </div>
+      `;
+      
+      scoreInput.value = score;
+      
+      // Mostrar el modal con el resultado
+      if (score >= 50) {
+        successView.classList.remove('hidden');
+        failureView.classList.add('hidden');
+      } else {
+        successView.classList.add('hidden');
+        failureView.classList.remove('hidden');
+      }
+      
+      resultModal.classList.remove('hidden');
+      
+      // Mostrar el botón de inicio para jugar de nuevo
+      startPrompt.classList.remove('hidden');
+    }
+    
+    /**
+     * Reinicia el juego de reacción
+     */
+    function resetGame() {
+      // Limpiar cualquier temporizador pendiente
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      target.classList.add('hidden');
+      startPrompt.classList.remove('hidden');
+      results.classList.add('hidden');
+      roundResults.innerHTML = '';
+      
+      // Reiniciar variables
+      currentRound = 0;
+      reactionTimes = [];
+      gameState.started = false;
+    }
+    
+    /**
+     * Devuelve un color basado en el tiempo de reacción
+     */
+    function getColorForTime(time) {
+      if (time < 300) return '#22c55e'; // Verde (muy rápido)
+      if (time < 500) return '#10b981'; // Verde azulado (rápido)
+      if (time < 700) return '#facc15'; // Amarillo (normal)
+      if (time < 900) return '#f97316'; // Naranja (lento)
+      return '#ef4444'; // Rojo (muy lento)
+    }
+  }
+  
+  /**
+   * Función para iniciar un temporizador
+   */
+  function startTimer(seconds, onComplete) {
+    if (!timerEl || !timerBar) return;
+    
+    // Detener cualquier temporizador existente
+    if (gameState.timer) {
+      clearInterval(gameState.timer);
+    }
+    
+    gameState.timeLeft = seconds;
+    timerEl.textContent = `${seconds}s`;
+    timerBar.style.width = '100%';
+    
+    gameState.timer = setInterval(() => {
+      gameState.timeLeft--;
+      
+      if (gameState.timeLeft <= 0) {
+        clearInterval(gameState.timer);
+        timerEl.textContent = '0s';
+        timerBar.style.width = '0%';
+        
+        if (onComplete) {
+          onComplete();
+        }
+      } else {
+        timerEl.textContent = `${gameState.timeLeft}s`;
+        const percentage = (gameState.timeLeft / seconds) * 100;
+        timerBar.style.width = `${percentage}%`;
+      }
+    }, 1000);
+  }
+  
+  /**
+   * Función para mezclar un array aleatoriamente
+   */
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  
+  /**
+   * Función para reiniciar el juego
+   */
+  function resetGame() {
+    // Se implementa específicamente para cada tipo de juego
+    if (gameData.gameType === 'quiz') {
+      initQuizGame(gameData);
+    } else if (gameData.gameType === 'memory') {
+      initMemoryGame(gameData);
+    } else if (gameData.gameType === 'reaction') {
+      initReactionGame(gameData);
+    }
+  }
+});
+</script>
+
+<%- include('../partials/footer') %>

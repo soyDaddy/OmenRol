@@ -1,0 +1,279 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div class="flex items-center">
+      <% if (guild.iconURL()) { %>
+        <img src="<%= guild.iconURL() %>" alt="<%= guild.name %>" class="h-16 w-16 rounded-full">
+      <% } else { %>
+        <div class="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center">
+          <span class="text-indigo-800 font-bold text-xl"><%= guild.name.charAt(0) %></span>
+        </div>
+      <% } %>
+      <div class="ml-4">
+        <h1 class="text-3xl font-bold text-gray-900"><%= guild.name %></h1>
+        <p class="text-gray-500">Panel de usuario</p>
+      </div>
+    </div>
+    
+    <div class="mt-4 md:mt-0 flex space-x-3">
+      <a href="https://discord.com/channels/<%= guild.id %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fa-brands fa-discord mr-2"></i>
+        Abrir en Discord
+      </a>
+    </div>
+  </div>
+  
+  <!-- Información básica del servidor -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Información del servidor</h2>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Nombre del servidor</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= guild.name %></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Miembros</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= guild.memberCount.toLocaleString() %></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Prefijo del bot</dt>
+            <dd class="mt-1 text-sm text-gray-900 font-mono"><%= serverConfig.config.prefix %></dd>
+          </div>
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">Moneda de inicio</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= serverConfig.roleplay.startingCurrency %> monedas</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mi perfil y acciones del usuario -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Mi cuenta</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <a href="/servers/<%= guild.id %>/profile" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-indigo-100 rounded-md flex items-center justify-center">
+              <i class="fas fa-user-circle text-indigo-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Mi perfil de personaje</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                <%= profile ? 'Editar tu perfil de roleplay' : 'Crear un nuevo perfil de roleplay' %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="/servers/<%= guild.id %>/my-missions" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-yellow-100 rounded-md flex items-center justify-center">
+              <i class="fas fa-tasks text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Mis misiones</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Ver y gestionar tus misiones activas
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+  
+  <!-- Sistema de rol - Opciones para el usuario -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Aventura</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-blue-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-dragon text-blue-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Razas disponibles</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              <%= serverConfig.roleplay.races.length %> razas para elegir
+            </p>
+            <div class="mt-2 flex flex-wrap gap-1">
+              <% serverConfig.roleplay.races.slice(0, 5).forEach(race => { %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <%= race %>
+                </span>
+              <% }); %>
+              <% if (serverConfig.roleplay.races.length > 5) { %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  +<%= serverConfig.roleplay.races.length - 5 %> más
+                </span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-hat-wizard text-purple-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Clases disponibles</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              <%= serverConfig.roleplay.classes.length %> clases para elegir
+            </p>
+            <div class="mt-2 flex flex-wrap gap-1">
+              <% serverConfig.roleplay.classes.slice(0, 5).forEach(characterClass => { %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                  <%= characterClass %>
+                </span>
+              <% }); %>
+              <% if (serverConfig.roleplay.classes.length > 5) { %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  +<%= serverConfig.roleplay.classes.length - 5 %> más
+                </span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-green-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-coins text-green-600 text-xl"></i>
+          </div>
+          <div class="ml-4">
+            <h3 class="text-lg font-medium text-gray-900">Economía</h3>
+            <% if (profile) { %>
+              <p class="mt-1 text-sm text-gray-500">
+                Tienes <span class="font-semibold"><%= profile.character.currency %></span> monedas
+              </p>
+              <p class="mt-1 text-xs text-gray-500">
+                Nivel: <%= profile.character.level %> | 
+                EXP: <%= profile.character.experience %>/<%= profile.character.level * 100 %>
+              </p>
+            <% } else { %>
+              <p class="mt-1 text-sm text-gray-500">
+                Crea un perfil para comenzar con <%= serverConfig.roleplay.startingCurrency %> monedas
+              </p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Comandos útiles -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Comandos útiles</h2>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comando</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-900"><%= serverConfig.config.prefix %>perfil</td>
+                <td class="px-6 py-4 text-sm text-gray-500">Ver tu perfil de personaje</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-900"><%= serverConfig.config.prefix %>inventario</td>
+                <td class="px-6 py-4 text-sm text-gray-500">Ver tu inventario</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-900"><%= serverConfig.config.prefix %>misiones</td>
+                <td class="px-6 py-4 text-sm text-gray-500">Ver misiones disponibles</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-900"><%= serverConfig.config.prefix %>habilidades</td>
+                <td class="px-6 py-4 text-sm text-gray-500">Ver tus habilidades</td>
+              </tr>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-gray-900"><%= serverConfig.config.prefix %>ayuda</td>
+                <td class="px-6 py-4 text-sm text-gray-500">Ver lista completa de comandos</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <% if (profile) { %>
+  <!-- Progreso del personaje (solo si tiene perfil) -->
+  <div>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Estado de mi personaje</h2>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Información básica</h3>
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500">Nombre</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= profile.character.name %></dd>
+              </div>
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500">Nivel</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= profile.character.level %></dd>
+              </div>
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500">Raza</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= profile.character.race %></dd>
+              </div>
+              <div class="sm:col-span-1">
+                <dt class="text-sm font-medium text-gray-500">Clase</dt>
+                <dd class="mt-1 text-sm text-gray-900"><%= profile.character.class %></dd>
+              </div>
+            </dl>
+          </div>
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Estadísticas</h3>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-500">Salud</span>
+                  <span class="text-sm text-gray-700"><%= profile.character.health.current %>/<%= profile.character.health.max %></span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-red-600 h-2 rounded-full" style="width: <%= Math.floor((profile.character.health.current / profile.character.health.max) * 100) %>%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-500">Experiencia</span>
+                  <span class="text-sm text-gray-700"><%= profile.character.experience %>/<%= profile.character.level * 100 %></span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: <%= Math.floor((profile.character.experience / (profile.character.level * 100)) * 100) %>%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm font-medium text-gray-500">Misiones completadas</span>
+                  <span class="text-sm text-gray-700"><%= profile.stats.quests.completed %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

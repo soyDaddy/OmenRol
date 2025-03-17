@@ -13,7 +13,7 @@
               <span class="text-indigo-800 font-bold text-2xl"><%= user.username.charAt(0) %></span>
             </div>
           <% } %>
-          <h2 class="mt-4 text-xl font-medium text-gray-900"><%= user.username %><% if(user.discriminator) { %>#<%= user.discriminator %><% } %></h2>
+          <h2 class="mt-4 text-xl font-medium text-gray-900"><%= user.username %></h2>
           <p class="text-sm text-gray-500 truncate"><%= user.id %></p>
         </div>
         <div class="bg-gray-50 px-4 py-4 sm:px-6 text-center">
@@ -149,10 +149,10 @@
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tema</label>
                 <select id="theme-select" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="theme">
-                  <option value="default">Por defecto (Claro)</option>
-                  <option value="dark">Oscuro</option>
-                  <option value="cyberpunk">Cyberpunk</option>
-                  <option value="fantasy">Fantasía</option>
+                  <option value="default" <%= user.settings?.theme === 'default' ? 'selected' : '' %>>Por defecto (Claro)</option>
+                  <option value="dark" <%= user.settings?.theme === 'dark' ? 'selected' : '' %>>Oscuro</option>
+                  <option value="cyberpunk" <%= user.settings?.theme === 'cyberpunk' ? 'selected' : '' %>>Cyberpunk</option>
+                  <option value="fantasy" <%= user.settings?.theme === 'fantasy' ? 'selected' : '' %>>Fantasía</option>
                 </select>
                 <p class="mt-1 text-xs text-gray-500">El tema modificará los colores y el estilo visual de la aplicación.</p>
               </div>
@@ -160,9 +160,9 @@
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Modo de visualización</label>
                 <select id="mode-select" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="displayMode">
-                  <option value="detailed">Detallado (animaciones y efectos)</option>
-                  <option value="minimal">Minimalista (para dispositivos con menos recursos)</option>
-                  <option value="auto">Automático (detectar según el dispositivo)</option>
+                  <option value="detailed" <%= user.settings?.displayMode === 'detailed' ? 'selected' : '' %>>Detallado (animaciones y efectos)</option>
+                  <option value="minimal" <%= user.settings?.displayMode === 'minimal' ? 'selected' : '' %>>Minimalista (para dispositivos con menos recursos)</option>
+                  <option value="auto" <%= user.settings?.displayMode === 'auto' ? 'selected' : '' %>>Automático (detectar según el dispositivo)</option>
                 </select>
                 <p class="mt-1 text-xs text-gray-500">El modo minimalista reduce animaciones y efectos visuales para mejorar el rendimiento en dispositivos con menos recursos.</p>
               </div>
@@ -170,35 +170,35 @@
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Idioma</label>
                 <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="language">
-                  <option value="es" selected>Español</option>
-                  <option value="en">English</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
+                  <option value="es" <%= user.settings?.language === 'es' ? 'selected' : '' %>>Español</option>
+                  <option value="en" <%= user.settings?.language === 'en' ? 'selected' : '' %>>English</option>
+                  <option value="fr" <%= user.settings?.language === 'fr' ? 'selected' : '' %>>Français</option>
+                  <option value="de" <%= user.settings?.language === 'de' ? 'selected' : '' %>>Deutsch</option>
                 </select>
               </div>
               
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Formato de fecha</label>
                 <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="dateFormat">
-                  <option value="dd/mm/yyyy" selected>DD/MM/YYYY</option>
-                  <option value="mm/dd/yyyy">MM/DD/YYYY</option>
-                  <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+                  <option value="dd/mm/yyyy" <%= user.settings?.dateFormat === 'dd/mm/yyyy' ? 'selected' : '' %>>DD/MM/YYYY</option>
+                  <option value="mm/dd/yyyy" <%= user.settings?.dateFormat === 'mm/dd/yyyy' ? 'selected' : '' %>>MM/DD/YYYY</option>
+                  <option value="yyyy-mm-dd" <%= user.settings?.dateFormat === 'yyyy-mm-dd' ? 'selected' : '' %>>YYYY-MM-DD</option>
                 </select>
               </div>
               
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Tamaño de fuente</label>
                 <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="fontSize">
-                  <option value="small">Pequeña</option>
-                  <option value="medium" selected>Media</option>
-                  <option value="large">Grande</option>
+                  <option value="small" <%= user.settings?.fontSize === 'small' ? 'selected' : '' %>>Pequeña</option>
+                  <option value="medium" <%= user.settings?.fontSize === 'medium' ? 'selected' : '' %>>Media</option>
+                  <option value="large" <%= user.settings?.fontSize === 'large' ? 'selected' : '' %>>Grande</option>
                 </select>
               </div>
               
               <div class="mt-6 space-y-4">
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
-                    <input id="compactMode" name="compactMode" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <input id="compactMode" name="compactMode" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.compactMode ? 'checked' : '' %>>
                   </div>
                   <div class="ml-3 text-sm">
                     <label for="compactMode" class="font-medium text-gray-700">Modo compacto</label>
@@ -208,7 +208,7 @@
                 
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
-                    <input id="reduceMotion" name="reduceMotion" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <input id="reduceMotion" name="reduceMotion" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.reduceMotion ? 'checked' : '' %>>
                   </div>
                   <div class="ml-3 text-sm">
                     <label for="reduceMotion" class="font-medium text-gray-700">Reducir animaciones</label>
@@ -218,7 +218,7 @@
                 
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
-                    <input id="highContrast" name="highContrast" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <input id="highContrast" name="highContrast" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.highContrast ? 'checked' : '' %>>
                   </div>
                   <div class="ml-3 text-sm">
                     <label for="highContrast" class="font-medium text-gray-700">Alto contraste</label>
@@ -249,7 +249,7 @@
                 <div class="space-y-4">
                   <div class="flex items-start">
                     <div class="flex items-center h-5">
-                      <input id="notifyMessages" name="notifyMessages" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                      <input id="notifyMessages" name="notifyMessages" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.notifications?.notifyMessages !== false ? 'checked' : '' %>>
                     </div>
                     <div class="ml-3 text-sm">
                       <label for="notifyMessages" class="font-medium text-gray-700">Mensajes privados</label>
@@ -259,7 +259,7 @@
                   
                   <div class="flex items-start">
                     <div class="flex items-center h-5">
-                      <input id="notifyEvents" name="notifyEvents" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                      <input id="notifyEvents" name="notifyEvents" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.notifications?.notifyEvents !== false ? 'checked' : '' %>>
                     </div>
                     <div class="ml-3 text-sm">
                       <label for="notifyEvents" class="font-medium text-gray-700">Eventos y actividades</label>
@@ -269,7 +269,7 @@
                   
                   <div class="flex items-start">
                     <div class="flex items-center h-5">
-                      <input id="notifyUpdates" name="notifyUpdates" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                      <input id="notifyUpdates" name="notifyUpdates" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.notifications?.notifyUpdates !== false ? 'checked' : '' %>>
                     </div>
                     <div class="ml-3 text-sm">
                       <label for="notifyUpdates" class="font-medium text-gray-700">Actualizaciones del bot</label>
@@ -279,7 +279,7 @@
                   
                   <div class="flex items-start">
                     <div class="flex items-center h-5">
-                      <input id="notifyQuests" name="notifyQuests" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                      <input id="notifyQuests" name="notifyQuests" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.notifications?.notifyQuests !== false ? 'checked' : '' %>>
                     </div>
                     <div class="ml-3 text-sm">
                       <label for="notifyQuests" class="font-medium text-gray-700">Nuevas misiones</label>
@@ -289,7 +289,7 @@
                   
                   <div class="flex items-start">
                     <div class="flex items-center h-5">
-                      <input id="notifyMentions" name="notifyMentions" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                      <input id="notifyMentions" name="notifyMentions" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.notifications?.notifyMentions !== false ? 'checked' : '' %>>
                     </div>
                     <div class="ml-3 text-sm">
                       <label for="notifyMentions" class="font-medium text-gray-700">Menciones</label>
@@ -302,9 +302,9 @@
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Modo de notificación</label>
                 <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="notificationMode">
-                  <option value="all" selected>Todas las notificaciones</option>
-                  <option value="important">Solo importantes</option>
-                  <option value="none">No mostrar notificaciones</option>
+                  <option value="all" <%= user.settings?.notifications?.mode === 'all' ? 'selected' : '' %>>Todas las notificaciones</option>
+                  <option value="important" <%= user.settings?.notifications?.mode === 'important' ? 'selected' : '' %>>Solo importantes</option>
+                  <option value="none" <%= user.settings?.notifications?.mode === 'none' ? 'selected' : '' %>>No mostrar notificaciones</option>
                 </select>
               </div>
               
@@ -328,9 +328,9 @@
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Visibilidad del perfil</label>
                 <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="profileVisibility">
-                  <option value="public">Público - Visible para todos</option>
-                  <option value="friends">Amigos - Solo visible para amigos</option>
-                  <option value="private" selected>Privado - Solo visible para ti</option>
+                  <option value="public" <%= user.settings?.privacy?.profileVisibility === 'public' ? 'selected' : '' %>>Público - Visible para todos</option>
+                  <option value="friends" <%= user.settings?.privacy?.profileVisibility === 'friends' ? 'selected' : '' %>>Amigos - Solo visible para amigos</option>
+                  <option value="private" <%= user.settings?.privacy?.profileVisibility === 'private' ? 'selected' : '' %>>Privado - Solo visible para ti</option>
                 </select>
                 <p class="mt-1 text-xs text-gray-500">Controla quién puede ver tu perfil de usuario y tus personajes.</p>
               </div>
@@ -338,9 +338,9 @@
               <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Visibilidad de la actividad</label>
                 <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" name="activityVisibility">
-                  <option value="public">Pública - Visible para todos</option>
-                  <option value="friends">Amigos - Solo visible para amigos</option>
-                  <option value="private" selected>Privada - Solo visible para ti</option>
+                  <option value="public" <%= user.settings?.privacy?.activityVisibility === 'public' ? 'selected' : '' %>>Pública - Visible para todos</option>
+                  <option value="friends" <%= user.settings?.privacy?.activityVisibility === 'friends' ? 'selected' : '' %>>Amigos - Solo visible para amigos</option>
+                  <option value="private" <%= user.settings?.privacy?.activityVisibility === 'private' ? 'selected' : '' %>>Privada - Solo visible para ti</option>
                 </select>
                 <p class="mt-1 text-xs text-gray-500">Controla quién puede ver tu historial de actividad.</p>
               </div>
@@ -348,7 +348,7 @@
               <div class="mb-6 space-y-4">
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
-                    <input id="showOnlineStatus" name="showOnlineStatus" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <input id="showOnlineStatus" name="showOnlineStatus" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.privacy?.showOnlineStatus !== false ? 'checked' : '' %>>
                   </div>
                   <div class="ml-3 text-sm">
                     <label for="showOnlineStatus" class="font-medium text-gray-700">Mostrar estado en línea</label>
@@ -358,7 +358,7 @@
                 
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
-                    <input id="allowFriendRequests" name="allowFriendRequests" type="checkbox" checked class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <input id="allowFriendRequests" name="allowFriendRequests" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.privacy?.allowFriendRequests !== false ? 'checked' : '' %>>
                   </div>
                   <div class="ml-3 text-sm">
                     <label for="allowFriendRequests" class="font-medium text-gray-700">Permitir solicitudes de amistad</label>
@@ -368,7 +368,7 @@
                 
                 <div class="flex items-start">
                   <div class="flex items-center h-5">
-                    <input id="shareCharacterStats" name="shareCharacterStats" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <input id="shareCharacterStats" name="shareCharacterStats" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" <%= user.settings?.privacy?.shareCharacterStats ? 'checked' : '' %>>
                   </div>
                   <div class="ml-3 text-sm">
                     <label for="shareCharacterStats" class="font-medium text-gray-700">Compartir estadísticas de personajes</label>
@@ -387,55 +387,55 @@
         </div>
         
         <!-- Datos -->
-        <div id="data" class="tab-content hidden">
-          <div class="px-4 py-5 sm:p-6">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Gestión de datos</h3>
-            
-            <div class="bg-blue-50 p-4 mb-6 rounded-md border border-blue-200">
-              <div class="flex">
-                <div class="flex-shrink-0">
-                  <i class="fas fa-info-circle text-blue-500"></i>
-                </div>
-                <div class="ml-3">
-                  <h4 class="text-sm font-medium text-blue-800">Información sobre tus datos</h4>
-                  <p class="mt-2 text-sm text-blue-700">
-                    Aquí puedes gestionar todos tus datos personales. Puedes exportarlos en formato JSON o eliminarlos de manera permanente.
-                    Recuerda que la eliminación de datos es irreversible.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div class="mb-6">
-              <h4 class="text-md font-medium text-gray-800 mb-2">Exportar datos</h4>
-              <p class="text-sm text-gray-500 mb-3">Exporta toda tu información personal y datos de perfil en formato JSON.</p>
-              <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-                <a href="/me/export/profiles" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
-                  <i class="fas fa-file-export mr-2"></i>Exportar perfiles
-                </a>
-                <a href="/me/export/settings" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
-                  <i class="fas fa-file-export mr-2"></i>Exportar configuración
-                </a>
-                <a href="/me/export/all" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
-                  <i class="fas fa-download mr-2"></i>Exportar todos los datos
-                </a>
-              </div>
-            </div>
-            
-            <div class="border-t border-gray-200 pt-6">
-              <h4 class="text-md font-medium text-red-600 mb-2">Eliminar datos</h4>
-              <p class="text-sm text-gray-500 mb-3">Esta acción es irreversible. Se eliminarán todos tus datos y perfiles de manera permanente.</p>
-              <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-                <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" onclick="openModal('deleteProfilesModal')">
-                  <i class="fas fa-trash-alt mr-2"></i>Eliminar perfiles
-                </button>
-                <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" onclick="openModal('deleteAccountModal')">
-                  <i class="fas fa-user-slash mr-2"></i>Eliminar cuenta
-                </button>
-              </div>
-            </div>
-          </div>
+<div id="data" class="tab-content hidden">
+  <div class="px-4 py-5 sm:p-6">
+    <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Gestión de datos</h3>
+    
+    <div class="bg-blue-50 p-4 mb-6 rounded-md border border-blue-200">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-info-circle text-blue-500"></i>
         </div>
+        <div class="ml-3">
+          <h4 class="text-sm font-medium text-blue-800">Información sobre tus datos</h4>
+          <p class="mt-2 text-sm text-blue-700">
+            Aquí puedes gestionar todos tus datos personales. Puedes exportarlos en formato JSON o eliminarlos de manera permanente.
+            Recuerda que la eliminación de datos es irreversible.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mb-6">
+      <h4 class="text-md font-medium text-gray-800 mb-2">Exportar datos</h4>
+      <p class="text-sm text-gray-500 mb-3">Exporta toda tu información personal y datos de perfil en formato JSON.</p>
+      <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+        <a href="/me/export/profiles" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+          <i class="fas fa-file-export mr-2"></i>Exportar perfiles
+        </a>
+        <a href="/me/export/settings" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+          <i class="fas fa-file-export mr-2"></i>Exportar configuración
+        </a>
+        <a href="/me/export/all" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+          <i class="fas fa-download mr-2"></i>Exportar todos los datos
+        </a>
+      </div>
+    </div>
+    
+    <div class="border-t border-gray-200 pt-6">
+      <h4 class="text-md font-medium text-red-600 mb-2">Eliminar datos</h4>
+      <p class="text-sm text-gray-500 mb-3">Esta acción es irreversible. Se eliminarán todos tus datos y perfiles de manera permanente.</p>
+      <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+        <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" onclick="openModal('deleteProfilesModal')">
+          <i class="fas fa-trash-alt mr-2"></i>Eliminar perfiles
+        </button>
+        <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200" onclick="openModal('deleteAccountModal')">
+          <i class="fas fa-user-slash mr-2"></i>Eliminar cuenta
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -610,12 +610,15 @@
     if (themeSelect) {
       // Establecer el valor inicial basado en localStorage
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
-        themeSelect.value = 'dark';
-      } else if (savedTheme === 'cyberpunk') {
-        themeSelect.value = 'cyberpunk';
-      } else if (savedTheme === 'fantasy') {
-        themeSelect.value = 'fantasy';
+      if (savedTheme) {
+        themeSelect.value = savedTheme;
+        if (savedTheme === 'dark') {
+          document.body.classList.add('dark-theme');
+        } else if (savedTheme === 'cyberpunk') {
+          document.body.classList.add('dark-theme', 'theme-cyberpunk');
+        } else if (savedTheme === 'fantasy') {
+          document.body.classList.add('dark-theme', 'theme-fantasy');
+        }
       }
       
       // Escuchar cambios en el selector de tema
@@ -644,12 +647,11 @@
     if (modeSelect) {
       // Establecer el valor inicial basado en localStorage
       const savedMode = localStorage.getItem('mode');
-      if (savedMode === 'minimal') {
-        modeSelect.value = 'minimal';
-      } else if (savedMode === 'detailed') {
-        modeSelect.value = 'detailed';
-      } else {
-        modeSelect.value = 'auto';
+      if (savedMode) {
+        modeSelect.value = savedMode;
+        if (savedMode === 'minimal') {
+          document.body.classList.add('minimal-mode');
+        }
       }
       
       // Vincular con el checkbox de reducción de movimiento

@@ -1,0 +1,69 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Tus Misiones Completas - <%= guild.name %></h1>
+      <p class="mt-2 text-sm text-gray-500">Gestiona tus misiones completas</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+      <a href="/servers/<%= guild.id %>" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>Volver al panel
+      </a>
+    </div>
+  </div>
+  
+  <!-- Lista de misiones activas -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <ul role="list" class="divide-y divide-gray-200">
+      <% completed.map((mission) => { %>
+        <li>
+          <a type=="button" class="block disabled">
+            <div class="px-4 py-4 sm:px-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                  <% if (mission.image) { %>
+                    <img class="h-10 w-10 rounded-full object-cover" src="<%= mission.image %>" alt="<%= mission.title %>">
+                  <% } else { %>
+                    <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span class="text-indigo-800 font-bold"><%= mission.title.charAt(0) %></span>
+                    </div>
+                  <% } %>
+                  <div class="ml-4">
+                    <p class="text-sm font-medium text-indigo-600 truncate"><%= mission.title %></p>
+                    <p class="text-sm text-gray-500 truncate"><%= mission.description.length > 100 ? mission.description.substring(0, 100) + '...' : mission.description %></p>
+                  </div>
+                </div>
+                <div class="ml-2 flex-shrink-0 flex">
+                  <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    <%= mission.difficulty === 'easy' ? 'bg-green-100 text-green-800' : 
+                       mission.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+                       mission.difficulty === 'hard' ? 'bg-orange-100 text-orange-800' : 
+                       'bg-red-100 text-red-800' %>">
+                    <%= mission.difficulty.charAt(0).toUpperCase() + mission.difficulty.slice(1) %>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-2 sm:flex sm:justify-between">
+                <div class="sm:flex">
+                  <p class="flex items-center text-sm text-gray-500">
+                    <span>Nivel min. <%= mission.levelRequired %></span>
+                  </p>
+                </div>
+                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                    <span class="text-green-600 font-medium">Completada!</span>
+                </div>
+              </div>
+              <div class="mt-2 w-full bg-gray-200 rounded-full h-2.5">
+                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
