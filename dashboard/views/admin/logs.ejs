@@ -1,0 +1,106 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Logs del Sistema</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Monitorea la actividad del sistema y del bot.
+      </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+      <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+        </svg>
+        Exportar logs
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="bg-white shadow sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Filtros</h3>
+      <div class="mt-4 grid grid-cols-1 gap-y-4 sm:grid-cols-6 sm:gap-x-6">
+        <div class="sm:col-span-2">
+          <label for="level" class="block text-sm font-medium text-gray-700">Nivel</label>
+          <select id="level" name="level" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="all" selected>Todos</option>
+            <option value="info">Info</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+            <option value="debug">Debug</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="source" class="block text-sm font-medium text-gray-700">Origen</label>
+          <select id="source" name="source" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="all" selected>Todos</option>
+            <option value="system">Sistema</option>
+            <option value="bot">Bot</option>
+            <option value="web">Web</option>
+            <option value="api">API</option>
+            <option value="database">Base de datos</option>
+          </select>
+        </div>
+        <div class="sm:col-span-2">
+          <label for="date" class="block text-sm font-medium text-gray-700">Fecha</label>
+          <input type="date" name="date" id="date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        </div>
+        <div class="sm:col-span-6 flex items-end">
+          <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Aplicar filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de logs -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <ul class="divide-y divide-gray-200">
+      <% logs.forEach(function(log) { %>
+        <li>
+          <div class="px-4 py-4 sm:px-6">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <% if (log.level === 'info') { %>
+                  <span class="flex-shrink-0 h-5 w-5 text-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  </span>
+                <% } else if (log.level === 'warning') { %>
+                  <span class="flex-shrink-0 h-5 w-5 text-yellow-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a4 4 0 00-3.446 6.032l-2.261 2.26a1 1 0 101.414 1.415l2.261-2.261A4 4 0 1011 5z" clip-rule="evenodd" />
+                    </svg>
+                  </span>
+                <% } else if (log.level === 'error') { %>
+                  <span class="flex-shrink-0 h-5 w-5 text-red-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  </span>
+                <% } %>
+                <div class="ml-4">
+                  <p class="text-sm font-medium text-gray-900"><%= log.level %></p>
+                  <p class="mt-1 text-sm text-gray-500"><%= log.message %></p>
+                </div>
+              </div>
+              <div class="ml-4 flex-shrink-0">
+                <p class="text-sm font-medium text-gray-900"><%= log.timestamp %></p>
+              </div>
+            </div>
+          </div>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+</div>
+
+<%- include('../partials/footer'); %>

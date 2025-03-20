@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
           <p class="mb-1"><strong>🗣 Opciones:</strong> Define las opciones de respuesta del jugador.</p>
           <p class="mb-1"><strong>❌ Final:</strong> Marca el final de una rama de diálogo.</p>
           <p class="mt-2 text-xs text-gray-500">Ejemplo:</p>
-          <pre class="bg-gray-100 p-2 text-xs mt-1 rounded">
+          <pre class="bg-white p-2 text-xs mt-1 rounded">
   📜 El tabernero limpia un vaso mientras te mira fijamente.
   🧙‍♂️ Tabernero: ¿Qué te trae por estos lares, forastero?
   🗣 Estoy buscando información sobre la cueva del dragón.

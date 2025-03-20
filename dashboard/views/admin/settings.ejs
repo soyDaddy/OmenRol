@@ -1,0 +1,237 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Configuración Global</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Administra la configuración global del sistema y del bot.
+      </p>
+    </div>
+  </div>
+
+  <!-- Formulario de configuración -->
+  <form action="/admin/settings/update" method="POST">
+    <!-- Bot Config -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+      <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Configuración del Bot</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Configuraciones generales para el bot de Discord.</p>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl class="sm:divide-y sm:divide-gray-200">
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Prefijo global</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="text" name="bot.prefix" id="bot.prefix" value="<%= config.bot?.prefix || '!' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+              <p class="mt-1 text-sm text-gray-500">Prefijo por defecto para todos los servidores.</p>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Estado de actividad</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="text" name="bot.activity" id="bot.activity" value="<%= config.bot?.activity || 'Ayudando en servidores' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
+              <p class="mt-1 text-sm text-gray-500">Estado de actividad mostrado en Discord.</p>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Tipo de actividad</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <select id="bot.activityType" name="bot.activityType" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                <option value="PLAYING" <%= config.bot?.activityType === 'PLAYING' ? 'selected' : '' %>>Jugando a</option>
+                <option value="LISTENING" <%= config.bot?.activityType === 'LISTENING' ? 'selected' : '' %>>Escuchando</option>
+                <option value="WATCHING" <%= config.bot?.activityType === 'WATCHING' ? 'selected' : '' %>>Viendo</option>
+                <option value="COMPETING" <%= config.bot?.activityType === 'COMPETING' ? 'selected' : '' %>>Compitiendo en</option>
+              </select>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Estado del bot</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <select id="bot.status" name="bot.status" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                <option value="online" <%= config.bot?.status === 'online' ? 'selected' : '' %>>En línea</option>
+                <option value="idle" <%= config.bot?.status === 'idle' ? 'selected' : '' %>>Ausente</option>
+                <option value="dnd" <%= config.bot?.status === 'dnd' ? 'selected' : '' %>>No molestar</option>
+                <option value="invisible" <%= config.bot?.status === 'invisible' ? 'selected' : '' %>>Invisible</option>
+              </select>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Comandos habilitados</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="space-y-2">
+                <div class="flex items-center">
+                  <input id="modules-mod" name="bot.enabledModules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.bot?.enabledModules?.includes('moderation') ? 'checked' : '' %> value="moderation">
+                  <label for="modules-mod" class="ml-2 block text-sm text-gray-900">Moderación</label>
+                </div>
+                <div class="flex items-center">
+                  <input id="modules-eco" name="bot.enabledModules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.bot?.enabledModules?.includes('economy') ? 'checked' : '' %> value="economy">
+                  <label for="modules-eco" class="ml-2 block text-sm text-gray-900">Economía</label>
+                </div>
+                <div class="flex items-center">
+                  <input id="modules-lvl" name="bot.enabledModules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.bot?.enabledModules?.includes('leveling') ? 'checked' : '' %> value="leveling">
+                  <label for="modules-lvl" class="ml-2 block text-sm text-gray-900">Sistema de niveles</label>
+                </div>
+                <div class="flex items-center">
+                  <input id="modules-fun" name="bot.enabledModules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.bot?.enabledModules?.includes('fun') ? 'checked' : '' %> value="fun">
+                  <label for="modules-fun" class="ml-2 block text-sm text-gray-900">Comandos divertidos</label>
+                </div>
+                <div class="flex items-center">
+                  <input id="modules-util" name="bot.enabledModules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.bot?.enabledModules?.includes('utility') ? 'checked' : '' %> value="utility">
+                  <label for="modules-util" class="ml-2 block text-sm text-gray-900">Utilidades</label>
+                </div>
+              </div>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Web Config -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+      <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Configuración Web</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Configuraciones para el panel web y el sitio público.</p>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl class="sm:divide-y sm:divide-gray-200">
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Título del sitio</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="text" name="website.title" id="website.title" value="<%= config.website?.title || 'Discord Bot' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Descripción</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <textarea name="website.description" id="website.description" rows="3" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"><%= config.website?.description || 'Un bot de Discord multifuncional' %></textarea>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">URL del sitio</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="text" name="website.url" id="website.url" value="<%= config.website?.url || 'https://yourdiscordbot.com' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Tema</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <select id="website.theme" name="website.theme" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                <option value="light" <%= config.website?.theme === 'light' ? 'selected' : '' %>>Claro</option>
+                <option value="dark" <%= config.website?.theme === 'dark' ? 'selected' : '' %>>Oscuro</option>
+                <option value="auto" <%= config.website?.theme === 'auto' ? 'selected' : '' %>>Automático (basado en preferencias del usuario)</option>
+              </select>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Color principal</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="color" name="website.mainColor" id="website.mainColor" value="<%= config.website?.mainColor || '#4F46E5' %>" class="h-10 rounded-md border-gray-300">
+              <p class="mt-1 text-sm text-gray-500">Color primario para el tema del sitio.</p>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- API Config -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+      <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Configuración de API</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Configuración para la API REST y Webhooks.</p>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl class="sm:divide-y sm:divide-gray-200">
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">API habilitada</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="flex items-center">
+                <input id="api-enabled" name="api.enabled" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.api?.enabled ? 'checked' : '' %> value="true">
+                <label for="api-enabled" class="ml-2 block text-sm text-gray-900">Permitir acceso a la API REST</label>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">Habilitar endpoints REST para integración de terceros.</p>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Límite de peticiones (rate limit)</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="number" name="api.rateLimit" id="api.rateLimit" value="<%= config.api?.rateLimit || 100 %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+              <p class="mt-1 text-sm text-gray-500">Peticiones por minuto por IP.</p>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">API Key secreta</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="flex">
+                <input type="text" name="api.secretKey" id="api.secretKey" value="<%= config.api?.secretKey || '' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md" readonly>
+                <button type="button" class="ml-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Regenerar
+                </button>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">API key para autenticación.</p>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Webhooks habilitados</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="flex items-center">
+                <input id="webhooks-enabled" name="api.webhooks.enabled" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= config.api?.webhooks?.enabled ? 'checked' : '' %> value="true">
+                <label for="webhooks-enabled" class="ml-2 block text-sm text-gray-900">Permitir webhooks</label>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">Habilitar webhooks para notificaciones de eventos.</p>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Database Config -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+      <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Configuración de Base de Datos</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Configuración de conexión a MongoDB.</p>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl class="sm:divide-y sm:divide-gray-200">
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">URL de conexión</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="text" name="database.uri" id="database.uri" value="<%= config.database?.uri || 'mongodb://localhost:27017/discordbot' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md">
+              <p class="mt-1 text-sm text-gray-500">URL de conexión a MongoDB.</p>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Nombre de base de datos</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input type="text" name="database.name" id="database.name" value="<%= config.database?.name || 'discordbot' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Intervalo de respaldo</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <select id="database.backupInterval" name="database.backupInterval" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md">
+                <option value="disabled" <%= config.database?.backupInterval === 'disabled' ? 'selected' : '' %>>Desactivado</option>
+                <option value="daily" <%= config.database?.backupInterval === 'daily' ? 'selected' : '' %>>Diario</option>
+                <option value="weekly" <%= config.database?.backupInterval === 'weekly' ? 'selected' : '' %>>Semanal</option>
+                <option value="monthly" <%= config.database?.backupInterval === 'monthly' ? 'selected' : '' %>>Mensual</option>
+              </select>
+              <p class="mt-1 text-sm text-gray-500">Frecuencia de respaldos automáticos.</p>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="flex justify-end mt-6 space-x-3">
+      <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Cancelar
+      </button>
+      <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        Guardar cambios
+      </button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

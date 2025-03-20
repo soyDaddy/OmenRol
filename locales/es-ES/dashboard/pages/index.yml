@@ -1,0 +1,12 @@
+hero:
+  title: "OmenRol"
+  description: "Diversión, roles y personalización para tu servidor de Discord."
+  subdescription: "Crea aventuras épicas junto a tus amigos."
+  inviteButton: "Añadir a Discord"
+  supportButton: "Soporte"
+stats:
+  servers: "Servidores"
+  users: "Usuarios"
+  commands: "Comandos"
+  uptime: "Tiempo activo"
+  hours: "horas"

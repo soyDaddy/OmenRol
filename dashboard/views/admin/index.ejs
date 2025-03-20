@@ -1,0 +1,265 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Panel de Administración</h1>
+      <p class="text-gray-500">Gestión y estadísticas del sistema</p>
+    </div>
+  </div>
+  
+  <!-- Estadísticas generales -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Estadísticas generales</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-indigo-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-users text-indigo-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Usuarios registrados</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= userCount.toLocaleString() %></dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-green-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-server text-green-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Servidores</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= serverCount.toLocaleString() %></dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-yellow-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-id-card text-yellow-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Perfiles</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= profileCount.toLocaleString() %></dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-red-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-terminal text-red-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Comandos</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= botStats.commands.toLocaleString() %></dd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Estadísticas del bot -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Estadísticas del Bot</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-server text-purple-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Servidores conectados</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= botStats.servers.toLocaleString() %></dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-blue-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-users text-blue-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Usuarios en servidores</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= botStats.users.toLocaleString() %></dd>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6 flex items-center">
+          <div class="flex-shrink-0 h-12 w-12 bg-green-100 rounded-md flex items-center justify-center">
+            <i class="fas fa-clock text-green-600 text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <dt class="text-sm font-medium text-gray-500 truncate">Tiempo de actividad</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600"><%= botStats.uptime %> horas</dd>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Secciones de administración -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Administración</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="/admin/users" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-indigo-100 rounded-md flex items-center justify-center">
+              <i class="fas fa-users text-indigo-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Gestión de Usuarios</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Ver y administrar usuarios registrados
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="/admin/servers" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-purple-100 rounded-md flex items-center justify-center">
+              <i class="fas fa-server text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Gestión de Servidores</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Administrar servidores registrados
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="/admin/settings" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-green-100 rounded-md flex items-center justify-center">
+              <i class="fas fa-cog text-green-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Configuración Global</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Configurar parámetros del sistema
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="/admin/logs" class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
+        <div class="p-6">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12 bg-red-100 rounded-md flex items-center justify-center">
+              <i class="fas fa-list-alt text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Logs del Sistema</h3>
+              <p class="mt-1 text-sm text-gray-500">
+                Ver registros de actividad del sistema
+              </p>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Usuarios recientes -->
+  <div class="mb-8">
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Usuarios recientes</h2>
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+      <ul class="divide-y divide-gray-200">
+        <% recentUsers.forEach(user => { %>
+          <li>
+            <a href="/admin/users/<%= user._id %>" class="block hover:bg-gray-50">
+              <div class="flex items-center px-4 py-4 sm:px-6">
+                <div class="min-w-0 flex-1 flex items-center">
+                  <div class="flex-shrink-0">
+                    <% if (user.avatar) { %>
+                      <img class="h-12 w-12 rounded-full" src="<%= user.avatar ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png` : '/assets/img/default-avatar.png' %>" alt="">
+                    <% } else { %>
+                      <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <span class="text-indigo-800 font-bold text-xl"><%= user.username ? user.username.charAt(0).toUpperCase() : '?' %></span>
+                      </div>
+                    <% } %>
+                  </div>
+                  <div class="min-w-0 flex-1 px-4">
+                    <div>
+                      <p class="text-sm font-medium text-indigo-600 truncate"><%= user.username %></p>
+                      <p class="mt-1 flex items-center text-sm text-gray-500">
+                        <i class="fas fa-envelope flex-shrink-0 mr-1.5 text-gray-400"></i>
+                        <span class="truncate"><%= user.email || 'Sin correo' %></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Registrado: <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        <% }); %>
+      </ul>
+      <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+        <a href="/admin/users" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Ver todos los usuarios
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Servidores recientes -->
+  <div>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Servidores recientes</h2>
+    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+      <ul class="divide-y divide-gray-200">
+        <% recentServers.forEach(server => { %>
+          <li>
+            <a href="/admin/servers/<%= server._id %>" class="block hover:bg-gray-50">
+              <div class="flex items-center px-4 py-4 sm:px-6">
+                <div class="min-w-0 flex-1 flex items-center">
+                  <div class="flex-shrink-0">
+                    <% if (server.icon) { %>
+                      <img class="h-12 w-12 rounded-full" src="<%= server.icon %>" alt="">
+                    <% } else { %>
+                      <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                        <span class="text-indigo-800 font-bold text-xl"><%= server.name ? server.name.charAt(0).toUpperCase() : '?' %></span>
+                      </div>
+                    <% } %>
+                  </div>
+                  <div class="min-w-0 flex-1 px-4">
+                    <div>
+                      <p class="text-sm font-medium text-indigo-600 truncate"><%= server.name %></p>
+                      <p class="mt-1 flex items-center text-sm text-gray-500">
+                        <i class="fas fa-fingerprint flex-shrink-0 mr-1.5 text-gray-400"></i>
+                        <span class="truncate"><%= server.serverId %></span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Añadido: <%= new Date(server.createdAt).toLocaleDateString() %></p>
+                  <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+              </div>
+            </a>
+          </li>
+        <% }); %>
+      </ul>
+      <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+        <a href="/admin/servers" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          Ver todos los servidores
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

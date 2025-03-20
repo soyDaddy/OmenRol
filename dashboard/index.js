@@ -8,8 +8,10 @@ const methodOverride = require('method-override');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config = require('./config');
+const axios = require('axios');
 const mainConfig = require('../config');
 const User = require('../models/User');
+const Updates = require('../models/Updates');
 
 // Iniciar la conexión a MongoDB si no existe
 if (!mongoose.connection.readyState) {
@@ -61,6 +63,7 @@ passport.use(new DiscordStrategy({
 
     const currentUser = {
       ...profile,
+      admin: process.env.ADMIN_USERS.includes(profile.id) || false,
       createdAt: user.createdAt,
       lastLogin: Date.now()
     }
@@ -103,12 +106,29 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Middleware para pasar variables a todas las vistas
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
+  let user = null
+  if (req.user) {
+    const userResponse = await axios.get('https://discord.com/api/users/@me', {
+      headers: {
+        Authorization: `Bearer ${req.user.accessToken}`,
+      },
+    });
+  
+    user = userResponse.data;
+  }
+  const updatesData = await Updates.find().sort({ date: -1 });
   res.locals.user = req.user;
   res.locals.config = config;
   res.locals.currentPath = req.path;
+  req.t = (key) => i18n.getMessage(user ? user.locale : 'en-US', `dashboard.${key}`);
+  res.locals.updates = updatesData;
   res.locals.success = req.flash ? req.flash('success') : null;
   res.locals.error = req.flash ? req.flash('error') : null;
+  if (req.query.lang) {
+    const url = req.url.replace(/(\?|&)lang=[^&]+/, '');
+    return res.redirect(url);
+  }
   next();
 });
 
@@ -134,7 +154,7 @@ const isGuildAdmin = async (req, res, next) => {
   if (userGuild && (
     (userGuild.permissions & 0x8) === 0x8 || // Permisos de administrador
     userGuild.owner || // Es propietario
-    mainConfig.dashboard.adminUsers.includes(req.user.id) // Es admin global
+    process.env.ADMIN_USERS.includes(req.user.id) // Es admin global
   )) {
     return next();
   }
@@ -149,7 +169,7 @@ const isGuildAdmin = async (req, res, next) => {
 
 // Middleware para verificar si el usuario es administrador global
 const isGlobalAdmin = (req, res, next) => {
-  if (req.user && mainConfig.dashboard.adminUsers.includes(req.user.id)) {
+  if (req.user && process.env.ADMIN_USERS.includes(req.user.id)) {
     return next();
   }
   

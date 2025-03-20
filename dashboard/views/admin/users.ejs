@@ -1,0 +1,188 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+      <p class="text-gray-500">Administración de usuarios registrados</p>
+    </div>
+    
+    <div class="mt-4 md:mt-0">
+      <a href="/admin" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Volver al panel
+      </a>
+    </div>
+  </div>
+  
+  <!-- Búsqueda y filtros -->
+  <div class="bg-white shadow rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+      <form action="/admin/users" method="GET" class="space-y-4 sm:space-y-0 sm:flex sm:items-end sm:space-x-4">
+        <div class="flex-grow">
+          <label for="search" class="block text-sm font-medium text-gray-700">Buscar usuarios</label>
+          <div class="mt-1 relative rounded-md shadow-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-search text-gray-400"></i>
+            </div>
+            <input type="text" name="search" id="search" value="<%= search %>" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Buscar por nombre, ID o email">
+          </div>
+        </div>
+        <div>
+          <label for="limit" class="block text-sm font-medium text-gray-700">Resultados por página</label>
+          <select id="limit" name="limit" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="10" <%= req.query.limit == 10 ? 'selected' : '' %>>10</option>
+            <option value="20" <%= req.query.limit == 20 || !req.query.limit ? 'selected' : '' %>>20</option>
+            <option value="50" <%= req.query.limit == 50 ? 'selected' : '' %>>50</option>
+            <option value="100" <%= req.query.limit == 100 ? 'selected' : '' %>>100</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Filtrar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Lista de usuarios -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <div class="bg-white px-4 py-3 flex items-center justify-between border-b border-gray-200 sm:px-6">
+      <div class="flex-1 flex justify-between sm:hidden">
+        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white">
+          Total: <%= totalUsers %> usuarios
+        </span>
+      </div>
+      <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm text-gray-700">
+            Mostrando <span class="font-medium"><%= (currentPage - 1) * (parseInt(req.query.limit) || 20) + 1 %></span> a <span class="font-medium"><%= Math.min(currentPage * (parseInt(req.query.limit) || 20), totalUsers) %></span> de <span class="font-medium"><%= totalUsers %></span> usuarios
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <ul class="divide-y divide-gray-200">
+      <% users.forEach(user => { %>
+        <li>
+          <a href="/admin/users/<%= user._id %>" class="block hover:bg-gray-50">
+            <div class="flex items-center px-4 py-4 sm:px-6">
+              <div class="min-w-0 flex-1 flex items-center">
+                <div class="flex-shrink-0">
+                  <% if (user.avatar) { %>
+                    <img class="h-12 w-12 rounded-full" src="<%= user.avatar ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png` : '/img/empty-servers.svg' %>" alt="">
+                  <% } else { %>
+                    <div class="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center">
+                      <span class="text-indigo-800 font-bold text-xl"><%= user.username ? user.username.charAt(0).toUpperCase() : '?' %></span>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="min-w-0 flex-1 px-4">
+                  <div>
+                    <p class="text-sm font-medium text-indigo-600 truncate"><%= user.username %></p>
+                    <p class="mt-1 flex items-center text-sm text-gray-500">
+                      <i class="fas fa-envelope flex-shrink-0 mr-1.5 text-gray-400"></i>
+                      <span class="truncate"><%= user.email || 'Sin correo' %></span>
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <div class="ml-2 flex-shrink-0 flex">
+                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= user.isAdmin ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+                      <%= user.isAdmin ? 'Admin' : 'Usuario' %>
+                    </p>
+                  </div>
+                  <p class="text-sm text-gray-500 mt-1">ID: <%= user.id %></p>
+                </div>
+              </div>
+              <div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+              </div>
+            </div>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+    
+    <!-- Paginación -->
+    <% if (totalPages > 1) { %>
+      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+          <% if (currentPage > 1) { %>
+            <a href="/admin/users?page=<%= currentPage - 1 %>&limit=<%= req.query.limit || 20 %>&search=<%= search %>" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              Anterior
+            </a>
+          <% } else { %>
+            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-gray-50 cursor-not-allowed">
+              Anterior
+            </span>
+          <% } %>
+          
+          <% if (currentPage < totalPages) { %>
+            <a href="/admin/users?page=<%= currentPage + 1 %>&limit=<%= req.query.limit || 20 %>&search=<%= search %>" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+              Siguiente
+            </a>
+          <% } else { %>
+            <span class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-300 bg-gray-50 cursor-not-allowed">
+              Siguiente
+            </span>
+          <% } %>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Mostrando <span class="font-medium"><%= (currentPage - 1) * (parseInt(req.query.limit) || 20) + 1 %></span> a <span class="font-medium"><%= Math.min(currentPage * (parseInt(req.query.limit) || 20), totalUsers) %></span> de <span class="font-medium"><%= totalUsers %></span> resultados
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <% if (currentPage > 1) { %>
+                <a href="/admin/users?page=<%= currentPage - 1 %>&limit=<%= req.query.limit || 20 %>&search=<%= search %>" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <span class="sr-only">Anterior</span>
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              <% } else { %>
+                <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-300 cursor-not-allowed">
+                  <span class="sr-only">Anterior</span>
+                  <i class="fas fa-chevron-left"></i>
+                </span>
+              <% } %>
+              
+              <% 
+              let startPage = Math.max(1, currentPage - 2);
+              let endPage = Math.min(totalPages, startPage + 4);
+              if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+              
+              for (let i = startPage; i <= endPage; i++) { %>
+                <% if (i === currentPage) { %>
+                  <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600 z-10">
+                    <%= i %>
+                  </span>
+                <% } else { %>
+                  <a href="/admin/users?page=<%= i %>&limit=<%= req.query.limit || 20 %>&search=<%= search %>" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <%= i %>
+                  </a>
+                <% } %>
+              <% } %>
+              
+              <% if (currentPage < totalPages) { %>
+                <a href="/admin/users?page=<%= currentPage + 1 %>&limit=<%= req.query.limit || 20 %>&search=<%= search %>" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                  <span class="sr-only">Siguiente</span>
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              <% } else { %>
+                <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-300 cursor-not-allowed">
+                  <span class="sr-only">Siguiente</span>
+                  <i class="fas fa-chevron-right"></i>
+                </span>
+              <% } %>
+            </nav>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

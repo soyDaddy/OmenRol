@@ -12,12 +12,17 @@ router.get('/', (req, res) => {
     uptime: botClient ? (botClient.uptime / 1000 / 60 / 60).toFixed(2) : 0,
     comandos: botClient ? botClient.commands.size + botClient.slashCommands.size : 0
   };
-  
+
+  // Obtener las traducciones usando req.t
+  const t = req.t;
+
   res.render('index', {
-    title: 'Inicio',
+    title: t('pages.index.title'), // Sin necesidad de "dashboard."
     req,
+    updates: res.locals.updates,
     botStats,
-    inviteUrl: config.discord.inviteURL(config.clientId, config.permissions)
+    inviteUrl: config.discord.inviteURL(config.clientId, config.permissions),
+    t // Pasar la función de traducción a la vista
   });
 });
 

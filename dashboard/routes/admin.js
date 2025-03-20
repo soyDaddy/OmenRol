@@ -104,16 +104,17 @@ router.get('/users/:userId', async (req, res) => {
     }
     
     // Obtener los perfiles del usuario
-    const profiles = await Profile.find({ userId: user.id });
+    const profiles = await Profile.find({ userId: user.discordId });
     
     // Enriquecer los perfiles con información de los servidores
     const enrichedProfiles = await Promise.all(profiles.map(async profile => {
       const server = await Server.findOne({ serverId: profile.serverId });
       
       return {
-        ...profile.toObject(),
+        ...profile,
         server: server ? {
           name: server.name,
+          serverId: server.serverId,
           icon: server.icon
         } : {
           name: 'Servidor desconocido',

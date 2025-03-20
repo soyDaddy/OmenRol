@@ -101,16 +101,48 @@ window.addEventListener('resize', setupResponsiveLayout);
 
 // Función para cambiar de tema
 function changeTheme(theme) {
-const themeLink = document.getElementById('theme-css');
-if (themeLink) {
-themeLink.href = `/css/themes/${theme}.css`;
+  const themeLink = document.getElementById('theme-css');
+  if (themeLink) {
+  themeLink.href = `/css/themes/${theme}.css`;
+  }
+
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+
+  // Evento personalizado para notificar el cambio de tema
+  document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: theme } }));
+
+  if (window.location.pathname === '/') {
+    reloadIndex();
+  }
 }
 
-document.documentElement.setAttribute('data-theme', theme);
-localStorage.setItem('theme', theme);
+function reloadIndex() {
+  setTimeout(() => {
+    const elementWithClass = document.querySelector('.bg-white');
 
-// Evento personalizado para notificar el cambio de tema
-document.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: theme } }));
+    if (elementWithClass) {
+      const bgColor = window.getComputedStyle(elementWithClass).backgroundColor;
+
+      function rgbStringToHex(rgbString) {
+        const [r, g, b] = rgbString.match(/\d+/g).map(Number);
+        return rgbToHex(r, g, b);
+      }
+
+      function rgbToHex(r, g, b) {
+        return "#" + [r, g, b]
+          .map(x => x.toString(16).padStart(2, "0"))
+          .join("");
+      }
+
+      console.log("Final Background Color:", rgbStringToHex(bgColor));
+
+      const wavePath = document.getElementById('wave-path');
+      if (wavePath) {
+        wavePath.setAttribute('fill', rgbStringToHex(bgColor));
+      }
+    }
+  }, 50); 
 }
 
 // Inicializar al cargar la página
@@ -144,6 +176,6 @@ transform: translateX(0);
 }
 }
 </style>
-
+</div>
 </body>
 </html>

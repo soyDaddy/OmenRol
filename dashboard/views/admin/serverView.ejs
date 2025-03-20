@@ -1,0 +1,212 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center">
+        <% if (server.icon) { %>
+          <img class="h-16 w-16 rounded-full" src="<%= server.icon %>" alt="<%= server.name %>">
+        <% } else { %>
+          <div class="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center">
+            <span class="text-indigo-800 font-bold text-2xl"><%= server.name.charAt(0).toUpperCase() %></span>
+          </div>
+        <% } %>
+        <div class="ml-4">
+          <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl"><%= server.name %></h1>
+          <p class="text-sm text-gray-500">ID: <%= server.serverId %></p>
+          <div class="mt-1 flex items-center">
+            <% if (isActive) { %>
+              <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                <i class="fas fa-check-circle mr-1"></i> Bot activo
+              </span>
+            <% } else { %>
+              <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                <i class="fas fa-times-circle mr-1"></i> Bot inactivo
+              </span>
+            <% } %>
+            <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+              <i class="fas fa-id-card mr-1"></i> <%= profileCount %> perfiles
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+      <a href="#" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+        <i class="fas fa-ban mr-2"></i>
+        Revocar acceso
+      </a>
+    </div>
+  </div>
+
+  <!-- Información del servidor -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Información del servidor</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Detalles y configuración del servidor.</p>
+    </div>
+    <div class="border-t border-gray-200">
+      <dl>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Nombre</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= server.name %></dd>
+        </div>
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">ID del servidor</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= server.serverId %></dd>
+        </div>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Fecha de registro</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= new Date(server.createdAt).toLocaleString() %></dd>
+        </div>
+        <% if (guildInfo) { %>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Miembros</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= guildInfo.memberCount %></dd>
+          </div>
+          <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Canales</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= guildInfo.channels %></dd>
+          </div>
+          <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Roles</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= guildInfo.roles %></dd>
+          </div>
+        <% } %>
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Prefijo personalizado</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <% if (server.prefix) { %>
+              <%= server.prefix %>
+            <% } else { %>
+              <span class="text-gray-500">Prefijo por defecto</span>
+            <% } %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Configuración del servidor -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Configuración del servidor</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Opciones y preferencias configuradas.</p>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+      <dl class="sm:divide-y sm:divide-gray-200">
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Nivel de logs</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <div class="relative">
+              <select id="logLevel" name="logLevel" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <option <%= server.logLevel === 'none' ? 'selected' : '' %> value="none">Ninguno</option>
+                <option <%= server.logLevel === 'basic' ? 'selected' : '' %> value="basic">Básico</option>
+                <option <%= server.logLevel === 'verbose' ? 'selected' : '' %> value="verbose">Detallado</option>
+              </select>
+            </div>
+          </dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Canal de logs</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <input type="text" name="logChannel" id="logChannel" value="<%= server.logChannel || '' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md" placeholder="ID del canal">
+          </dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Prefijo personalizado</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <input type="text" name="prefix" id="prefix" value="<%= server.prefix || '' %>" class="max-w-lg block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:max-w-xs sm:text-sm border-gray-300 rounded-md" placeholder="Prefijo personalizado">
+          </dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Módulos activos</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <div class="space-y-2">
+              <div class="flex items-center">
+                <input id="module-welcome" name="modules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= server.modules && server.modules.includes('welcome') ? 'checked' : '' %> value="welcome">
+                <label for="module-welcome" class="ml-2 block text-sm text-gray-900">Mensajes de bienvenida</label>
+              </div>
+              <div class="flex items-center">
+                <input id="module-moderation" name="modules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= server.modules && server.modules.includes('moderation') ? 'checked' : '' %> value="moderation">
+                <label for="module-moderation" class="ml-2 block text-sm text-gray-900">Moderación</label>
+              </div>
+              <div class="flex items-center">
+                <input id="module-economy" name="modules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= server.modules && server.modules.includes('economy') ? 'checked' : '' %> value="economy">
+                <label for="module-economy" class="ml-2 block text-sm text-gray-900">Economía</label>
+              </div>
+              <div class="flex items-center">
+                <input id="module-leveling" name="modules" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" <%= server.modules && server.modules.includes('leveling') ? 'checked' : '' %> value="leveling">
+                <label for="module-leveling" class="ml-2 block text-sm text-gray-900">Sistema de niveles</label>
+              </div>
+            </div>
+          </dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Acciones</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              <i class="fas fa-save mr-2"></i> Guardar cambios
+            </button>
+            <button type="button" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+              <i class="fas fa-sync mr-2"></i> Sincronizar con Discord
+            </button>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Perfiles de usuario en este servidor -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50 flex justify-between items-center">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Perfiles de usuario</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Usuarios registrados en este servidor.</p>
+      </div>
+      <div>
+        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+          Total: <%= profileCount %>
+        </span>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <% if (profiles && profiles.length > 0) { %>
+        <ul class="divide-y divide-gray-200">
+          <% profiles.forEach(profile => { %>
+            <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+              <div class="w-0 flex-1 flex items-center">
+                <span class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                  <i class="fas fa-user-circle text-gray-500 text-xl"></i>
+                </span>
+                <span class="ml-2 flex-1 w-0 truncate">
+                  <div class="font-medium text-indigo-600"><%= profile.username || 'Usuario sin nombre' %></div>
+                  <div class="text-gray-500">ID: <%= profile.userId %></div>
+                </span>
+              </div>
+              <div class="ml-4 flex-shrink-0">
+                <a href="/admin/users/<%= profile.userId %>" class="font-medium text-indigo-600 hover:text-indigo-500">
+                  Ver perfil
+                </a>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+      <% } else { %>
+        <div class="text-center py-6">
+          <i class="fas fa-users text-gray-300 text-4xl mb-2"></i>
+          <p class="text-gray-500">No hay perfiles de usuario registrados en este servidor.</p>
+        </div>
+      <% } %>
+      <% if (profiles && profiles.length > 0 && profiles.length > 10) { %>
+        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+          <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            Ver todos los perfiles
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

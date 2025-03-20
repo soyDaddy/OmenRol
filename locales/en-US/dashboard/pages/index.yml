@@ -1,0 +1,14 @@
+
+title: "Home"
+hero:
+  title: "OmenRol"
+  description: "Fun, roles, and customization for your Discord server."
+  subdescription: "Create epic adventures with your friends."
+  inviteButton: "Add to Discord"
+  supportButton: "Support"
+stats:
+  servers: "Servers"
+  users: "Users"
+  commands: "Commands"
+  uptime: "Uptime"
+  hours: "hours"

@@ -1,0 +1,198 @@
+<%- include('../partials/header') %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Detalles de Usuario</h1>
+      <p class="text-gray-500">Información detallada del usuario</p>
+    </div>
+    
+    <div class="mt-4 md:mt-0">
+      <a href="/admin/users" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Volver a usuarios
+      </a>
+    </div>
+  </div>
+  
+  <!-- Información del usuario -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
+    <div class="px-4 py-5 sm:px-6 flex items-center justify-between">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Información de perfil</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Datos personales y de cuenta</p>
+      </div>
+      <div class="flex items-center">
+        <!-- Botones de acción -->
+        <button class="mr-3 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <i class="fas fa-edit mr-1"></i> Editar
+        </button>
+        <button class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded bg-red-100 text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+          <i class="fas fa-ban mr-1"></i> Suspender
+        </button>
+      </div>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 px-4 py-5 sm:p-6">
+        <div class="col-span-1 flex flex-col items-center">
+          <div class="mb-4">
+            <% if (user.avatar) { %>
+              <img class="h-32 w-32 rounded-full" src="<%= user.avatar ? `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png` : '/img/empty-servers.svg' %>" alt="Avatar del usuario">
+            <% } else { %>
+              <div class="h-32 w-32 rounded-full bg-indigo-100 flex items-center justify-center">
+                <span class="text-indigo-800 font-bold text-4xl"><%= user.username ? user.username.charAt(0).toUpperCase() : '?' %></span>
+              </div>
+            <% } %>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900"><%= user.username %></h3>
+          <p class="text-sm text-gray-500 text-center"><%= user.isAdmin ? 'Administrador del sistema' : 'Usuario estándar' %></p>
+          
+          <div class="mt-4 w-full bg-gray-50 rounded-lg p-3">
+            <h4 class="text-sm font-medium text-gray-900 mb-2">Estado de cuenta</h4>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm text-gray-500">Estado:</span>
+              <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                Activo
+              </span>
+            </div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm text-gray-500">Verificado:</span>
+              <span><%= user.emailVerified ? 'Sí' : 'No' %></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-500">Miembro desde:</span>
+              <span><%= new Date(user.createdAt).toLocaleDateString() %></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-span-2">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Información de contacto -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">Información de contacto</h4>
+              <dl>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Nombre completo</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.fullName || 'No especificado' %></dd>
+                </div>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Email</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.email || 'No especificado' %></dd>
+                </div>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Discord ID</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.discordId %></dd>
+                </div>
+              </dl>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">Estadísticas</h4>
+              <dl>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Servidores</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= profiles.length %></dd>
+                </div>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Último acceso</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Nunca' %></dd>
+                </div>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">IP</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.lastIP || 'No disponible' %></dd>
+                </div>
+              </dl>
+            </div>
+            
+            <!-- Preferencias -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">Preferencias</h4>
+              <dl>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Idioma</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.language || 'Español (por defecto)' %></dd>
+                </div>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Tema</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.theme || 'Claro (por defecto)' %></dd>
+                </div>
+                <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4">
+                  <dt class="text-sm font-medium text-gray-500">Notificaciones</dt>
+                  <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= user.notifications ? 'Activadas' : 'Desactivadas' %></dd>
+                </div>
+              </dl>
+            </div>
+            
+            <!-- Notas -->
+            <div class="bg-gray-50 rounded-lg p-4">
+              <h4 class="text-sm font-medium text-gray-900 mb-3">Notas administrativas</h4>
+              <div class="py-2">
+                <textarea class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" rows="3" placeholder="Añadir notas sobre este usuario..."><%= user.adminNotes || '' %></textarea>
+              </div>
+              <div class="py-2 text-right">
+                <button class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                  Guardar notas
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Perfiles del usuario -->
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Perfiles en servidores</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Servidores donde el usuario tiene un perfil</p>
+    </div>
+    
+    <% if (profiles.length > 0) { %>
+      <ul class="divide-y divide-gray-200">
+        <% profiles.forEach(profile => { %>
+          <li class="hover:bg-gray-50">
+            <div class="flex items-center px-4 py-4 sm:px-6">
+              <div class="min-w-0 flex-1 flex items-center">
+                <div class="flex-shrink-0">
+                  <% if (profile._doc.character && profile._doc.character.avatar) { %>
+                    <img class="h-12 w-12 rounded-full" src="<%= profile._doc.character?.avatar %>" alt="">
+                  <% } else { %>
+                    <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                      <span class="text-purple-800 font-bold text-xl"><%= profile._doc.character ? profile._doc.character.name.charAt(0).toUpperCase() : '?' %></span>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="min-w-0 flex-1 px-4">
+                  <div>
+                    <p class="text-sm font-medium text-indigo-600 truncate"><%= profile._doc.character ? profile._doc.character.name : 'Perfil desconocido' %></p>
+                    <p class="mt-1 flex items-center text-sm text-gray-500">
+                      <i class="fas fa-fingerprint flex-shrink-0 mr-1.5 text-gray-400"></i>
+                      <span class="truncate"><%= profile.server?.name || 'Servidor desconocido' %></span>
+                    </p>
+                  </div>
+                </div>
+                <div class="ml-2 flex-shrink-0 flex">
+                  <p class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    Nivel <%= profile._doc.character.level || 1 %>
+                  </p>
+                </div>
+              </div>
+              <div class="ml-5 flex-shrink-0">
+                <a href="/admin/servers/<%= profile.server.serverId %>" class="text-indigo-600 hover:text-indigo-900">Ver servidor</a>
+              </div>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <div class="px-4 py-5 sm:px-6 text-center">
+        <p class="text-gray-500">Este usuario no tiene perfiles en ningún servidor.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
